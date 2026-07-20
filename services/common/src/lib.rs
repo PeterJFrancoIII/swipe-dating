@@ -59,6 +59,57 @@ pub fn health_router() -> Router {
     )
 }
 
+/// Resolve listen address from `BIND` or `PORT` env, else `127.0.0.1:{default_port}`.
+pub fn listen_addr(default_port: u16) -> String {
+    if let Ok(bind) = std::env::var("BIND") {
+        if !bind.is_empty() {
+            return bind;
+        }
+    }
+    if let Ok(port) = std::env::var("PORT") {
+        if !port.is_empty() {
+            return format!("127.0.0.1:{port}");
+        }
+    }
+    format!("127.0.0.1:{default_port}")
+}
+
+#[cfg(test)]
+mod listen_addr_tests {
+    use super::listen_addr;
+    use std::sync::{Mutex, OnceLock};
+
+    fn env_lock() -> &'static Mutex<()> {
+        static LOCK: OnceLock<Mutex<()>> = OnceLock::new();
+        LOCK.get_or_init(|| Mutex::new(()))
+    }
+
+    #[test]
+    fn listen_addr_defaults() {
+        let _guard = env_lock().lock().unwrap();
+        std::env::remove_var("BIND");
+        std::env::remove_var("PORT");
+        assert_eq!(listen_addr(8080), "127.0.0.1:8080");
+    }
+
+    #[test]
+    fn listen_addr_from_port_env() {
+        let _guard = env_lock().lock().unwrap();
+        std::env::remove_var("BIND");
+        std::env::set_var("PORT", "9090");
+        assert_eq!(listen_addr(8080), "127.0.0.1:9090");
+        std::env::remove_var("PORT");
+    }
+
+    #[test]
+    fn listen_addr_from_bind_env() {
+        let _guard = env_lock().lock().unwrap();
+        std::env::set_var("BIND", "0.0.0.0:3000");
+        assert_eq!(listen_addr(8080), "0.0.0.0:3000");
+        std::env::remove_var("BIND");
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

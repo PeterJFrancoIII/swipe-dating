@@ -46,4 +46,6 @@ dependencies {
     implementation("androidx.compose.material3:material3")
     implementation("androidx.compose.ui:ui-tooling-preview")
     debugImplementation("androidx.compose.ui:ui-tooling")
+    // UniFFI-generated Kotlin bindings (JNA; native lib optional at runtime)
+    implementation("net.java.dev.jna:jna:5.14.0@aar")
 }

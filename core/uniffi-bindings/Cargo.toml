@@ -1,0 +1,29 @@
+[package]
+name = "dating-uniffi-bindings"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[lib]
+crate-type = ["lib", "cdylib", "staticlib"]
+name = "dating_uniffi_bindings"
+
+[dependencies]
+chrono = { workspace = true }
+dating-identity = { path = "../identity" }
+dating-matching = { path = "../matching" }
+dating-protocol = { path = "../protocol" }
+dating-test-support = { path = "../test-support" }
+dating-transport-api = { path = "../transport-api" }
+hex = { workspace = true }
+rand_core = { workspace = true, features = ["getrandom"] }
+thiserror = { workspace = true }
+uniffi = { workspace = true }
+
+[dev-dependencies]
+dating-crypto = { path = "../crypto" }
+
+[[bin]]
+name = "uniffi-bindgen"
+path = "src/bin/uniffi-bindgen.rs"

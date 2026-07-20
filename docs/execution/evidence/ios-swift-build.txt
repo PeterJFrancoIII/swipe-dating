@@ -1,0 +1,8 @@
+[0/1] Planning build
+Building for debugging...
+[0/2] Write sources
+[1/2] Write swift-version--58304C5D6DBC2206.txt
+[3/4] Emitting module SwipeDatingIOS
+[4/4] Compiling SwipeDatingIOS AgeGateView.swift
+[5/5] Compiling SwipeDatingIOS StagingRootView.swift
+Build complete! (0.50s)

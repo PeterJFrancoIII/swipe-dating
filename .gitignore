@@ -50,3 +50,9 @@ infra/local/data/
 # SBOM / audit scratch
 /sbom/
 /reports/
+*.cdx.json
+**/local.properties
+.toolchains/
+apps/android/**/build/
+sbom/
+apps/ios/.build/

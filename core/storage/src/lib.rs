@@ -1,5 +1,16 @@
 //! In-memory local storage trait and implementation.
 
+mod crypto;
+mod key_provider;
+mod sqlite_encrypted;
+
+pub use crypto::{decrypt_record, encrypt_record, CryptoError};
+pub use key_provider::{
+    InsecureDevKeyProvider, KeyProvider, KeyProviderError, SoftwareKeyProvider, StorageKey,
+    STORAGE_KEY_LEN,
+};
+pub use sqlite_encrypted::{SqliteEncryptedStore, SqliteStoreError};
+
 use dating_identity::RootIdentity;
 use dating_protocol::{BlockRecord, MatchReceipt, ProfileCapsule};
 use serde::{Deserialize, Serialize};
@@ -45,6 +56,18 @@ pub trait LocalStore {
     fn settings_mut(&mut self) -> &mut AppSettings;
 }
 
+#[derive(Debug, Default, Serialize, Deserialize)]
+struct MemoryStoreSnapshot {
+    identity_root: Option<RootIdentity>,
+    profile_versions: Vec<(([u8; 32], u32), ProfileCapsule)>,
+    seen_profiles: Vec<[u8; 32]>,
+    outgoing_likes: Vec<[u8; 32]>,
+    match_receipts: Vec<MatchReceipt>,
+    messages: Vec<([u8; 32], Vec<Vec<u8>>)>,
+    blocks: Vec<BlockRecord>,
+    settings: AppSettings,
+}
+
 #[derive(Debug, Default)]
 pub struct MemoryStore {
     identity_root: Option<RootIdentity>,
@@ -55,6 +78,45 @@ pub struct MemoryStore {
     messages: HashMap<[u8; 32], Vec<Vec<u8>>>,
     blocks: Vec<BlockRecord>,
     settings: AppSettings,
+}
+
+impl MemoryStore {
+    pub(crate) fn to_snapshot_bytes(&self) -> Result<Vec<u8>, serde_json::Error> {
+        let snapshot = MemoryStoreSnapshot {
+            identity_root: self.identity_root.as_ref().and_then(clone_identity),
+            profile_versions: self
+                .profile_versions
+                .iter()
+                .map(|(k, v)| (*k, v.clone()))
+                .collect(),
+            seen_profiles: self.seen_profiles.clone(),
+            outgoing_likes: self.outgoing_likes.clone(),
+            match_receipts: self.match_receipts.clone(),
+            messages: self.messages.iter().map(|(k, v)| (*k, v.clone())).collect(),
+            blocks: self.blocks.clone(),
+            settings: self.settings.clone(),
+        };
+        serde_json::to_vec(&snapshot)
+    }
+
+    pub(crate) fn from_snapshot(bytes: &[u8]) -> Result<Self, serde_json::Error> {
+        let snapshot: MemoryStoreSnapshot = serde_json::from_slice(bytes)?;
+        Ok(Self {
+            identity_root: snapshot.identity_root,
+            profile_versions: snapshot.profile_versions.into_iter().collect(),
+            seen_profiles: snapshot.seen_profiles,
+            outgoing_likes: snapshot.outgoing_likes,
+            match_receipts: snapshot.match_receipts,
+            messages: snapshot.messages.into_iter().collect(),
+            blocks: snapshot.blocks,
+            settings: snapshot.settings,
+        })
+    }
+}
+
+fn clone_identity(id: &RootIdentity) -> Option<RootIdentity> {
+    let value = serde_json::to_value(id).ok()?;
+    serde_json::from_value(value).ok()
 }
 
 impl LocalStore for MemoryStore {
@@ -150,5 +212,14 @@ mod tests {
         assert!(store.identity_root().is_some());
         store.record_outgoing_like([9; 32]);
         assert_eq!(store.outgoing_likes().len(), 1);
+    }
+
+    #[test]
+    fn snapshot_roundtrip() {
+        let mut store = MemoryStore::default();
+        store.record_outgoing_like([4; 32]);
+        let bytes = store.to_snapshot_bytes().unwrap();
+        let restored = MemoryStore::from_snapshot(&bytes).unwrap();
+        assert_eq!(restored.outgoing_likes().len(), 1);
     }
 }

@@ -278,4 +278,49 @@ mod tests {
             .unwrap();
         assert_eq!(response.status(), StatusCode::OK);
     }
+
+    /// In-process load smoke: N concurrent discovery requests (no Docker).
+    #[tokio::test]
+    async fn concurrent_discovery_load_smoke() {
+        const CONCURRENCY: usize = 32;
+        let state = AppState::new();
+        let app = app(state);
+        let now = AppState::now_unix();
+        let lease = sample_lease(now);
+        let body = serde_json::to_vec(&lease).unwrap();
+
+        let put = app
+            .clone()
+            .oneshot(
+                Request::builder()
+                    .method("PUT")
+                    .uri("/v1/presence")
+                    .header("content-type", "application/json")
+                    .body(Body::from(body))
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(put.status(), StatusCode::NO_CONTENT);
+
+        let mut handles = Vec::with_capacity(CONCURRENCY);
+        for _ in 0..CONCURRENCY {
+            let app = app.clone();
+            handles.push(tokio::spawn(async move {
+                app.oneshot(
+                    Request::builder()
+                        .uri("/v1/discovery?region=us-west-coarse")
+                        .body(Body::empty())
+                        .unwrap(),
+                )
+                .await
+                .unwrap()
+            }));
+        }
+
+        for handle in handles {
+            let response = handle.await.unwrap();
+            assert_eq!(response.status(), StatusCode::OK);
+        }
+    }
 }

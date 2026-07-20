@@ -9,3 +9,6 @@ publish.workspace = true
 serde = { workspace = true }
 thiserror = { workspace = true }
 blake3 = { workspace = true }
+
+[dev-dependencies]
+proptest = { workspace = true }

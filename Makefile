@@ -4,7 +4,7 @@
 SHELL := /bin/bash
 .PHONY: bootstrap doctor format lint test test-unit test-integration test-protocol-vectors \
 	test-mobile test-e2e test-load test-chaos fuzz-smoke security sbom licenses \
-	local-up local-down local-reset-test-data infra-fmt infra-validate infra-plan-staging \
+	local-up local-down local-reset-test-data smoke-local infra-fmt infra-validate infra-plan-staging \
 	deploy-staging smoke-staging release-readiness production-preflight
 
 COMPOSE_FILE := infra/local/compose.yaml
@@ -27,7 +27,14 @@ doctor: ## Report toolchain and environment health
 	@printf "docker:      "; command -v docker >/dev/null && docker --version || echo "MISSING"
 	@printf "docker up:   "; docker info >/dev/null 2>&1 && echo "ok" || echo "daemon not running or unavailable"
 	@printf "terraform:   "; command -v terraform >/dev/null && terraform version -json 2>/dev/null | head -1 || echo "MISSING"
-	@printf "java:        "; command -v java >/dev/null && java -version 2>&1 | head -1 || echo "MISSING (blocks Android)"
+	@printf "java:        "; \
+	if java -version >/dev/null 2>&1; then \
+		java -version 2>&1 | head -1; \
+	elif test -x /usr/libexec/java_home && /usr/libexec/java_home >/dev/null 2>&1; then \
+		echo "installed ($$(/usr/libexec/java_home 2>/dev/null))"; \
+	else \
+		echo "MISSING (blocks Android)"; \
+	fi
 	@printf "compose:     "; test -f $(COMPOSE_FILE) && echo "$(COMPOSE_FILE) present" || echo "MISSING"
 	@printf "staging id:  "; grep -E '^status:' $(STAGING_IDENTITY) 2>/dev/null || echo "file missing"
 	@echo "See docs/execution/phase-scaffold-notes.md for known blockers."
@@ -47,22 +54,10 @@ test-unit:
 	cargo test --workspace
 
 test-integration:
-	@if docker info >/dev/null 2>&1; then \
-		echo "integration: compose stack required — run 'make local-up' first"; \
-		cargo test --workspace -- --ignored 2>/dev/null || \
-		echo "STUB: no #[ignore] integration tests wired yet; see services/rendezvous"; \
-	else \
-		echo "STUB: Docker unavailable — skipping integration tests"; \
-		exit 0; \
-	fi
+	@source "$$HOME/.cargo/env" && cargo test -p control-plane-integration
 
 test-protocol-vectors:
-	@if [ -d core/protocol/tests/vectors ]; then \
-		cargo test -p swipe-protocol -- vectors 2>/dev/null || cargo test -p protocol -- vectors 2>/dev/null || \
-		cargo test --workspace protocol 2>/dev/null; \
-	else \
-		echo "STUB: protocol vector fixtures not yet present under core/protocol/tests/vectors"; \
-	fi
+	@source "$$HOME/.cargo/env" && cargo test -p dating-protocol --test golden_vectors -- --nocapture
 
 test-mobile:
 	@echo "=== iOS (structural) ==="
@@ -79,40 +74,44 @@ test-e2e:
 	@echo "STUB: E2E device-pair smoke not wired in CI yet (requires staging URL + test harness)."
 
 test-load:
-	@echo "STUB: load tests not implemented (k6/locust placeholder for post-staging)."
+	@source "$$HOME/.cargo/env" && cargo test -p dating-rendezvous concurrent_discovery_load_smoke -- --nocapture
 
 test-chaos:
 	@echo "STUB: chaos tests not implemented (requires running staging cluster)."
 
 fuzz-smoke:
-	@if command -v cargo-fuzz >/dev/null 2>&1; then \
-		echo "STUB: cargo-fuzz targets not registered yet"; \
-	else \
-		echo "STUB: cargo-fuzz not installed — optional for protocol parsers"; \
-	fi
+	@source "$$HOME/.cargo/env" && cargo test -p dating-protocol --test cbor_fuzz_smoke cbor_mutation_smoke -- --nocapture
 
 security:
-	@if command -v cargo-audit >/dev/null 2>&1; then cargo audit; else echo "STUB: install cargo-audit for dependency audit"; fi
-	@command -v cargo-deny >/dev/null 2>&1 && cargo deny check || echo "STUB: cargo-deny check skipped (install: cargo install cargo-deny)"
+	@source "$$HOME/.cargo/env" && cargo audit
+	@source "$$HOME/.cargo/env" && cargo deny check
 
 sbom:
-	@if command -v cargo-cyclonedx >/dev/null 2>&1; then \
-		cargo cyclonedx --all-features --format json -o target/sbom.json; \
-	else \
-		echo "STUB: cargo-cyclonedx not installed — SBOM generation skipped"; \
-	fi
+	@mkdir -p sbom
+	@source "$$HOME/.cargo/env" && cargo cyclonedx --all-features --format json --license-accept-named UNLICENSED
+	@find . -name '*.cdx.json' -not -path './sbom/*' -exec mv {} sbom/ \;
+	@test -n "$$(ls -A sbom/*.cdx.json 2>/dev/null)"
 
 licenses:
-	@command -v cargo-deny >/dev/null 2>&1 && cargo deny check licenses || \
-		echo "STUB: license scan requires cargo-deny; see docs/legal/license-decision-required.md"
+	@source "$$HOME/.cargo/env" && cargo deny check licenses
 
 ## --- Local stack ---
 
 local-up:
-	@if ! command -v docker >/dev/null 2>&1; then echo "ERROR: docker not installed"; exit 1; fi
-	@if ! docker info >/dev/null 2>&1; then echo "ERROR: Docker daemon not running"; exit 1; fi
-	docker compose -f $(COMPOSE_FILE) up -d
-	@echo "Local control-plane dependencies starting. Rendezvous service: build from services/rendezvous (not auto-started)."
+	@if command -v docker >/dev/null 2>&1 && docker info >/dev/null 2>&1; then \
+		docker compose -f $(COMPOSE_FILE) up -d; \
+		echo "Local control-plane dependencies starting. Rendezvous service: build from services/rendezvous (not auto-started)."; \
+	else \
+		if ! command -v docker >/dev/null 2>&1; then \
+			echo "NOTICE: docker not installed — using Docker-free local smoke path."; \
+		else \
+			echo "NOTICE: Docker daemon not running — using Docker-free local smoke path."; \
+		fi; \
+		$(MAKE) smoke-local; \
+	fi
+
+smoke-local: ## Build and smoke-test control-plane services without Docker
+	@bash $(SCRIPTS)/local-smoke.sh
 
 local-down:
 	@if command -v docker >/dev/null 2>&1 && docker info >/dev/null 2>&1; then \

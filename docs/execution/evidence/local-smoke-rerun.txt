@@ -1,0 +1,26 @@
+=== local-smoke: building workspace ===
+=== local-smoke: starting services ===
+started rendezvous pid=53964 port=8080 log=/var/folders/bd/z5nlpqdd0f51bv0j2_5l64580000gn/T/rendezvous.XXXXXX.ihF7ZfWaEi
+started push-broker pid=53966 port=8081 log=/var/folders/bd/z5nlpqdd0f51bv0j2_5l64580000gn/T/push-broker.XXXXXX.hLWZl0rTvu
+started turn-credentials pid=53968 port=8082 log=/var/folders/bd/z5nlpqdd0f51bv0j2_5l64580000gn/T/turn-credentials.XXXXXX.GyWPERwNEV
+started sealed-mailbox pid=53970 port=8083 log=/var/folders/bd/z5nlpqdd0f51bv0j2_5l64580000gn/T/sealed-mailbox.XXXXXX.oZEbInKKN2
+started report-ingest pid=53972 port=8084 log=/var/folders/bd/z5nlpqdd0f51bv0j2_5l64580000gn/T/report-ingest.XXXXXX.mtS6mGmOFe
+started safety-console-api pid=53974 port=8085 log=/var/folders/bd/z5nlpqdd0f51bv0j2_5l64580000gn/T/safety-console-api.XXXXXX.qyzWi2Ienj
+=== local-smoke: waiting for /healthz ===
+  ok  rendezvous http://127.0.0.1:8080/healthz
+  ok  push-broker http://127.0.0.1:8081/healthz
+  ok  turn-credentials http://127.0.0.1:8082/healthz
+  ok  sealed-mailbox http://127.0.0.1:8083/healthz
+  ok  report-ingest http://127.0.0.1:8084/healthz
+  ok  safety-console-api http://127.0.0.1:8085/healthz
+=== local-smoke: health matrix ===
+{"status":"ok"}  port 8080
+{"status":"ok"}  port 8081
+{"status":"ok"}  port 8082
+{"status":"ok"}  port 8083
+{"status":"ok"}  port 8084
+{"status":"ok"}  port 8085
+=== local-smoke: rendezvous discovery (empty region) ===
+  discovery: {"tickets":[]}
+=== local-smoke: PASS ===
+ports: rendezvous=8080 push-broker=8081 turn-credentials=8082 sealed-mailbox=8083 report-ingest=8084 safety-console-api=8085

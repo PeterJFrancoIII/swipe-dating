@@ -1,5 +1,8 @@
 use dating_safety_console_api::app;
+use dating_services_common::listen_addr;
 use tracing_subscriber::EnvFilter;
+
+const DEFAULT_PORT: u16 = 8085;
 
 #[tokio::main]
 async fn main() {
@@ -8,10 +11,11 @@ async fn main() {
         .init();
 
     let router = app();
-    let listener = tokio::net::TcpListener::bind("127.0.0.1:8085")
+    let addr = listen_addr(DEFAULT_PORT);
+    let listener = tokio::net::TcpListener::bind(&addr)
         .await
         .expect("bind safety-console-api listener");
-    tracing::info!("safety-console-api listening on http://127.0.0.1:8085");
+    tracing::info!("safety-console-api listening on http://{addr}");
     axum::serve(listener, router)
         .await
         .expect("serve safety-console-api");

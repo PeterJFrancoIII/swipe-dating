@@ -9,9 +9,13 @@ publish.workspace = true
 dating-protocol = { path = "../protocol" }
 dating-identity = { path = "../identity" }
 serde = { workspace = true }
+serde_json = { workspace = true }
 thiserror = { workspace = true }
 chrono = { workspace = true }
 zeroize = { workspace = true }
+aes-gcm = { workspace = true }
+rusqlite = { workspace = true }
+rand = { workspace = true }
 
 [dev-dependencies]
 dating-test-support = { path = "../test-support" }

@@ -1,0 +1,3 @@
+STAGING_BLOCKED: staging account identity is UNVERIFIED.
+A human operator must update /Users/computer/App Development/Swipe Dating/infra/terraform/environments/staging/ACCOUNT_IDENTITY.md before deploy-staging or infra-plan-staging.
+make: *** [infra-plan-staging] Error 1

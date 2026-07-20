@@ -23,3 +23,7 @@ dating-test-support = { path = "../test-support" }
 [[test]]
 name = "golden_vectors"
 path = "tests/golden_vectors.rs"
+
+[[test]]
+name = "cbor_fuzz_smoke"
+path = "tests/cbor_fuzz_smoke.rs"

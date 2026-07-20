@@ -1,4 +1,10 @@
-//! Media manifest validation.
+//! Media manifest validation and location metadata stripping.
+
+mod exif;
+
+pub use exif::{
+    gps_tag_ids, strip_jpeg_gps_app1, strip_location_metadata, ExifTagMap, GPS_TAG_IDS,
+};
 
 use serde::{Deserialize, Serialize};
 use thiserror::Error;

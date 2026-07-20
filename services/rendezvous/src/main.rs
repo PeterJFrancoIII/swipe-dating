@@ -1,6 +1,9 @@
 use dating_rendezvous::app;
 use dating_rendezvous::AppState;
+use dating_services_common::listen_addr;
 use tracing_subscriber::EnvFilter;
+
+const DEFAULT_PORT: u16 = 8080;
 
 #[tokio::main]
 async fn main() {
@@ -10,10 +13,11 @@ async fn main() {
 
     let state = AppState::new();
     let router = app(state);
-    let listener = tokio::net::TcpListener::bind("127.0.0.1:8080")
+    let addr = listen_addr(DEFAULT_PORT);
+    let listener = tokio::net::TcpListener::bind(&addr)
         .await
         .expect("bind rendezvous listener");
-    tracing::info!("rendezvous listening on http://127.0.0.1:8080");
+    tracing::info!("rendezvous listening on http://{addr}");
     axum::serve(listener, router)
         .await
         .expect("serve rendezvous");

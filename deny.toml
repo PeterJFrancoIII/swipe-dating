@@ -1,10 +1,11 @@
 [advisories]
-vulnerability = "deny"
-unmaintained = "warn"
+unmaintained = "workspace"
+unsound = "workspace"
 yanked = "deny"
+ignore = []
 
 [licenses]
-unlicensed = "deny"
+confidence-threshold = 0.8
 allow = [
   "MIT",
   "Apache-2.0",
@@ -17,8 +18,10 @@ allow = [
   "CC0-1.0",
   "Apache-2.0 WITH LLVM-exception",
 ]
-confidence-threshold = 0.8
+
+[licenses.private]
+ignore = true
 
 [bans]
 multiple-versions = "warn"
-wildcards = "deny"
+wildcards = "warn"

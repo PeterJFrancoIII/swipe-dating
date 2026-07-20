@@ -2,16 +2,7 @@
 
 use axum::{routing::post, Json, Router};
 use dating_services_common::{health_router, MAX_JSON_BODY_BYTES};
-use serde::Serialize;
-
-#[derive(Debug, Serialize)]
-pub struct TurnCredentialsResponse {
-    pub username: String,
-    pub credential: String,
-    pub ttl_seconds: u32,
-    pub uris: Vec<String>,
-    pub label: &'static str,
-}
+use dating_transport_api::TurnCredentials;
 
 pub fn app() -> Router {
     health_router()
@@ -19,14 +10,8 @@ pub fn app() -> Router {
         .layer(axum::extract::DefaultBodyLimit::max(MAX_JSON_BODY_BYTES))
 }
 
-async fn turn_credentials() -> Json<TurnCredentialsResponse> {
-    Json(TurnCredentialsResponse {
-        username: "MOCK:user:1700000000".to_string(),
-        credential: "MOCK:credential:placeholder".to_string(),
-        ttl_seconds: 600,
-        uris: vec!["turn:turn.example.com:3478?transport=udp".to_string()],
-        label: "MOCK",
-    })
+async fn turn_credentials() -> Json<TurnCredentials> {
+    Json(TurnCredentials::mock())
 }
 
 #[cfg(test)]

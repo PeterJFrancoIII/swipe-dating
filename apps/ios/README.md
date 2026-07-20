@@ -15,9 +15,20 @@ A Tuist project is **not** generated in this scaffold. If the team adopts Tuist 
 1. Add `Project.swift` at this directory root.
 2. Point dependencies at `Package.swift` local path or generated XCFramework from UniFFI.
 
-## UniFFI boundary (pending)
+## UniFFI boundary
 
-Shared Rust core (`core/`) will expose audited APIs via UniFFI. Until then:
+Shared Rust core (`core/uniffi-bindings`) exposes audited APIs via UniFFI. Private signing keys never cross FFI.
+
+Generate Swift bindings:
+
+```bash
+source "$HOME/.cargo/env"
+./scripts/generate-uniffi.sh
+```
+
+Outputs land in `apps/ios/Generated/`. Wire them into `Package.swift` (local target sources) before calling from SwiftUI views.
+
+Until bindings are generated and linked:
 
 - No cryptographic or matching logic in Swift views
 - Age assurance remains fail-closed stub
