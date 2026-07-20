@@ -1,5 +1,9 @@
 # Data Map
 
+**Status:** DRAFT — UNAPPROVED  
+**Updated:** 2026-07-20  
+**Related:** `docs/privacy/privacy-policy.md`, `docs/privacy/dpia-outline.md`, `docs/governance/decentralization-limits.md`
+
 | Data class | Primary location | Server processing | Default retention | Notes |
 |---|---|---|---|---|
 | Root identity secret | User device only | Never | Until local deletion | Hardware-backed wrap |

@@ -20,3 +20,10 @@ We aim to acknowledge reports within 5 business days once the mailbox is staffed
 - Autonomous agents must not send NCMEC CyberTipline reports, law-enforcement disclosures, or user notifications.
 - Production secrets must never be committed.
 - Security fixes for crypto, identity, age, location, and report pipelines require CODEOWNERS review.
+- Release and production remain human-gated: `docs/governance/release-gates.md`.
+- Child-safety and NCII baselines: `docs/governance/child-safety-baseline.md`, `docs/governance/ncii-takedown-baseline.md`.
+
+## Related
+
+- Threat model: `docs/security/threat-model.md` (when present)
+- Safety playbooks: `docs/safety/`

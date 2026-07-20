@@ -1,4 +1,6 @@
 # CODEOWNERS
+# Replace CHANGE_ME_* with real GitHub handles before public beta.
+# See docs/governance/roles-and-owners.md
 
 # Default
 * @CHANGE_ME_SECURITY_OWNER
@@ -15,9 +17,15 @@
 /services/safety-console-api/ @CHANGE_ME_SAFETY_OWNER
 /docs/safety/ @CHANGE_ME_SAFETY_OWNER
 /docs/privacy/ @CHANGE_ME_PRIVACY_OWNER
+/policies/ @CHANGE_ME_SAFETY_OWNER @CHANGE_ME_LEGAL_OWNER
 
-# Infrastructure and release
+# Governance and release
+/docs/governance/ @CHANGE_ME_RELEASE_OWNER @CHANGE_ME_SECURITY_OWNER @CHANGE_ME_LEGAL_OWNER
+/docs/audits/ @CHANGE_ME_RELEASE_OWNER @CHANGE_ME_SECURITY_OWNER
+/docs/legal/ @CHANGE_ME_LEGAL_OWNER
+/approvals/ @CHANGE_ME_RELEASE_OWNER @CHANGE_ME_SECURITY_OWNER
+/MISSION.md @CHANGE_ME_RELEASE_OWNER
+
+# Infrastructure and release automation
 /infra/ @CHANGE_ME_INFRA_OWNER @CHANGE_ME_SECURITY_OWNER
 /.github/workflows/ @CHANGE_ME_INFRA_OWNER @CHANGE_ME_SECURITY_OWNER
-/approvals/ @CHANGE_ME_RELEASE_OWNER @CHANGE_ME_SECURITY_OWNER
-/docs/legal/ @CHANGE_ME_LEGAL_OWNER
