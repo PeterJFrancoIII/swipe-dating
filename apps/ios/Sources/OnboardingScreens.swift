@@ -17,6 +17,18 @@ struct IdentitySetupView: View {
                     .font(.footnote)
                     .foregroundStyle(.secondary)
             }
+            if !model.profileIdHex.isEmpty {
+                Section("Public summary (safe to display)") {
+                    LabeledContent("Profile id") {
+                        Text(String(model.profileIdHex.prefix(16)) + "…")
+                            .font(.system(.caption, design: .monospaced))
+                    }
+                    LabeledContent("Root pubkey") {
+                        Text(String(model.rootPublicKeyHex.prefix(16)) + "…")
+                            .font(.system(.caption, design: .monospaced))
+                    }
+                }
+            }
             if let err = model.lastError {
                 Text(err).foregroundStyle(.orange).font(.footnote)
             }

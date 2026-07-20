@@ -43,15 +43,13 @@ xcodebuild -downloadPlatform iOS
 
 ## UniFFI
 
-Shared Rust core bindings live in `Generated/`. The app uses `DatingCoreBridge` with a STAGING mock until the native library is linked (`DATING_UNIFFI_LINKED`).
+Shared Rust core is linked into the iPhone staging app:
 
 ```bash
-source "$HOME/.cargo/env"
-./scripts/generate-uniffi.sh
+make ios-uniffi   # aarch64-apple-ios-sim staticlib + Generated Swift
+make ios-build    # DATING_UNIFFI_LINKED app build
 ```
 
-## Not ready
+Settings → Diagnostics shows **Core path: UniFFI linked** when the native library is present. SPM-only builds without `Native/lib` keep the STAGING mock.
 
-- App Store / TestFlight production
-- Real age vendor / App Attest / WebRTC peer path
-- Cloud staging control-plane wiring from the phone (use `make smoke-local` on Mac for services)
+Local control-plane probe (Simulator → Mac localhost): Settings → Diagnostics → Probe `/healthz` after `make smoke-local`.

@@ -15,8 +15,11 @@
 		AC39CB23D950DE5D1C9FA20F /* SwipeDeckView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E3F36F2970BE803511349FD /* SwipeDeckView.swift */; };
 		B04E751AA18C374BE3C459DE /* SwipeDatingApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1336540E5EEB48CEF7E19E4B /* SwipeDatingApp.swift */; };
 		BA4B268EB198BD6DF13CFC3F /* MatchesViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = B950263DF62C1D6BEC8C5B7F /* MatchesViews.swift */; };
+		BFE0829BBFE4799DF427A2E3 /* dating_uniffi_bindings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5920C5E9FE817A27792F252A /* dating_uniffi_bindings.swift */; };
+		D6D99658C0809B71202F6936 /* UniFFIGlue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74D40A75D283B271830F8D7E /* UniFFIGlue.swift */; };
 		E171B455F1B8A3E25A0A38EF /* OnboardingScreens.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3495FDACAB6BB17E9BE0BDFE /* OnboardingScreens.swift */; };
 		F18A349B21A96FA23499F7FB /* RootFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D27C8E6AC3C3DA09B76F2F7 /* RootFlowView.swift */; };
+		F6E35AAAE397EE843D6B7647 /* ControlPlaneClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC56CC1F906A4D2FD72C7D2E /* ControlPlaneClient.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -25,6 +28,8 @@
 		26D43B36141393B6CFA53109 /* DatingCoreBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatingCoreBridge.swift; sourceTree = "<group>"; };
 		3495FDACAB6BB17E9BE0BDFE /* OnboardingScreens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingScreens.swift; sourceTree = "<group>"; };
 		3E3F36F2970BE803511349FD /* SwipeDeckView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwipeDeckView.swift; sourceTree = "<group>"; };
+		5920C5E9FE817A27792F252A /* dating_uniffi_bindings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = dating_uniffi_bindings.swift; sourceTree = "<group>"; };
+		74D40A75D283B271830F8D7E /* UniFFIGlue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UniFFIGlue.swift; sourceTree = "<group>"; };
 		7639ACEED9AD1AEFF61C2DDC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		8478F4413145A2DAB3A80EA9 /* StagingBannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StagingBannerView.swift; sourceTree = "<group>"; };
 		8563A6F3C45F13542486B486 /* AgeGateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgeGateView.swift; sourceTree = "<group>"; };
@@ -32,6 +37,7 @@
 		ADA84CF26C66808700DB95CF /* SwipeDating.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = SwipeDating.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B950263DF62C1D6BEC8C5B7F /* MatchesViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatchesViews.swift; sourceTree = "<group>"; };
 		E45D1A031000F4F3E6BBB68A /* SafetySettingsViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafetySettingsViews.swift; sourceTree = "<group>"; };
+		FC56CC1F906A4D2FD72C7D2E /* ControlPlaneClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControlPlaneClient.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -48,6 +54,7 @@
 			isa = PBXGroup;
 			children = (
 				52E25F216AD4AD1E84417E18 /* App */,
+				ED77D57BAA29E7DA9CE6ACB3 /* Generated */,
 				D466B85C828F90B0CE0E9C65 /* Sources */,
 				ACF886BE2E6900232B5A5174 /* Products */,
 			);
@@ -66,6 +73,7 @@
 			children = (
 				8563A6F3C45F13542486B486 /* AgeGateView.swift */,
 				19D86BC66452D6D3BF8D6638 /* AppModel.swift */,
+				FC56CC1F906A4D2FD72C7D2E /* ControlPlaneClient.swift */,
 				26D43B36141393B6CFA53109 /* DatingCoreBridge.swift */,
 				B950263DF62C1D6BEC8C5B7F /* MatchesViews.swift */,
 				3495FDACAB6BB17E9BE0BDFE /* OnboardingScreens.swift */,
@@ -73,8 +81,17 @@
 				E45D1A031000F4F3E6BBB68A /* SafetySettingsViews.swift */,
 				8478F4413145A2DAB3A80EA9 /* StagingBannerView.swift */,
 				3E3F36F2970BE803511349FD /* SwipeDeckView.swift */,
+				74D40A75D283B271830F8D7E /* UniFFIGlue.swift */,
 			);
 			path = Sources;
+			sourceTree = "<group>";
+		};
+		ED77D57BAA29E7DA9CE6ACB3 /* Generated */ = {
+			isa = PBXGroup;
+			children = (
+				5920C5E9FE817A27792F252A /* dating_uniffi_bindings.swift */,
+			);
+			path = Generated;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -138,6 +155,7 @@
 			files = (
 				6DF287BD7798C102AF1AB4F5 /* AgeGateView.swift in Sources */,
 				76721EE78785001D2C713B30 /* AppModel.swift in Sources */,
+				F6E35AAAE397EE843D6B7647 /* ControlPlaneClient.swift in Sources */,
 				0A4421A9DF9904DB00F3B520 /* DatingCoreBridge.swift in Sources */,
 				BA4B268EB198BD6DF13CFC3F /* MatchesViews.swift in Sources */,
 				E171B455F1B8A3E25A0A38EF /* OnboardingScreens.swift in Sources */,
@@ -146,6 +164,8 @@
 				11D5BBB163B25E04B7B63AE6 /* StagingBannerView.swift in Sources */,
 				B04E751AA18C374BE3C459DE /* SwipeDatingApp.swift in Sources */,
 				AC39CB23D950DE5D1C9FA20F /* SwipeDeckView.swift in Sources */,
+				D6D99658C0809B71202F6936 /* UniFFIGlue.swift in Sources */,
+				BFE0829BBFE4799DF427A2E3 /* dating_uniffi_bindings.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -191,6 +211,7 @@
 				DEVELOPMENT_TEAM = "";
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
+				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = x86_64;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -256,6 +277,7 @@
 				DEVELOPMENT_TEAM = "";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = x86_64;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -281,17 +303,24 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
+				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = x86_64;
 				GENERATE_INFOPLIST_FILE = NO;
+				HEADER_SEARCH_PATHS = "$(inherited) $(SRCROOT)/Generated";
 				INFOPLIST_FILE = App/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				LIBRARY_SEARCH_PATHS = "$(inherited) $(SRCROOT)/Native/lib";
 				MARKETING_VERSION = 0.1.0;
+				OTHER_LDFLAGS = "$(inherited) -force_load $(SRCROOT)/Native/lib/libdating_uniffi_bindings.a -framework Security -framework SystemConfiguration";
+				OTHER_SWIFT_FLAGS = "$(inherited) -Xcc -fmodule-map-file=$(SRCROOT)/Generated/dating_uniffi_bindingsFFI.modulemap";
 				PRODUCT_BUNDLE_IDENTIFIER = org.example.localfirstdating.staging;
 				PRODUCT_NAME = SwipeDating;
 				SDKROOT = iphoneos;
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) DATING_UNIFFI_LINKED";
+				SWIFT_INCLUDE_PATHS = "$(inherited) $(SRCROOT)/Generated";
 				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
@@ -302,17 +331,24 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
+				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = x86_64;
 				GENERATE_INFOPLIST_FILE = NO;
+				HEADER_SEARCH_PATHS = "$(inherited) $(SRCROOT)/Generated";
 				INFOPLIST_FILE = App/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				LIBRARY_SEARCH_PATHS = "$(inherited) $(SRCROOT)/Native/lib";
 				MARKETING_VERSION = 0.1.0;
+				OTHER_LDFLAGS = "$(inherited) -force_load $(SRCROOT)/Native/lib/libdating_uniffi_bindings.a -framework Security -framework SystemConfiguration";
+				OTHER_SWIFT_FLAGS = "$(inherited) -Xcc -fmodule-map-file=$(SRCROOT)/Generated/dating_uniffi_bindingsFFI.modulemap";
 				PRODUCT_BUNDLE_IDENTIFIER = org.example.localfirstdating.staging;
 				PRODUCT_NAME = SwipeDating;
 				SDKROOT = iphoneos;
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) DATING_UNIFFI_LINKED";
+				SWIFT_INCLUDE_PATHS = "$(inherited) $(SRCROOT)/Generated";
 				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;

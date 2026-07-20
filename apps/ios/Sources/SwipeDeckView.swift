@@ -57,7 +57,9 @@ struct SwipeDeckView: View {
                 ContentUnavailableView(
                     "No one nearby right now",
                     systemImage: "person.2.slash",
-                    description: Text("Strict zero-store mode needs peers online. Staging deck exhausted.")
+                    description: Text(model.deckSource.contains("live")
+                        ? "No other live tickets in region (self filtered). Tap Sync or wait for peers."
+                        : "Strict zero-store mode needs peers online. Staging deck exhausted.")
                 )
             }
             Spacer(minLength: 0)
@@ -81,12 +83,43 @@ struct SwipeDeckView: View {
     }
 
     private var availabilityRow: some View {
-        HStack {
-            Toggle("Available", isOn: $model.availabilityOnline)
+        VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                Toggle("Available", isOn: Binding(
+                    get: { model.availabilityOnline },
+                    set: { online in
+                        model.availabilityOnline = online
+                        if online && !model.emergencyPrivacyMode {
+                            model.startPresenceRefreshLoop()
+                            Task { await model.publishPresenceAndRefreshDiscovery() }
+                        } else {
+                            model.stopPresenceRefreshLoop()
+                        }
+                    }
+                ))
                 .disabled(model.emergencyPrivacyMode)
-            Text(model.coarseRegionLabel)
+                Text(model.coarseRegionLabel)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                Button(model.isSyncingPresence ? "…" : "Sync") {
+                    Task { await model.publishPresenceAndRefreshDiscovery() }
+                }
                 .font(.caption)
+                .disabled(!model.availabilityOnline || model.emergencyPrivacyMode || model.isSyncingPresence)
+            }
+            Text("Deck: \(model.deckSource)")
+                .font(.caption2)
                 .foregroundStyle(.secondary)
+            if !model.controlPlaneNote.isEmpty {
+                Text(model.controlPlaneNote)
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
+            if model.liveTicketCount > 0 {
+                Text("Tickets in region: \(model.liveTicketCount) (self filtered from deck)")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
         }
         .padding(.horizontal)
     }
@@ -125,12 +158,22 @@ struct ProfileCardView: View {
             RoundedRectangle(cornerRadius: 16)
                 .fill(
                     LinearGradient(
-                        colors: [Color.orange.opacity(0.35), Color.pink.opacity(0.25)],
+                        colors: profile.source == .liveTicket
+                            ? [Color.teal.opacity(0.35), Color.blue.opacity(0.25)]
+                            : [Color.orange.opacity(0.35), Color.pink.opacity(0.25)],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
                     )
                 )
                 .frame(height: 320)
+                .overlay(alignment: .topLeading) {
+                    Text(profile.source == .liveTicket ? "LIVE TICKET" : "SYNTHETIC")
+                        .font(.caption2.weight(.semibold))
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(.ultraThinMaterial, in: Capsule())
+                        .padding(12)
+                }
                 .overlay(alignment: .bottomLeading) {
                     VStack(alignment: .leading, spacing: 4) {
                         Text(profile.displayName)
@@ -144,6 +187,11 @@ struct ProfileCardView: View {
                 .accessibilityLabel("\(profile.displayName), \(profile.ageBand), \(profile.distanceBand)")
             Text(profile.about)
                 .font(.body)
+            if profile.source == .liveTicket, !profile.ticketIdShort.isEmpty {
+                Text("Ticket \(profile.ticketIdShort)… · capsule not fetched")
+                    .font(.caption.monospaced())
+                    .foregroundStyle(.secondary)
+            }
         }
     }
 }
@@ -159,9 +207,10 @@ struct ProfileDetailView: View {
                 Text(profile.ageBand)
                 Text(profile.distanceBand)
                 Text(profile.about)
+                LabeledContent("Source", value: profile.source == .liveTicket ? "Live ticket" : "Synthetic")
             }
             Section("Privacy") {
-                Text("Exact location is never shown. Pre-match transport is relay-first.")
+                Text("Exact location is never shown. Pre-match transport is relay-first. Live tickets do not include bio/photos until capsule fetch is wired.")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
             }

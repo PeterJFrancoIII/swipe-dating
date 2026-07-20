@@ -2,7 +2,9 @@
 
 use crate::util::parse_profile_id;
 use dating_matching::{LocalDislikeStore, MatchState, MatchStateMachine, MatchingError};
-use dating_protocol::{decode_cbor, BlockRecord, MatchReceipt, ProtocolError};
+use dating_protocol::{
+    decode_cbor, BlockRecord, MatchReceipt, ProtocolError, PROTOCOL_VERSION,
+};
 use std::sync::Mutex;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, thiserror::Error, uniffi::Error)]
@@ -125,5 +127,45 @@ impl AuditedMatchStore {
             .lock()
             .map_err(|_| MatchingErrorCode::InvalidTransition)?
             .is_disliked(&pid))
+    }
+
+    /// STAGING ONLY: confirm mutual match without peer-signed receipts.
+    /// Production clients must use `apply_match` with a real bilateral receipt.
+    pub fn confirm_staging_match(&self, profile_id: Vec<u8>) -> Result<(), MatchingErrorCode> {
+        let pid = parse_profile_id(&profile_id).map_err(|_| MatchingErrorCode::InvalidProfileId)?;
+        let receipt = MatchReceipt {
+            protocol_version: PROTOCOL_VERSION,
+            profile_a: pid,
+            profile_b: [0u8; 32],
+            matched_at: 0,
+            nonce: [0u8; 16],
+            signature_a: [0u8; 64],
+            signature_b: [0u8; 64],
+            public_key_a: [0u8; 32],
+            public_key_b: [0u8; 32],
+        };
+        self.state
+            .lock()
+            .map_err(|_| MatchingErrorCode::InvalidTransition)?
+            .confirm_match(pid, &receipt)
+            .map_err(Into::into)
+    }
+
+    /// STAGING ONLY: apply a local block without a signed BlockRecord.
+    pub fn block_staging(&self, profile_id: Vec<u8>) -> Result<(), MatchingErrorCode> {
+        let pid = parse_profile_id(&profile_id).map_err(|_| MatchingErrorCode::InvalidProfileId)?;
+        let block = BlockRecord {
+            protocol_version: PROTOCOL_VERSION,
+            blocker_profile_id: [0u8; 32],
+            blocked_profile_id: pid,
+            issued_at: 0,
+            signature: [0u8; 64],
+            signer_public_key: [0u8; 32],
+        };
+        self.state
+            .lock()
+            .map_err(|_| MatchingErrorCode::InvalidTransition)?
+            .apply_block(pid, &block);
+        Ok(())
     }
 }

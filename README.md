@@ -16,7 +16,7 @@ make test-unit
 make local-up   # requires Docker daemon
 ```
 
-iOS shell: `apps/ios/` (STAGING marker; identity bridge may be mock until UniFFI is linked).
+iOS shell: `apps/ios/` — **UniFFI linked** on Simulator (`make ios-build`). Discover can publish signed presence to local rendezvous (`make local-services-up`).
 
 ## Architecture (summary)
 

@@ -771,6 +771,7 @@ dependencies = [
  "dating-transport-api",
  "hex",
  "rand_core 0.6.4",
+ "serde_json",
  "thiserror",
  "uniffi",
 ]

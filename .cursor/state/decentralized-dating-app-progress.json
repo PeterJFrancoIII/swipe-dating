@@ -3,9 +3,9 @@
   "project": "local-first-dating-platform",
   "research_snapshot": "2026-07-20",
   "started_at": "2026-07-20T20:22:13Z",
-  "updated_at": "2026-07-20T21:23:37Z",
+  "updated_at": "2026-07-20T23:24:25Z",
   "base_commit": "67a55c6f4fec35bdcd11c77596ede010daadea13",
-  "current_commit": "db933d3f3807fcc84a4975f8645d8ea91ca8563e",
+  "current_commit": "WIP-uniffi-ios",
   "deployment_environment": "staging",
   "command_sha256": "495ef0fb6d80b2ec81f05277301669cccdf46f2b1b1323eb2241f15a84530f0f",
   "outcome": "PARTIAL",
@@ -309,6 +309,25 @@
       "notes": [
         "correctly blocked"
       ]
+    },
+    "phase_ios_uniffi_link": {
+      "status": "complete",
+      "completed_at": "2026-07-20T23:24:25Z",
+      "verification_command": "make ios-build",
+      "verification_result": "passed",
+      "artifacts": [
+        "scripts/build-ios-uniffi.sh",
+        "apps/ios/Native/lib/libdating_uniffi_bindings.a",
+        "apps/ios/Sources/DatingCoreBridge.swift",
+        "apps/ios/Sources/ControlPlaneClient.swift"
+      ],
+      "notes": [
+        "iOS UniFFI linked (DATING_UNIFFI_LINKED) via aarch64-apple-ios-sim staticlib",
+        "Discover like/pass/block/match uses AuditedMatchStore staging helpers",
+        "Identity via generateIdentity public summary",
+        "ControlPlaneClient health probe 8080-8085",
+        "production still PRODUCTION_BLOCKED_HUMAN_APPROVALS_REQUIRED"
+      ]
     }
   },
   "blockers": [
@@ -381,5 +400,12 @@
     "deployed": false,
     "url": null,
     "smoke_tested_at": null
-  }
+  },
+  "notes_latest": [
+    "iOS UniFFI linked (DATING_UNIFFI_LINKED) via aarch64-apple-ios-sim staticlib",
+    "Discover like/pass/block/match uses AuditedMatchStore staging helpers",
+    "Identity via generateIdentity public summary",
+    "ControlPlaneClient health probe 8080-8085",
+    "production still PRODUCTION_BLOCKED_HUMAN_APPROVALS_REQUIRED"
+  ]
 }

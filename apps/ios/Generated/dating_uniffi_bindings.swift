@@ -416,6 +416,22 @@ fileprivate struct FfiConverterUInt16: FfiConverterPrimitive {
 #if swift(>=5.8)
 @_documentation(visibility: private)
 #endif
+fileprivate struct FfiConverterUInt32: FfiConverterPrimitive {
+    typealias FfiType = UInt32
+    typealias SwiftType = UInt32
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> UInt32 {
+        return try lift(readInt(&buf))
+    }
+
+    public static func write(_ value: SwiftType, into buf: inout [UInt8]) {
+        writeInt(&buf, lower(value))
+    }
+}
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
 fileprivate struct FfiConverterUInt64: FfiConverterPrimitive {
     typealias FfiType = UInt64
     typealias SwiftType = UInt64
@@ -556,6 +572,17 @@ public protocol AuditedMatchStoreProtocol: AnyObject, Sendable {
     
     func applyMatch(profileId: Data, receiptBytes: Data) throws 
     
+    /**
+     * STAGING ONLY: apply a local block without a signed BlockRecord.
+     */
+    func blockStaging(profileId: Data) throws 
+    
+    /**
+     * STAGING ONLY: confirm mutual match without peer-signed receipts.
+     * Production clients must use `apply_match` with a real bilateral receipt.
+     */
+    func confirmStagingMatch(profileId: Data) throws 
+    
     func isDisliked(profileId: Data) throws  -> Bool
     
     func matchStateLabel(profileId: Data) throws  -> String
@@ -639,6 +666,27 @@ open func applyMatch(profileId: Data, receiptBytes: Data)throws   {try rustCallW
     uniffi_dating_uniffi_bindings_fn_method_auditedmatchstore_apply_match(self.uniffiClonePointer(),
         FfiConverterData.lower(profileId),
         FfiConverterData.lower(receiptBytes),$0
+    )
+}
+}
+    
+    /**
+     * STAGING ONLY: apply a local block without a signed BlockRecord.
+     */
+open func blockStaging(profileId: Data)throws   {try rustCallWithError(FfiConverterTypeMatchingErrorCode_lift) {
+    uniffi_dating_uniffi_bindings_fn_method_auditedmatchstore_block_staging(self.uniffiClonePointer(),
+        FfiConverterData.lower(profileId),$0
+    )
+}
+}
+    
+    /**
+     * STAGING ONLY: confirm mutual match without peer-signed receipts.
+     * Production clients must use `apply_match` with a real bilateral receipt.
+     */
+open func confirmStagingMatch(profileId: Data)throws   {try rustCallWithError(FfiConverterTypeMatchingErrorCode_lift) {
+    uniffi_dating_uniffi_bindings_fn_method_auditedmatchstore_confirm_staging_match(self.uniffiClonePointer(),
+        FfiConverterData.lower(profileId),$0
     )
 }
 }
@@ -737,6 +785,12 @@ public func FfiConverterTypeAuditedMatchStore_lower(_ value: AuditedMatchStore) 
 public protocol IdentityHandleProtocol: AnyObject, Sendable {
     
     /**
+     * STAGING: build a signed presence lease as JSON for `PUT /v1/presence`.
+     * Private key material never leaves this handle.
+     */
+    func buildStagingPresenceLeaseJson(coarseRegion: String, nowUnix: Int64, ttlSecs: UInt32) throws  -> String
+    
+    /**
      * 32-byte profile identifier (BLAKE3 of root public key).
      */
     func profileIdBytes()  -> Data
@@ -801,6 +855,20 @@ open class IdentityHandle: IdentityHandleProtocol, @unchecked Sendable {
 
     
 
+    
+    /**
+     * STAGING: build a signed presence lease as JSON for `PUT /v1/presence`.
+     * Private key material never leaves this handle.
+     */
+open func buildStagingPresenceLeaseJson(coarseRegion: String, nowUnix: Int64, ttlSecs: UInt32)throws  -> String  {
+    return try  FfiConverterString.lift(try rustCallWithError(FfiConverterTypeIdentityBuildError_lift) {
+    uniffi_dating_uniffi_bindings_fn_method_identityhandle_build_staging_presence_lease_json(self.uniffiClonePointer(),
+        FfiConverterString.lower(coarseRegion),
+        FfiConverterInt64.lower(nowUnix),
+        FfiConverterUInt32.lower(ttlSecs),$0
+    )
+})
+}
     
     /**
      * 32-byte profile identifier (BLAKE3 of root public key).
@@ -1361,6 +1429,90 @@ extension FfiIceTransportPolicy: Equatable, Hashable {}
 
 
 
+public enum IdentityBuildError: Swift.Error {
+
+    
+    
+    case InvalidRegion
+    case InvalidTtl
+    case EncodeFailed
+}
+
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public struct FfiConverterTypeIdentityBuildError: FfiConverterRustBuffer {
+    typealias SwiftType = IdentityBuildError
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> IdentityBuildError {
+        let variant: Int32 = try readInt(&buf)
+        switch variant {
+
+        
+
+        
+        case 1: return .InvalidRegion
+        case 2: return .InvalidTtl
+        case 3: return .EncodeFailed
+
+         default: throw UniffiInternalError.unexpectedEnumCase
+        }
+    }
+
+    public static func write(_ value: IdentityBuildError, into buf: inout [UInt8]) {
+        switch value {
+
+        
+
+        
+        
+        case .InvalidRegion:
+            writeInt(&buf, Int32(1))
+        
+        
+        case .InvalidTtl:
+            writeInt(&buf, Int32(2))
+        
+        
+        case .EncodeFailed:
+            writeInt(&buf, Int32(3))
+        
+        }
+    }
+}
+
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public func FfiConverterTypeIdentityBuildError_lift(_ buf: RustBuffer) throws -> IdentityBuildError {
+    return try FfiConverterTypeIdentityBuildError.lift(buf)
+}
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public func FfiConverterTypeIdentityBuildError_lower(_ value: IdentityBuildError) -> RustBuffer {
+    return FfiConverterTypeIdentityBuildError.lower(value)
+}
+
+
+extension IdentityBuildError: Equatable, Hashable {}
+
+
+
+
+extension IdentityBuildError: Foundation.LocalizedError {
+    public var errorDescription: String? {
+        String(reflecting: self)
+    }
+}
+
+
+
+
+
 public enum MatchingErrorCode: Swift.Error {
 
     
@@ -1659,6 +1811,16 @@ public func protocolVersion() -> UInt16  {
 })
 }
 /**
+ * STAGING: derive a stable 32-byte profile id from a UI label (e.g. synthetic deck id).
+ */
+public func stagingProfileIdFromLabel(label: String) -> Data  {
+    return try!  FfiConverterData.lift(try! rustCall() {
+    uniffi_dating_uniffi_bindings_fn_func_staging_profile_id_from_label(
+        FfiConverterString.lower(label),$0
+    )
+})
+}
+/**
  * Validate a CBOR-encoded presence lease against `now_unix`.
  */
 public func validatePresenceLeaseBytes(bytes: Data, nowUnix: Int64)throws   {try rustCallWithError(FfiConverterTypeValidationErrorCode_lift) {
@@ -1712,6 +1874,9 @@ private let initializationResult: InitializationResult = {
     if (uniffi_dating_uniffi_bindings_checksum_func_protocol_version() != 22893) {
         return InitializationResult.apiChecksumMismatch
     }
+    if (uniffi_dating_uniffi_bindings_checksum_func_staging_profile_id_from_label() != 37281) {
+        return InitializationResult.apiChecksumMismatch
+    }
     if (uniffi_dating_uniffi_bindings_checksum_func_validate_presence_lease_bytes() != 7090) {
         return InitializationResult.apiChecksumMismatch
     }
@@ -1724,6 +1889,12 @@ private let initializationResult: InitializationResult = {
     if (uniffi_dating_uniffi_bindings_checksum_method_auditedmatchstore_apply_match() != 56216) {
         return InitializationResult.apiChecksumMismatch
     }
+    if (uniffi_dating_uniffi_bindings_checksum_method_auditedmatchstore_block_staging() != 49412) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_dating_uniffi_bindings_checksum_method_auditedmatchstore_confirm_staging_match() != 33891) {
+        return InitializationResult.apiChecksumMismatch
+    }
     if (uniffi_dating_uniffi_bindings_checksum_method_auditedmatchstore_is_disliked() != 61332) {
         return InitializationResult.apiChecksumMismatch
     }
@@ -1734,6 +1905,9 @@ private let initializationResult: InitializationResult = {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_dating_uniffi_bindings_checksum_method_auditedmatchstore_record_like() != 7533) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_dating_uniffi_bindings_checksum_method_identityhandle_build_staging_presence_lease_json() != 63612) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_dating_uniffi_bindings_checksum_method_identityhandle_profile_id_bytes() != 27356) {

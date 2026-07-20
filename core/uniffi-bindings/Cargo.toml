@@ -11,6 +11,7 @@ name = "dating_uniffi_bindings"
 
 [dependencies]
 chrono = { workspace = true }
+dating-crypto = { path = "../crypto" }
 dating-identity = { path = "../identity" }
 dating-matching = { path = "../matching" }
 dating-protocol = { path = "../protocol" }
@@ -18,12 +19,16 @@ dating-test-support = { path = "../test-support" }
 dating-transport-api = { path = "../transport-api" }
 hex = { workspace = true }
 rand_core = { workspace = true, features = ["getrandom"] }
+serde_json = { workspace = true }
 thiserror = { workspace = true }
 uniffi = { workspace = true }
 
 [dev-dependencies]
-dating-crypto = { path = "../crypto" }
 
 [[bin]]
 name = "uniffi-bindgen"
 path = "src/bin/uniffi-bindgen.rs"
+
+[[bin]]
+name = "print-staging-lease"
+path = "src/bin/print-staging-lease.rs"

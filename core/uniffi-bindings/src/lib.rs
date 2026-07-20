@@ -12,6 +12,27 @@ mod util;
 
 uniffi::setup_scaffolding!("dating_uniffi_bindings");
 
+/// Helpers for local smoke tooling binaries (not part of the mobile FFI contract).
+pub mod tooling {
+    use super::identity::{generate_identity, IdentityHandle};
+    use std::sync::Arc;
+
+    pub fn generate_tooling_identity() -> Arc<IdentityHandle> {
+        generate_identity()
+    }
+
+    pub fn build_tooling_presence_lease_json(
+        handle: &IdentityHandle,
+        region: &str,
+        now_unix: i64,
+        ttl_secs: u32,
+    ) -> Result<String, String> {
+        handle
+            .build_staging_presence_lease_json(region.to_string(), now_unix, ttl_secs)
+            .map_err(|e| e.to_string())
+    }
+}
+
 /// Canonical protocol version exposed to mobile clients.
 #[uniffi::export]
 pub fn protocol_version() -> u16 {
@@ -27,6 +48,7 @@ mod tests {
     use crate::matching::AuditedMatchStore;
     use crate::protocol::{validate_presence_lease_bytes, validate_profile_capsule_bytes};
     use crate::transport::{ice_transport_requires_relay, FfiIceTransportPolicy};
+    use crate::util::staging_profile_id_from_label;
     use chrono::Utc;
     use dating_crypto::{hash_blake3, SigningKeypair};
     use dating_protocol::{
@@ -189,5 +211,36 @@ mod tests {
         let pid = vec![5u8; 32];
         store.record_dislike(pid.clone()).unwrap();
         assert!(store.is_disliked(pid).unwrap());
+    }
+
+    #[test]
+    fn staging_match_and_block_helpers() {
+        let store = AuditedMatchStore::new();
+        let pid = staging_profile_id_from_label("p1".into());
+        assert_eq!(pid.len(), 32);
+        store.record_like(pid.clone()).unwrap();
+        store.confirm_staging_match(pid.clone()).unwrap();
+        assert_eq!(store.match_state_label(pid.clone()).unwrap(), "matched");
+        store.block_staging(pid.clone()).unwrap();
+        assert_eq!(store.match_state_label(pid).unwrap(), "blocked");
+    }
+
+    #[test]
+    fn staging_presence_lease_json_roundtrip_fields() {
+        let handle = generate_identity();
+        let now = Utc::now().timestamp();
+        let json = handle
+            .build_staging_presence_lease_json("us-west-coarse".into(), now, 120)
+            .unwrap();
+        assert!(json.contains("us-west-coarse"));
+        assert!(json.contains("protocol_version"));
+        validate_presence_lease_bytes(
+            dating_protocol::encode_cbor(
+                &serde_json::from_str::<dating_protocol::PresenceLease>(&json).unwrap(),
+            )
+            .unwrap(),
+            now + 1,
+        )
+        .unwrap();
     }
 }

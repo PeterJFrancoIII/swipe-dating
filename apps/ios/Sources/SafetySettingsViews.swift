@@ -144,16 +144,35 @@ struct SettingsView: View {
 
 struct DiagnosticsView: View {
     @EnvironmentObject private var model: AppModel
+    @State private var serviceStatuses: [ControlPlaneClient.ServiceStatus] = []
+    @State private var probing = false
 
     var body: some View {
         List {
             Section("Redacted technical state") {
                 LabeledContent("Eligibility provider", value: model.eligibility?.provider ?? "none")
                 LabeledContent("Adult", value: model.eligibility?.adult == true ? "yes" : "no")
+                LabeledContent("Core path", value: model.usingStagingFallback ? "STAGING mock" : "UniFFI linked")
+                LabeledContent("Profile id", value: model.profileIdHex.isEmpty ? "none" : String(model.profileIdHex.prefix(16)) + "…")
                 LabeledContent("Online", value: model.availabilityOnline ? "yes" : "no")
                 LabeledContent("Matches", value: "\(model.matches.count)")
                 LabeledContent("Blocked", value: "\(model.blockedIds.count)")
                 LabeledContent("Region band", value: model.coarseRegionLabel)
+            }
+            Section("Local control plane") {
+                Text("Probes Mac `127.0.0.1:8080–8085` (`make smoke-local`). Failures are expected if services are down.")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+                Button(probing ? "Probing…" : "Probe /healthz") {
+                    Task { await probe() }
+                }
+                .disabled(probing)
+                ForEach(serviceStatuses) { status in
+                    LabeledContent("\(status.name):\(status.port)") {
+                        Text(status.ok ? "ok" : "down")
+                            .foregroundStyle(status.ok ? .green : .orange)
+                    }
+                }
             }
             Section {
                 Text("No profile text, messages, exact location, or secrets are logged.")
@@ -162,5 +181,12 @@ struct DiagnosticsView: View {
             }
         }
         .navigationTitle("Diagnostics")
+    }
+
+    @MainActor
+    private func probe() async {
+        probing = true
+        defer { probing = false }
+        serviceStatuses = await ControlPlaneClient().probeAll()
     }
 }

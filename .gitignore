@@ -33,6 +33,7 @@ coverage/
 *.apk
 *.aab
 *.ipa
+apps/ios/Native/lib/*.a
 
 # Terraform
 **/.terraform/
@@ -46,6 +47,7 @@ crash.log
 infra/local/data/
 *.sqlite
 *.db
+.local/
 
 # SBOM / audit scratch
 /sbom/

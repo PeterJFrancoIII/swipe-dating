@@ -4,8 +4,8 @@
 SHELL := /bin/bash
 .PHONY: bootstrap doctor format lint test test-unit test-integration test-protocol-vectors \
 	test-mobile test-e2e test-load test-chaos fuzz-smoke security sbom licenses \
-	local-up local-down local-reset-test-data smoke-local infra-fmt infra-validate infra-plan-staging \
-	deploy-staging smoke-staging release-readiness production-preflight ios-build ios-open ios-gen
+	local-up local-down local-reset-test-data smoke-local local-services-up infra-fmt infra-validate infra-plan-staging \
+	deploy-staging smoke-staging release-readiness production-preflight ios-build ios-open ios-gen ios-uniffi
 
 COMPOSE_FILE := infra/local/compose.yaml
 STAGING_IDENTITY := infra/terraform/environments/staging/ACCOUNT_IDENTITY.md
@@ -71,12 +71,16 @@ ios-gen:
 	@command -v xcodegen >/dev/null 2>&1 || { echo "Install xcodegen: brew install xcodegen"; exit 1; }
 	cd apps/ios && xcodegen generate
 
-ios-build: ios-gen ## Build iPhone staging app for generic iOS Simulator
+ios-uniffi: ## Build UniFFI staticlib for iOS Simulator and stage Native/
+	@chmod +x scripts/build-ios-uniffi.sh
+	./scripts/build-ios-uniffi.sh
+
+ios-build: ios-uniffi ios-gen ## Build iPhone staging app (UniFFI linked) for Simulator
 	cd apps/ios && xcodebuild -project SwipeDating.xcodeproj -scheme SwipeDating \
 		-sdk iphonesimulator -destination 'generic/platform=iOS Simulator' \
 		-configuration Debug build CODE_SIGNING_ALLOWED=NO
 
-ios-open: ios-gen ## Open the iPhone app in Xcode
+ios-open: ios-uniffi ios-gen ## Open the iPhone app in Xcode
 	open apps/ios/SwipeDating.xcodeproj
 
 test-e2e:
@@ -121,6 +125,9 @@ local-up:
 
 smoke-local: ## Build and smoke-test control-plane services without Docker
 	@bash $(SCRIPTS)/local-smoke.sh
+
+local-services-up: ## Start control-plane services on 8080–8085 and leave them running
+	@bash $(SCRIPTS)/local-services-up.sh
 
 local-down:
 	@if command -v docker >/dev/null 2>&1 && docker info >/dev/null 2>&1; then \
