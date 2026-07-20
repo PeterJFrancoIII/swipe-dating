@@ -2,42 +2,39 @@
 
 ## User objective
 
-Deploy a complete **staging** implementation of a local-first, privacy-preserving, adults-only swipe dating platform per `.cursor/commands/deploy-decentralized-dating-app.md` (research snapshot 2026-07-20). Prepare production artifacts, but do not deploy production or fabricate legal, security, trust-and-safety, app-store, or executive approvals.
+Build a local-first, privacy-preserving, adults-only swipe dating platform. **Current focus: the iPhone (iOS) client first** — a runnable staging app on Simulator/device that exercises onboarding, discovery, match, chat, and safety flows.
 
 ## Current objective
 
-Execute the deploy runbook phases in order on branch `feat/local-first-dating-platform`, verify with evidence, stop at the production gate with `PRODUCTION_BLOCKED_HUMAN_APPROVALS_REQUIRED`.
+Ship a working **LocalFirst Dating STAGING** iPhone app (`apps/ios/SwipeDating.xcodeproj`) with Phase 9 flows, accessibility actions (not swipe-only), fail-closed age gate, and visible STAGING banner. Android and cloud staging are secondary until the iPhone client is solid.
 
 ## Success criteria
 
-- [ ] Hybrid local-first architecture with ephemeral control plane and E2EE peer data plane
-- [ ] Shared Rust core with iOS/Android stubs and UniFFI boundary
-- [ ] Staging-capable services, IaC, CI, tests, safety/privacy docs
-- [ ] Final agent report with honest pass/fail/blocked status
-- [ ] Production gate rejects autonomous production deploy
+- [ ] iPhone app builds and launches on Simulator
+- [ ] Age gate fail-closed; adults-only path into discovery
+- [ ] Swipe deck with Interested / Pass / Details / Block / Report buttons
+- [ ] Match → conversation; block/report/safety center
+- [ ] STAGING banner always visible; no production claims
 
-## Non-goals
+## Non-goals (this slice)
 
-- Production submission, DNS, store upload, or real legal filings
-- Minors / parent-managed accounts
-- Public feeds, live streaming, random chat, proximity radar, public ratings
-- Cryptocurrency, marketplace, facial recognition, central ML on user media
-- Fabricating approvals or weakening safety/privacy controls
+- App Store submission
+- Production deploy
+- Full UniFFI native link (STAGING bridge OK until XCFramework wired)
+- Android feature parity (deferred)
 
 ## Constraints
 
-- Stack: Rust (Tokio/Axum), UniFFI, SwiftUI, Kotlin Compose, PostgreSQL, Valkey, Terraform, Docker Compose
-- Deployment: staging only; production reference IaC generated but not applied
-- Security/privacy: adults-only, no exact location, no operator access to ordinary private content
-- Timeline: autonomous staging build; stop at production gate
+- Stack: SwiftUI, iOS 17+, Xcode
+- Privacy: no exact location; relay-first default; no operator plaintext custody claims beyond staging honesty
+- Safety: block/report free; limitations disclosed
 
 ## Source of truth
 
 - Spec: docs/specs/current-objective.md
-- Deploy command: .cursor/commands/deploy-decentralized-dating-app.md
-- Architecture map: docs/architecture/system-overview.md
-- Decision log: docs/ai/ai-decision-log.md
+- Deploy command: .cursor/commands/deploy-decentralized-dating-app.md (Phase 9)
+- iOS: apps/ios/
 
 ## Red-zone areas
 
-Changes to auth, payments, permissions, production infrastructure, customer data, secrets, and database migrations require explicit human approval. This command may apply **staging** only after account identity verification.
+Auth/age/crypto/production require human approval for real vendors and release.

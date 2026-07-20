@@ -1,46 +1,57 @@
-# Swipe Dating — iOS (staging skeleton)
+# Swipe Dating — iPhone (STAGING)
 
-Structural Swift package placeholder for Phases 7–17. **Not App Store ready.**
+Runnable SwiftUI iPhone app for the local-first dating staging client.
 
-## Layout
+## Open in Xcode
 
-- `Package.swift` — SwiftPM library (no Xcode project required for structure review)
-- `Sources/` — `StagingRootView`, `AgeGateView`, `DiscoveryView` placeholders
-- `VERIFY.md` — local verification steps and known blockers
+```bash
+cd apps/ios
+xcodegen generate   # regenerates SwipeDating.xcodeproj from project.yml
+open SwipeDating.xcodeproj
+```
 
-## Tuist (optional)
+Select an **iPhone simulator** whose runtime matches your installed iOS platform (Xcode → Settings → Components), then Run (⌘R).
 
-A Tuist project is **not** generated in this scaffold. If the team adopts Tuist later:
+## Build from CLI
 
-1. Add `Project.swift` at this directory root.
-2. Point dependencies at `Package.swift` local path or generated XCFramework from UniFFI.
+```bash
+cd apps/ios
+xcodegen generate
+xcodebuild -project SwipeDating.xcodeproj -scheme SwipeDating \
+  -destination 'platform=iOS Simulator,name=iPhone 17' \
+  -configuration Debug build
+```
 
-## UniFFI boundary
+If xcodebuild says `iOS 26.5 is not installed`, install the simulator platform:
 
-Shared Rust core (`core/uniffi-bindings`) exposes audited APIs via UniFFI. Private signing keys never cross FFI.
+```bash
+xcodebuild -downloadPlatform iOS
+```
 
-Generate Swift bindings:
+## Flows included
+
+1. Welcome + staging disclosure  
+2. Age gate (18+, fail-closed mock)  
+3. Local identity + recovery acknowledgment  
+4. Permission education (coarse region only)  
+5. Profile setup  
+6. Discover deck with **Interested / Pass / Details / Block / Report** (not swipe-only)  
+7. Matches + conversation  
+8. Safety center + emergency privacy mode  
+9. Settings (relay-only, mailbox opt-in off by default, delete local account)  
+10. Internal diagnostics (redacted)
+
+## UniFFI
+
+Shared Rust core bindings live in `Generated/`. The app uses `DatingCoreBridge` with a STAGING mock until the native library is linked (`DATING_UNIFFI_LINKED`).
 
 ```bash
 source "$HOME/.cargo/env"
 ./scripts/generate-uniffi.sh
 ```
 
-Outputs land in `apps/ios/Generated/`. Wire them into `Package.swift` (local target sources) before calling from SwiftUI views.
+## Not ready
 
-Until bindings are generated and linked:
-
-- No cryptographic or matching logic in Swift views
-- Age assurance remains fail-closed stub
-- Do not claim production privacy/safety properties from this skeleton
-
-## Build expectations
-
-Xcode 15+ / Swift 5.9+. Structural review only — full Xcode build success is not required for this phase.
-
-```bash
-cd apps/ios
-swift build  # may require macOS + Xcode toolchain
-```
-
-See `VERIFY.md` for pass/fail criteria.
+- App Store / TestFlight production
+- Real age vendor / App Attest / WebRTC peer path
+- Cloud staging control-plane wiring from the phone (use `make smoke-local` on Mac for services)

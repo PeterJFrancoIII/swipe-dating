@@ -5,7 +5,7 @@ SHELL := /bin/bash
 .PHONY: bootstrap doctor format lint test test-unit test-integration test-protocol-vectors \
 	test-mobile test-e2e test-load test-chaos fuzz-smoke security sbom licenses \
 	local-up local-down local-reset-test-data smoke-local infra-fmt infra-validate infra-plan-staging \
-	deploy-staging smoke-staging release-readiness production-preflight
+	deploy-staging smoke-staging release-readiness production-preflight ios-build ios-open ios-gen
 
 COMPOSE_FILE := infra/local/compose.yaml
 STAGING_IDENTITY := infra/terraform/environments/staging/ACCOUNT_IDENTITY.md
@@ -59,16 +59,25 @@ test-integration:
 test-protocol-vectors:
 	@source "$$HOME/.cargo/env" && cargo test -p dating-protocol --test golden_vectors -- --nocapture
 
-test-mobile:
-	@echo "=== iOS (structural) ==="
-	@test -f apps/ios/VERIFY.md && cat apps/ios/VERIFY.md | head -5 || echo "apps/ios missing"
-	@echo "=== Android (structural) ==="
+test-mobile: ios-build
+	@echo "=== Android (optional; deferred while iPhone-first) ==="
 	@if command -v java >/dev/null 2>&1 && test -f apps/android/gradlew; then \
-		cd apps/android && ./gradlew :app:assembleDebug --dry-run 2>/dev/null || \
-		echo "STUB: Gradle wrapper jar may be missing — see apps/android/VERIFY.md"; \
+		echo "Android wrapper present — run ./gradlew :app:assembleDebug when ready"; \
 	else \
-		echo "STUB: Java or Gradle wrapper missing — see apps/android/VERIFY.md"; \
+		echo "Android toolchain optional for current iPhone-first focus"; \
 	fi
+
+ios-gen:
+	@command -v xcodegen >/dev/null 2>&1 || { echo "Install xcodegen: brew install xcodegen"; exit 1; }
+	cd apps/ios && xcodegen generate
+
+ios-build: ios-gen ## Build iPhone staging app for generic iOS Simulator
+	cd apps/ios && xcodebuild -project SwipeDating.xcodeproj -scheme SwipeDating \
+		-sdk iphonesimulator -destination 'generic/platform=iOS Simulator' \
+		-configuration Debug build CODE_SIGNING_ALLOWED=NO
+
+ios-open: ios-gen ## Open the iPhone app in Xcode
+	open apps/ios/SwipeDating.xcodeproj
 
 test-e2e:
 	@echo "STUB: E2E device-pair smoke not wired in CI yet (requires staging URL + test harness)."
