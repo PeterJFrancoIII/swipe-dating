@@ -56,3 +56,9 @@ infra/local/data/
 apps/android/**/build/
 sbom/
 apps/ios/.build/
+target
+.cache
+# Local-only caches (symlinked outside Google Drive)
+.toolchains
+apps/android/app/build
+apps/ios/.build
