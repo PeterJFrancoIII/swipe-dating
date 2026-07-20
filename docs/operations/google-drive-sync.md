@@ -1,28 +1,38 @@
 # Google Drive bi-directional sync
 
+## Source of truth
+
+**Google Drive (cloud) is the current / authoritative version** of this project.
+
+Local Cursor/Finder edits go through the Drive for Desktop mount and sync both ways. If a conflict copy appears, prefer the Drive/cloud revision unless you intentionally keep a local conflict file.
+
 ## Setup (2026-07-20)
 
-The **Swipe Dating** repo lives inside Google Drive for Desktop:
+Canonical path on this Mac (Drive-backed):
 
 `My Drive/App Development/Swipe Dating`
 
-The old path is a symlink:
+Convenience symlink (same files):
 
-`/Users/computer/App Development/Swipe Dating` → Drive location above
+`/Users/computer/App Development/Swipe Dating` → that Drive folder
 
-Drive for Desktop syncs that folder **bi-directionally** with Google Drive (local ↔ cloud).
+Drive for Desktop syncs **bi-directionally** (this Mac ↔ Google Drive cloud).
 
-## Local-only (not meant for cloud)
+## Local-only (not for cloud)
 
-These are symlinked to `~/.cache/swipe-dating-local/` so build caches stay off Drive:
+Symlinked to `~/.cache/swipe-dating-local/`:
 
 - `target/`
 - `.toolchains/`
 - `apps/android/app/build/`
 - `apps/ios/.build/`
 
+## Related Drive pointer
+
+`My Drive/Dating.gprj` references Drive id `10fykI-lY--GrFiWUf8NiPleaj_FVcJxg`. If GPT edited a *different* Drive folder than `App Development/Swipe Dating`, point Cursor at that folder so we can align paths.
+
 ## Notes
 
-- Edits in Finder/Drive web/Cursor all share the same files once Drive finishes syncing.
-- Conflict copies can appear if the same file is edited offline on two machines.
-- Do not put secrets in the synced tree; prefer local env files (already gitignored).
+- Wait for Drive upload/download icons to settle after large changes.
+- Avoid editing the same file offline on two machines without syncing first.
+- Keep secrets out of the synced tree (use local `.env`, already gitignored).
