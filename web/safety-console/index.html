@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Safety Console — STAGING</title>
+  <style>
+    :root { font-family: system-ui, sans-serif; }
+    .banner { background: #c2410c; color: #fff; padding: 0.5rem 1rem; font-weight: 600; }
+    main { max-width: 48rem; margin: 2rem auto; padding: 0 1rem; }
+    table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+    th, td { border: 1px solid #ddd; padding: 0.5rem; text-align: left; }
+    th { background: #f5f5f5; }
+    .empty { color: #666; font-style: italic; }
+  </style>
+</head>
+<body>
+  <div class="banner">STAGING — Safety Console (not production)</div>
+  <main>
+    <h1>Safety cases</h1>
+    <p class="empty">No cases loaded. Connect to <code>safety-console-api</code> when staging is deployed.</p>
+    <table aria-label="Safety cases">
+      <thead>
+        <tr>
+          <th>Case ID</th>
+          <th>Category</th>
+          <th>Status</th>
+          <th>Created</th>
+        </tr>
+      </thead>
+      <tbody id="cases-body">
+        <tr><td colspan="4" class="empty">— empty —</td></tr>
+      </tbody>
+    </table>
+    <p><small>UNAPPROVED operator UI. Evidence vault access requires human T&amp;S workflow.</small></p>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+schema_version: 1
+environment: staging
+region: CHANGE_ME
+domain: staging.example.invalid
+control_plane_replicas: 2
+presence_lease_ttl_seconds: 120
+sealed_mailbox_enabled: false
+turn_provider: interface
+cloud_provider: reference_aws_fargate

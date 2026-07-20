@@ -1,0 +1,52 @@
+# OS / IDE
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.xcuserstate
+xcuserdata/
+
+# Env / secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.p12
+*.jks
+*.keystore
+secrets/
+**/google-services.json
+**/AuthKey_*.p8
+
+# Build
+/target/
+**/build/
+**/.gradle/
+**/DerivedData/
+**/Pods/
+**/.swiftpm/
+**/node_modules/
+dist/
+out/
+coverage/
+*.app
+*.apk
+*.aab
+*.ipa
+
+# Terraform
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example
+crash.log
+
+# Local data
+infra/local/data/
+*.sqlite
+*.db
+
+# SBOM / audit scratch
+/sbom/
+/reports/

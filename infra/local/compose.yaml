@@ -1,0 +1,88 @@
+# Local control-plane dependencies for Swipe Dating staging development.
+# Presence/signaling leases live in Valkey (TTL) — NOT durable in PostgreSQL.
+# Rendezvous/signaling service is built separately from services/rendezvous.
+
+name: swipe-dating-local
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: swipe
+      POSTGRES_PASSWORD: swipe_local_dev_only
+      POSTGRES_DB: swipe_control
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ../../migrations:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U swipe -d swipe_control"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  valkey:
+    image: valkey/valkey:8-alpine
+    command: ["valkey-server", "--save", "", "--appendonly", "no"]
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "valkey-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  minio:
+    image: minio/minio:latest
+    profiles: ["object-store"]
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: swipe_local
+      MINIO_ROOT_PASSWORD: swipe_local_dev_only
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - miniodata:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+  # coturn is optional for local WebRTC relay testing; uncomment if you need TURN locally.
+  # Resource-heavy; staging typically uses managed TURN (see ADR-0008).
+  # coturn:
+  #   image: coturn/coturn:latest
+  #   network_mode: host
+  #   volumes:
+  #     - ./coturn/turnserver.conf:/etc/coturn/turnserver.conf:ro
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "timeout 2 bash -c '</dev/tcp/127.0.0.1/3478' || exit 1"]
+  #     interval: 15s
+  #     timeout: 5s
+  #     retries: 3
+
+  # Rendezvous / control-plane API — build from repo root when service crate is ready:
+  #   docker compose -f infra/local/compose.yaml build rendezvous
+  # rendezvous:
+  #   build:
+  #     context: ../..
+  #     dockerfile: services/rendezvous/Dockerfile
+  #   environment:
+  #     DATABASE_URL: postgres://swipe:swipe_local_dev_only@postgres:5432/swipe_control
+  #     REDIS_URL: redis://valkey:6379
+  #   ports:
+  #     - "8080:8080"
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #     valkey:
+  #       condition: service_healthy
+
+volumes:
+  pgdata:
+  miniodata:

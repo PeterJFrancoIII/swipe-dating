@@ -1,0 +1,17 @@
+[package]
+name = "dating-storage"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[dependencies]
+dating-protocol = { path = "../protocol" }
+dating-identity = { path = "../identity" }
+serde = { workspace = true }
+thiserror = { workspace = true }
+chrono = { workspace = true }
+zeroize = { workspace = true }
+
+[dev-dependencies]
+dating-test-support = { path = "../test-support" }

@@ -1,0 +1,248 @@
+openapi: 3.1.0
+info:
+  title: Swipe Dating Control Plane API
+  version: 0.1.0-staging
+  description: |
+    Ephemeral rendezvous, presence, discovery metadata, and fetch-ticket endpoints.
+    STAGING scaffold — not production-ready. No profile or message bodies on this plane.
+servers:
+  - url: https://staging.example.invalid/v1
+    description: Staging (placeholder — replace after deploy)
+  - url: http://localhost:8080/v1
+    description: Local rendezvous (when running)
+
+tags:
+  - name: health
+  - name: presence
+  - name: rendezvous
+  - name: discovery
+  - name: fetch-ticket
+
+paths:
+  /health:
+    get:
+      tags: [health]
+      summary: Liveness and dependency probe
+      operationId: getHealth
+      responses:
+        "200":
+          description: Service healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+        "503":
+          description: Dependency unavailable
+
+  /presence/lease:
+    put:
+      tags: [presence]
+      summary: Renew ephemeral presence lease (stored in Valkey TTL)
+      operationId: renewPresenceLease
+      security:
+        - deviceSignature: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PresenceLeaseRequest"
+      responses:
+        "200":
+          description: Lease renewed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PresenceLeaseResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /rendezvous/sessions:
+    post:
+      tags: [rendezvous]
+      summary: Create signaling rendezvous session
+      operationId: createRendezvousSession
+      security:
+        - deviceSignature: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RendezvousSessionRequest"
+      responses:
+        "201":
+          description: Session created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RendezvousSessionResponse"
+
+  /discovery/candidates:
+    post:
+      tags: [discovery]
+      summary: Request coarse discovery candidates (no exact location)
+      operationId: postDiscoveryCandidates
+      security:
+        - deviceSignature: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DiscoveryRequest"
+      responses:
+        "200":
+          description: Candidate handles returned
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DiscoveryResponse"
+
+  /fetch-tickets:
+    post:
+      tags: [fetch-ticket]
+      summary: Issue short-lived ticket for peer blob fetch (no blob content here)
+      operationId: createFetchTicket
+      security:
+        - deviceSignature: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FetchTicketRequest"
+      responses:
+        "201":
+          description: Ticket issued
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FetchTicketResponse"
+
+components:
+  securitySchemes:
+    deviceSignature:
+      type: http
+      scheme: bearer
+      description: Ed25519 device attestation token (implementation TBD)
+
+  responses:
+    Unauthorized:
+      description: Missing or invalid device credentials
+
+  schemas:
+    HealthResponse:
+      type: object
+      required: [status, environment]
+      properties:
+        status:
+          type: string
+          enum: [ok, degraded]
+        environment:
+          type: string
+          example: staging
+        dependencies:
+          type: object
+          additionalProperties:
+            type: string
+
+    PresenceLeaseRequest:
+      type: object
+      required: [device_id, coarse_region_id]
+      properties:
+        device_id:
+          type: string
+          format: uuid
+        coarse_region_id:
+          type: string
+          description: Privacy-preserving region bucket (no lat/lon)
+
+    PresenceLeaseResponse:
+      type: object
+      required: [lease_id, expires_at]
+      properties:
+        lease_id:
+          type: string
+        expires_at:
+          type: string
+          format: date-time
+
+    RendezvousSessionRequest:
+      type: object
+      required: [initiator_device_id, peer_device_id]
+      properties:
+        initiator_device_id:
+          type: string
+          format: uuid
+        peer_device_id:
+          type: string
+          format: uuid
+
+    RendezvousSessionResponse:
+      type: object
+      required: [session_id, ice_servers]
+      properties:
+        session_id:
+          type: string
+          format: uuid
+        ice_servers:
+          type: array
+          items:
+            type: object
+            properties:
+              urls:
+                type: array
+                items:
+                  type: string
+
+    DiscoveryRequest:
+      type: object
+      required: [device_id, coarse_region_id]
+      properties:
+        device_id:
+          type: string
+          format: uuid
+        coarse_region_id:
+          type: string
+        max_candidates:
+          type: integer
+          minimum: 1
+          maximum: 50
+          default: 20
+
+    DiscoveryResponse:
+      type: object
+      required: [candidates]
+      properties:
+        candidates:
+          type: array
+          items:
+            type: object
+            required: [device_id, discovery_handle]
+            properties:
+              device_id:
+                type: string
+                format: uuid
+              discovery_handle:
+                type: string
+
+    FetchTicketRequest:
+      type: object
+      required: [blob_ref, purpose]
+      properties:
+        blob_ref:
+          type: string
+        purpose:
+          type: string
+          enum: [profile_card, media_thumb]
+
+    FetchTicketResponse:
+      type: object
+      required: [ticket, expires_at]
+      properties:
+        ticket:
+          type: string
+        expires_at:
+          type: string
+          format: date-time

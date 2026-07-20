@@ -1,0 +1,17 @@
+---
+description: Backend control-plane service rules.
+globs:
+  - "services/**"
+  - "migrations/**"
+  - "infra/**"
+alwaysApply: false
+---
+
+# Backend
+
+- Do: store only ephemeral presence, anti-abuse, and minimal metadata by default.
+- Do: use parameterized SQL, migrations, timeouts, cancellation, bounded retries.
+- Do: keep sealed mailbox disabled by default; ciphertext only when enabled.
+- Never: persist ordinary profile bodies, photos, or message plaintext.
+- Never: apply production Terraform from an autonomous agent session.
+- Verify: `make test-integration` and migration checks for schema changes.

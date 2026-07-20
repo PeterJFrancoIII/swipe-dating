@@ -1,0 +1,23 @@
+# CODEOWNERS
+
+# Default
+* @CHANGE_ME_SECURITY_OWNER
+
+# Cryptography, identity, protocol
+/core/crypto/ @CHANGE_ME_CRYPTO_OWNER @CHANGE_ME_SECURITY_OWNER
+/core/identity/ @CHANGE_ME_CRYPTO_OWNER @CHANGE_ME_SECURITY_OWNER
+/core/protocol/ @CHANGE_ME_CRYPTO_OWNER @CHANGE_ME_SECURITY_OWNER
+/schemas/ @CHANGE_ME_CRYPTO_OWNER
+
+# Age, location, safety
+/core/safety/ @CHANGE_ME_SAFETY_OWNER @CHANGE_ME_SECURITY_OWNER
+/services/report-ingest/ @CHANGE_ME_SAFETY_OWNER @CHANGE_ME_SECURITY_OWNER
+/services/safety-console-api/ @CHANGE_ME_SAFETY_OWNER
+/docs/safety/ @CHANGE_ME_SAFETY_OWNER
+/docs/privacy/ @CHANGE_ME_PRIVACY_OWNER
+
+# Infrastructure and release
+/infra/ @CHANGE_ME_INFRA_OWNER @CHANGE_ME_SECURITY_OWNER
+/.github/workflows/ @CHANGE_ME_INFRA_OWNER @CHANGE_ME_SECURITY_OWNER
+/approvals/ @CHANGE_ME_RELEASE_OWNER @CHANGE_ME_SECURITY_OWNER
+/docs/legal/ @CHANGE_ME_LEGAL_OWNER

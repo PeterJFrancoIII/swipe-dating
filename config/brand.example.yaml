@@ -1,0 +1,9 @@
+schema_version: 1
+app_slug: local-first-dating
+app_display_name: LocalFirst Dating
+bundle_id_prefix: org.example.localfirstdating
+support_email: CHANGE_ME
+safety_email: CHANGE_ME
+legal_entity: CHANGE_ME
+pilot_market: BLOCKED_PENDING_APPROVAL
+staging_banner: true

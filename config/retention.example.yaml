@@ -1,0 +1,10 @@
+schema_version: 1
+presence_lease_seconds: 120
+signaling_ticket_seconds: 60
+fetch_ticket_seconds: 45
+mailbox_envelope_ttl_hours: 72
+mailbox_quota_bytes: 5242880
+push_token_retention_days: 30
+telemetry_technical_days: 14
+report_case_retention_policy: human_owned
+identity_document_retention: never

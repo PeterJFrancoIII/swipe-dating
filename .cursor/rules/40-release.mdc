@@ -1,0 +1,18 @@
+---
+description: Release and production-gate rules.
+globs:
+  - "approvals/**"
+  - ".github/workflows/**"
+  - "infra/terraform/environments/production/**"
+  - "docs/execution/**"
+alwaysApply: false
+---
+
+# Release
+
+- Do: require named human approvals for production.
+- Do: keep `make production-preflight` validation-only (no deploy).
+- Do: mark legal/policy drafts as UNAPPROVED until counsel signs.
+- Never: disable branch protection, secret scanning, or release signing.
+- Never: fabricate audit, legal, or approval artifacts.
+- Verify: production gate exits non-zero without authentic approvals.

@@ -1,0 +1,26 @@
+[package]
+name = "dating-turn-credentials"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[dependencies]
+dating-services-common = { path = "../common" }
+axum = { workspace = true }
+tokio = { workspace = true }
+serde = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+tower-http = { workspace = true }
+
+[lib]
+name = "dating_turn_credentials"
+path = "src/lib.rs"
+
+[dev-dependencies]
+tower = { workspace = true }
+
+[[bin]]
+name = "turn-credentials"
+path = "src/main.rs"

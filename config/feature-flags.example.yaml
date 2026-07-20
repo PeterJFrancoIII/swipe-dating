@@ -1,0 +1,8 @@
+schema_version: 1
+sealed_mailbox: false
+direct_p2p_after_match: false
+verification_badges: false
+experimental_transport: false
+safety_console: true
+mock_age_assurance: true
+mock_attestation: true

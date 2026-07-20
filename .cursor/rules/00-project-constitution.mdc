@@ -1,0 +1,18 @@
+---
+description: Always apply project constitution for local-first dating platform.
+alwaysApply: true
+---
+
+# Project constitution
+
+- Read `MISSION.md` and `AGENTS.md` before planning major changes.
+- Adults only (18+). Fail closed when age eligibility cannot be established.
+- No exact location, precise distance, or real-time proximity alerts to peers.
+- No operator access to ordinary profiles, photos, or messages.
+- No sale or ad-training use of dating/sexuality/location/message/photo data.
+- No paywall on block, report, age assurance, encryption, or basic discovery.
+- Prefer the smallest coherent slice; create an ADR before new architecture.
+- Staging deploy only after staging account identity verification.
+- Never deploy production, submit to app stores, or fabricate approvals.
+- Never weaken encryption, age, block/report, retention, or audit controls to unblock work.
+- Evidence before confidence: do not claim tests passed without command output.

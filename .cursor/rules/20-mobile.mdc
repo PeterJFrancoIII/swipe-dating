@@ -1,0 +1,18 @@
+---
+description: Mobile application rules for iOS and Android.
+globs:
+  - "apps/ios/**"
+  - "apps/android/**"
+  - "core/uniffi-bindings/**"
+alwaysApply: false
+---
+
+# Mobile
+
+- Do: keep audited logic in the Rust core; UI adapters stay thin.
+- Do: show visible STAGING / INTERNAL BETA marker until approved branding.
+- Do: support accessibility (labels, dynamic type, reduced motion, contrast).
+- Do: follow platform background rules; do not rely on always-running processes.
+- Never: collect contacts, mic, Bluetooth, health, ad ID, clipboard, or local files without separate approval.
+- Never: put dating content in push payloads.
+- Verify: platform unit tests and accessibility spot checks for changed screens.

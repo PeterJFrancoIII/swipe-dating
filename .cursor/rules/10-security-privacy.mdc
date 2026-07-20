@@ -1,0 +1,20 @@
+---
+description: Security and privacy rules for all source changes.
+globs:
+  - "core/**"
+  - "services/**"
+  - "apps/**"
+  - "schemas/**"
+alwaysApply: false
+---
+
+# Security and privacy
+
+- Do: redact secrets from Debug/Display; use OS CSPRNG; constant-time compare for tokens.
+- Do: classify every network field (purpose, owner, retention, deletion).
+- Do: strip EXIF/GPS from shared media; keep precise location in memory only.
+- Do: bound all parsers (size, depth, decode time, dimensions).
+- Never: custom cryptographic primitives; log PII, profile text, messages, exact location, or evidence.
+- Never: force-unwrap/panic in normal mobile or service control flow.
+- Never: disable TLS validation in release builds.
+- Verify: `make security` and relevant unit tests for touched modules.

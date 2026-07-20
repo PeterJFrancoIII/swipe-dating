@@ -1,0 +1,9 @@
+sha256: 495ef0fb6d80b2ec81f05277301669cccdf46f2b1b1323eb2241f15a84530f0f
+command_path: .cursor/commands/deploy-decentralized-dating-app.md
+source_research_path: Research/deploy-decentralized-dating-app.md
+modifications_during_execution: none (byte-identical copy from Research)
+cursor_mode: AUTO / Agent
+cursor_version: unknown_in_session
+authorized_by: user deploy request 2026-07-20
+recorded_at_utc: 2026-07-20T20:30:58Z
+note: Digest is an audit aid, not a signature or approval.

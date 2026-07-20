@@ -1,0 +1,87 @@
+name: CI
+
+on:
+  push:
+    branches: [main, feat/**]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  rust:
+    name: Rust fmt / clippy / test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - uses: Swatinem/rust-cache@v2
+      - name: Format check
+        run: cargo fmt --all -- --check
+      - name: Clippy
+        run: cargo clippy --workspace --all-targets -- -D warnings
+      - name: Unit tests
+        run: cargo test --workspace
+
+  command-integrity:
+    name: Deploy command integrity
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify SHA-256
+        run: bash scripts/command_integrity_check.sh
+
+  android:
+    name: Android (placeholder)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check Java
+        id: java
+        run: |
+          if command -v java >/dev/null 2>&1; then
+            echo "available=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "available=false" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Skip — Java missing
+        if: steps.java.outputs.available != 'true'
+        run: echo "SKIP android job — Java not available on runner"
+      - name: Structural check
+        if: steps.java.outputs.available == 'true'
+        run: |
+          test -f apps/android/settings.gradle.kts
+          test -f apps/android/app/build.gradle.kts
+          echo "Android skeleton present; full assemble not run in CI scaffold"
+
+  ios:
+    name: iOS (placeholder)
+    runs-on: macos-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - name: Structural check
+        run: |
+          test -f apps/ios/Package.swift
+          test -f apps/ios/Sources/StagingRootView.swift
+      - name: Swift build (optional)
+        continue-on-error: true
+        run: |
+          cd apps/ios
+          swift build 2>/dev/null || echo "SKIP swift build — toolchain or deps unavailable"
+
+  production-gate:
+    name: Production preflight (must fail without approvals)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: production-preflight must block
+        run: |
+          if bash scripts/production_preflight.sh; then
+            echo "ERROR: production-preflight should have blocked"
+            exit 1
+          fi
+          echo "OK: PRODUCTION_BLOCKED_HUMAN_APPROVALS_REQUIRED (expected)"

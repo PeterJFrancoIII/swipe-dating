@@ -1,0 +1,374 @@
+{
+  "schema_version": 1,
+  "project": "local-first-dating-platform",
+  "research_snapshot": "2026-07-20",
+  "started_at": "2026-07-20T20:22:13Z",
+  "updated_at": "2026-07-20T20:30:58Z",
+  "base_commit": null,
+  "current_commit": null,
+  "deployment_environment": "staging",
+  "command_sha256": "495ef0fb6d80b2ec81f05277301669cccdf46f2b1b1323eb2241f15a84530f0f",
+  "outcome": "PARTIAL",
+  "production_gate": "PRODUCTION_BLOCKED_HUMAN_APPROVALS_REQUIRED",
+  "phases": {
+    "phase_0_preflight": {
+      "status": "complete",
+      "started_at": "2026-07-20T20:22:13Z",
+      "completed_at": "2026-07-20T20:30:58Z",
+      "commit_sha": null,
+      "verification_command": "test preflight artifacts",
+      "verification_result": "passed",
+      "artifacts": [
+        "docs/execution/preflight-report.md"
+      ],
+      "notes": [
+        "greenfield init"
+      ]
+    },
+    "phase_1_constitution": {
+      "status": "complete",
+      "started_at": "2026-07-20T20:22:13Z",
+      "completed_at": "2026-07-20T20:30:58Z",
+      "commit_sha": null,
+      "verification_command": "find .cursor docs policies",
+      "verification_result": "passed",
+      "artifacts": [
+        "AGENTS.md",
+        "MISSION.md"
+      ],
+      "notes": []
+    },
+    "phase_2_architecture": {
+      "status": "complete",
+      "started_at": "2026-07-20T20:22:13Z",
+      "completed_at": "2026-07-20T20:30:58Z",
+      "commit_sha": null,
+      "verification_command": "ADR file presence",
+      "verification_result": "passed",
+      "artifacts": [
+        "docs/architecture/adr-0001-hybrid-local-first.md"
+      ],
+      "notes": []
+    },
+    "phase_3_toolchains": {
+      "status": "complete",
+      "started_at": "2026-07-20T20:22:13Z",
+      "completed_at": "2026-07-20T20:30:58Z",
+      "commit_sha": null,
+      "verification_command": "make doctor; cargo test",
+      "verification_result": "passed_with_blockers",
+      "artifacts": [
+        "Makefile",
+        "Cargo.toml",
+        ".github/workflows/ci.yml"
+      ],
+      "notes": [
+        "Java/Terraform missing recorded"
+      ]
+    },
+    "phase_4_protocol_core": {
+      "status": "complete",
+      "started_at": "2026-07-20T20:22:13Z",
+      "completed_at": "2026-07-20T20:30:58Z",
+      "commit_sha": null,
+      "verification_command": "cargo test -p dating-protocol",
+      "verification_result": "passed",
+      "artifacts": [
+        "core/protocol"
+      ],
+      "notes": []
+    },
+    "phase_5_local_storage": {
+      "status": "complete",
+      "started_at": "2026-07-20T20:22:13Z",
+      "completed_at": "2026-07-20T20:30:58Z",
+      "commit_sha": null,
+      "verification_command": "cargo test -p dating-storage",
+      "verification_result": "passed_with_blockers",
+      "artifacts": [
+        "core/storage"
+      ],
+      "notes": [
+        "MemoryStore only; OS adapters deferred"
+      ]
+    },
+    "phase_6_control_plane": {
+      "status": "complete",
+      "started_at": "2026-07-20T20:22:13Z",
+      "completed_at": "2026-07-20T20:30:58Z",
+      "commit_sha": null,
+      "verification_command": "cargo test -p dating-rendezvous",
+      "verification_result": "passed",
+      "artifacts": [
+        "services/rendezvous"
+      ],
+      "notes": [
+        "in-memory presence"
+      ]
+    },
+    "phase_7_webrtc": {
+      "status": "complete",
+      "started_at": "2026-07-20T20:22:13Z",
+      "completed_at": "2026-07-20T20:30:58Z",
+      "commit_sha": null,
+      "verification_command": "cargo test -p dating-transport-api",
+      "verification_result": "passed_with_blockers",
+      "artifacts": [
+        "core/transport-api"
+      ],
+      "notes": [
+        "policy enum only"
+      ]
+    },
+    "phase_8_media": {
+      "status": "complete",
+      "started_at": "2026-07-20T20:22:13Z",
+      "completed_at": "2026-07-20T20:30:58Z",
+      "commit_sha": null,
+      "verification_command": "cargo test -p dating-media",
+      "verification_result": "passed_with_blockers",
+      "artifacts": [
+        "core/media"
+      ],
+      "notes": [
+        "manifest bounds; codecs deferred"
+      ]
+    },
+    "phase_9_ios": {
+      "status": "complete",
+      "started_at": "2026-07-20T20:22:13Z",
+      "completed_at": "2026-07-20T20:30:58Z",
+      "commit_sha": null,
+      "verification_command": "structural VERIFY.md",
+      "verification_result": "passed_with_blockers",
+      "artifacts": [
+        "apps/ios"
+      ],
+      "notes": [
+        "shell only"
+      ]
+    },
+    "phase_10_android": {
+      "status": "complete",
+      "started_at": "2026-07-20T20:22:13Z",
+      "completed_at": "2026-07-20T20:30:58Z",
+      "commit_sha": null,
+      "verification_command": "structural VERIFY.md",
+      "verification_result": "passed_with_blockers",
+      "artifacts": [
+        "apps/android"
+      ],
+      "notes": [
+        "Java missing"
+      ]
+    },
+    "phase_11_matching": {
+      "status": "complete",
+      "started_at": "2026-07-20T20:22:13Z",
+      "completed_at": "2026-07-20T20:30:58Z",
+      "commit_sha": null,
+      "verification_command": "cargo test -p dating-matching",
+      "verification_result": "passed",
+      "artifacts": [
+        "core/matching"
+      ],
+      "notes": []
+    },
+    "phase_12_messaging": {
+      "status": "complete",
+      "started_at": "2026-07-20T20:22:13Z",
+      "completed_at": "2026-07-20T20:30:58Z",
+      "commit_sha": null,
+      "verification_command": "cargo test -p dating-messaging",
+      "verification_result": "passed",
+      "artifacts": [
+        "core/messaging",
+        "services/sealed-mailbox"
+      ],
+      "notes": [
+        "mailbox default off"
+      ]
+    },
+    "phase_13_safety": {
+      "status": "complete",
+      "started_at": "2026-07-20T20:22:13Z",
+      "completed_at": "2026-07-20T20:30:58Z",
+      "commit_sha": null,
+      "verification_command": "docs + report-ingest tests",
+      "verification_result": "passed_with_blockers",
+      "artifacts": [
+        "core/safety",
+        "docs/safety"
+      ],
+      "notes": [
+        "console stub"
+      ]
+    },
+    "phase_14_age": {
+      "status": "complete",
+      "started_at": "2026-07-20T20:22:13Z",
+      "completed_at": "2026-07-20T20:30:58Z",
+      "commit_sha": null,
+      "verification_command": "cargo test -p dating-identity age",
+      "verification_result": "passed",
+      "artifacts": [
+        "core/identity/src/age.rs"
+      ],
+      "notes": [
+        "mock provider only"
+      ]
+    },
+    "phase_15_legal": {
+      "status": "complete",
+      "started_at": "2026-07-20T20:22:13Z",
+      "completed_at": "2026-07-20T20:30:58Z",
+      "commit_sha": null,
+      "verification_command": "draft presence",
+      "verification_result": "passed",
+      "artifacts": [
+        "docs/legal"
+      ],
+      "notes": [
+        "all UNAPPROVED"
+      ]
+    },
+    "phase_16_observability": {
+      "status": "complete",
+      "started_at": "2026-07-20T20:22:13Z",
+      "completed_at": "2026-07-20T20:30:58Z",
+      "commit_sha": null,
+      "verification_command": "docs + telemetry filter tests",
+      "verification_result": "passed_with_blockers",
+      "artifacts": [
+        "docs/architecture/observability.md",
+        "core/telemetry"
+      ],
+      "notes": []
+    },
+    "phase_17_infra": {
+      "status": "blocked",
+      "started_at": "2026-07-20T20:22:13Z",
+      "completed_at": null,
+      "commit_sha": null,
+      "verification_command": "make deploy-staging",
+      "verification_result": "STAGING_BLOCKED_UNVERIFIED",
+      "artifacts": [
+        "infra/"
+      ],
+      "notes": [
+        "account UNVERIFIED",
+        "no terraform",
+        "docker down"
+      ]
+    },
+    "phase_18_adversarial": {
+      "status": "complete",
+      "started_at": "2026-07-20T20:22:13Z",
+      "completed_at": "2026-07-20T20:30:58Z",
+      "commit_sha": null,
+      "verification_command": "location triangulation helpers",
+      "verification_result": "partial",
+      "artifacts": [
+        "core/matching/src/location.rs"
+      ],
+      "notes": [
+        "load/chaos not_run"
+      ]
+    },
+    "phase_19_closed_beta": {
+      "status": "blocked",
+      "started_at": "2026-07-20T20:22:13Z",
+      "completed_at": null,
+      "commit_sha": null,
+      "verification_command": "docs/product/closed-beta-readiness.md",
+      "verification_result": "blocked",
+      "artifacts": [
+        "docs/product/closed-beta-readiness.md"
+      ],
+      "notes": [
+        "staffing/legal/security pending"
+      ]
+    },
+    "phase_20_production_gate": {
+      "status": "complete",
+      "started_at": "2026-07-20T20:22:13Z",
+      "completed_at": "2026-07-20T20:30:58Z",
+      "commit_sha": null,
+      "verification_command": "make production-preflight",
+      "verification_result": "PRODUCTION_BLOCKED_HUMAN_APPROVALS_REQUIRED",
+      "artifacts": [
+        "scripts/production_preflight.sh"
+      ],
+      "notes": [
+        "correctly blocked"
+      ]
+    }
+  },
+  "blockers": [
+    {
+      "phase": "phase_3",
+      "issue": "Java runtime missing for Android Gradle",
+      "severity": "blocking_mobile_ci"
+    },
+    {
+      "phase": "phase_3",
+      "issue": "Gradle wrapper jar not committed",
+      "severity": "blocking_android_build"
+    },
+    {
+      "phase": "phase_5",
+      "issue": "Platform Keychain/Keystore adapters are interfaces/MemoryStore only",
+      "severity": "warn"
+    },
+    {
+      "phase": "phase_7",
+      "issue": "Native WebRTC wrappers not wired; transport policy enum only",
+      "severity": "blocking_e2e"
+    },
+    {
+      "phase": "phase_9_10",
+      "issue": "UniFFI bindings pending; iOS/Android are UI shells",
+      "severity": "blocking_mobile"
+    },
+    {
+      "phase": "phase_17",
+      "issue": "Docker daemon not running; Terraform missing; staging ACCOUNT_IDENTITY UNVERIFIED",
+      "severity": "blocking_staging_deploy"
+    },
+    {
+      "phase": "phase_20",
+      "issue": "No human approvals in approvals/",
+      "severity": "expected_stop"
+    }
+  ],
+  "decisions": [
+    {
+      "id": "boot-2026-07-20",
+      "summary": "Bootloader Zero-Drift 5.18.26 loaded; deploy digest verified"
+    },
+    {
+      "id": "arch-hybrid",
+      "summary": "ADR-0001 hybrid local-first accepted for staging"
+    },
+    {
+      "id": "e2ee-no-bespoke",
+      "summary": "ADR-0003 mature libraries only; messaging ratchet pin deferred with external review as prod blocker"
+    }
+  ],
+  "last_successful_command": "cargo test --workspace (44 passed); cargo clippy -D warnings; make production-preflight (blocked as required)",
+  "verification": {
+    "unit_tests": {
+      "status": "passed",
+      "count": 44
+    },
+    "clippy": "passed",
+    "production_preflight": "PRODUCTION_BLOCKED_HUMAN_APPROVALS_REQUIRED",
+    "deploy_staging": "STAGING_BLOCKED_UNVERIFIED",
+    "command_integrity": "passed"
+  },
+  "staging": {
+    "deployed": false,
+    "url": null,
+    "smoke_tested_at": null
+  }
+}
