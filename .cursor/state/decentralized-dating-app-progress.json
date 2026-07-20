@@ -4,8 +4,8 @@
   "research_snapshot": "2026-07-20",
   "started_at": "2026-07-20T20:22:13Z",
   "updated_at": "2026-07-20T20:30:58Z",
-  "base_commit": null,
-  "current_commit": null,
+  "base_commit": "67a55c6f4fec35bdcd11c77596ede010daadea13",
+  "current_commit": "67a55c6f4fec35bdcd11c77596ede010daadea13",
   "deployment_environment": "staging",
   "command_sha256": "495ef0fb6d80b2ec81f05277301669cccdf46f2b1b1323eb2241f15a84530f0f",
   "outcome": "PARTIAL",
@@ -15,7 +15,7 @@
       "status": "complete",
       "started_at": "2026-07-20T20:22:13Z",
       "completed_at": "2026-07-20T20:30:58Z",
-      "commit_sha": null,
+      "commit_sha": "67a55c6f4fec35bdcd11c77596ede010daadea13",
       "verification_command": "test preflight artifacts",
       "verification_result": "passed",
       "artifacts": [
@@ -29,7 +29,7 @@
       "status": "complete",
       "started_at": "2026-07-20T20:22:13Z",
       "completed_at": "2026-07-20T20:30:58Z",
-      "commit_sha": null,
+      "commit_sha": "67a55c6f4fec35bdcd11c77596ede010daadea13",
       "verification_command": "find .cursor docs policies",
       "verification_result": "passed",
       "artifacts": [
@@ -42,7 +42,7 @@
       "status": "complete",
       "started_at": "2026-07-20T20:22:13Z",
       "completed_at": "2026-07-20T20:30:58Z",
-      "commit_sha": null,
+      "commit_sha": "67a55c6f4fec35bdcd11c77596ede010daadea13",
       "verification_command": "ADR file presence",
       "verification_result": "passed",
       "artifacts": [
@@ -54,7 +54,7 @@
       "status": "complete",
       "started_at": "2026-07-20T20:22:13Z",
       "completed_at": "2026-07-20T20:30:58Z",
-      "commit_sha": null,
+      "commit_sha": "67a55c6f4fec35bdcd11c77596ede010daadea13",
       "verification_command": "make doctor; cargo test",
       "verification_result": "passed_with_blockers",
       "artifacts": [
@@ -70,7 +70,7 @@
       "status": "complete",
       "started_at": "2026-07-20T20:22:13Z",
       "completed_at": "2026-07-20T20:30:58Z",
-      "commit_sha": null,
+      "commit_sha": "67a55c6f4fec35bdcd11c77596ede010daadea13",
       "verification_command": "cargo test -p dating-protocol",
       "verification_result": "passed",
       "artifacts": [
@@ -82,7 +82,7 @@
       "status": "complete",
       "started_at": "2026-07-20T20:22:13Z",
       "completed_at": "2026-07-20T20:30:58Z",
-      "commit_sha": null,
+      "commit_sha": "67a55c6f4fec35bdcd11c77596ede010daadea13",
       "verification_command": "cargo test -p dating-storage",
       "verification_result": "passed_with_blockers",
       "artifacts": [
@@ -96,7 +96,7 @@
       "status": "complete",
       "started_at": "2026-07-20T20:22:13Z",
       "completed_at": "2026-07-20T20:30:58Z",
-      "commit_sha": null,
+      "commit_sha": "67a55c6f4fec35bdcd11c77596ede010daadea13",
       "verification_command": "cargo test -p dating-rendezvous",
       "verification_result": "passed",
       "artifacts": [
@@ -110,7 +110,7 @@
       "status": "complete",
       "started_at": "2026-07-20T20:22:13Z",
       "completed_at": "2026-07-20T20:30:58Z",
-      "commit_sha": null,
+      "commit_sha": "67a55c6f4fec35bdcd11c77596ede010daadea13",
       "verification_command": "cargo test -p dating-transport-api",
       "verification_result": "passed_with_blockers",
       "artifacts": [
@@ -124,7 +124,7 @@
       "status": "complete",
       "started_at": "2026-07-20T20:22:13Z",
       "completed_at": "2026-07-20T20:30:58Z",
-      "commit_sha": null,
+      "commit_sha": "67a55c6f4fec35bdcd11c77596ede010daadea13",
       "verification_command": "cargo test -p dating-media",
       "verification_result": "passed_with_blockers",
       "artifacts": [
@@ -138,7 +138,7 @@
       "status": "complete",
       "started_at": "2026-07-20T20:22:13Z",
       "completed_at": "2026-07-20T20:30:58Z",
-      "commit_sha": null,
+      "commit_sha": "67a55c6f4fec35bdcd11c77596ede010daadea13",
       "verification_command": "structural VERIFY.md",
       "verification_result": "passed_with_blockers",
       "artifacts": [
@@ -152,7 +152,7 @@
       "status": "complete",
       "started_at": "2026-07-20T20:22:13Z",
       "completed_at": "2026-07-20T20:30:58Z",
-      "commit_sha": null,
+      "commit_sha": "67a55c6f4fec35bdcd11c77596ede010daadea13",
       "verification_command": "structural VERIFY.md",
       "verification_result": "passed_with_blockers",
       "artifacts": [
@@ -166,7 +166,7 @@
       "status": "complete",
       "started_at": "2026-07-20T20:22:13Z",
       "completed_at": "2026-07-20T20:30:58Z",
-      "commit_sha": null,
+      "commit_sha": "67a55c6f4fec35bdcd11c77596ede010daadea13",
       "verification_command": "cargo test -p dating-matching",
       "verification_result": "passed",
       "artifacts": [
@@ -178,7 +178,7 @@
       "status": "complete",
       "started_at": "2026-07-20T20:22:13Z",
       "completed_at": "2026-07-20T20:30:58Z",
-      "commit_sha": null,
+      "commit_sha": "67a55c6f4fec35bdcd11c77596ede010daadea13",
       "verification_command": "cargo test -p dating-messaging",
       "verification_result": "passed",
       "artifacts": [
@@ -193,7 +193,7 @@
       "status": "complete",
       "started_at": "2026-07-20T20:22:13Z",
       "completed_at": "2026-07-20T20:30:58Z",
-      "commit_sha": null,
+      "commit_sha": "67a55c6f4fec35bdcd11c77596ede010daadea13",
       "verification_command": "docs + report-ingest tests",
       "verification_result": "passed_with_blockers",
       "artifacts": [
@@ -208,7 +208,7 @@
       "status": "complete",
       "started_at": "2026-07-20T20:22:13Z",
       "completed_at": "2026-07-20T20:30:58Z",
-      "commit_sha": null,
+      "commit_sha": "67a55c6f4fec35bdcd11c77596ede010daadea13",
       "verification_command": "cargo test -p dating-identity age",
       "verification_result": "passed",
       "artifacts": [
@@ -222,7 +222,7 @@
       "status": "complete",
       "started_at": "2026-07-20T20:22:13Z",
       "completed_at": "2026-07-20T20:30:58Z",
-      "commit_sha": null,
+      "commit_sha": "67a55c6f4fec35bdcd11c77596ede010daadea13",
       "verification_command": "draft presence",
       "verification_result": "passed",
       "artifacts": [
@@ -236,7 +236,7 @@
       "status": "complete",
       "started_at": "2026-07-20T20:22:13Z",
       "completed_at": "2026-07-20T20:30:58Z",
-      "commit_sha": null,
+      "commit_sha": "67a55c6f4fec35bdcd11c77596ede010daadea13",
       "verification_command": "docs + telemetry filter tests",
       "verification_result": "passed_with_blockers",
       "artifacts": [
@@ -249,7 +249,7 @@
       "status": "blocked",
       "started_at": "2026-07-20T20:22:13Z",
       "completed_at": null,
-      "commit_sha": null,
+      "commit_sha": "67a55c6f4fec35bdcd11c77596ede010daadea13",
       "verification_command": "make deploy-staging",
       "verification_result": "STAGING_BLOCKED_UNVERIFIED",
       "artifacts": [
@@ -265,7 +265,7 @@
       "status": "complete",
       "started_at": "2026-07-20T20:22:13Z",
       "completed_at": "2026-07-20T20:30:58Z",
-      "commit_sha": null,
+      "commit_sha": "67a55c6f4fec35bdcd11c77596ede010daadea13",
       "verification_command": "location triangulation helpers",
       "verification_result": "partial",
       "artifacts": [
@@ -279,7 +279,7 @@
       "status": "blocked",
       "started_at": "2026-07-20T20:22:13Z",
       "completed_at": null,
-      "commit_sha": null,
+      "commit_sha": "67a55c6f4fec35bdcd11c77596ede010daadea13",
       "verification_command": "docs/product/closed-beta-readiness.md",
       "verification_result": "blocked",
       "artifacts": [
@@ -293,7 +293,7 @@
       "status": "complete",
       "started_at": "2026-07-20T20:22:13Z",
       "completed_at": "2026-07-20T20:30:58Z",
-      "commit_sha": null,
+      "commit_sha": "67a55c6f4fec35bdcd11c77596ede010daadea13",
       "verification_command": "make production-preflight",
       "verification_result": "PRODUCTION_BLOCKED_HUMAN_APPROVALS_REQUIRED",
       "artifacts": [
