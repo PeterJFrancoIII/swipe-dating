@@ -1,0 +1,210 @@
+{
+  "schema_version": 1,
+  "questionnaire_id": "alignment-us-en-v1",
+  "audience": "adults_18_plus",
+  "status": "staging_draft_unapproved",
+  "updated_at": "2026-07-21",
+  "default_visibility": "score_only",
+  "importance_range": { "min": 0, "max": 5 },
+  "visibility_options": ["profile", "score_only", "private_unused"],
+  "questions": [
+    {
+      "id": "relationship_primary_intent",
+      "category": "relationship",
+      "prompt": "What kind of connection matters most to you right now?",
+      "sensitive": true,
+      "options": [
+        { "id": "long_term", "label": "Long-term relationship" },
+        { "id": "dating", "label": "Dating and seeing where it goes" },
+        { "id": "casual", "label": "Casual adult connection" },
+        { "id": "friends_first", "label": "Friends first" },
+        { "id": "figuring_out", "label": "Still figuring it out" },
+        { "id": "prefer_not", "label": "Prefer not to say" }
+      ]
+    },
+    {
+      "id": "relationship_structure",
+      "category": "relationship",
+      "prompt": "Which relationship structures are you open to?",
+      "sensitive": true,
+      "multi_select": true,
+      "options": [
+        { "id": "monogamy", "label": "Monogamy" },
+        { "id": "ethical_non_monogamy", "label": "Ethical non-monogamy" },
+        { "id": "polyamory", "label": "Polyamory" },
+        { "id": "casual_only", "label": "Casual only" },
+        { "id": "discuss", "label": "Open to discussing" },
+        { "id": "prefer_not", "label": "Prefer not to say" }
+      ]
+    },
+    {
+      "id": "political_alignment_importance",
+      "category": "politics",
+      "prompt": "How important is political alignment in a relationship?",
+      "sensitive": true,
+      "options": [
+        { "id": "not_important", "label": "Not important" },
+        { "id": "somewhat", "label": "Somewhat important" },
+        { "id": "very", "label": "Very important" },
+        { "id": "dealbreaker", "label": "Usually a dealbreaker" },
+        { "id": "prefer_not", "label": "Prefer not to say" }
+      ]
+    },
+    {
+      "id": "us_2024_presidential_preference",
+      "category": "politics",
+      "prompt": "For the 2024 U.S. presidential election, which answer best describes you?",
+      "sensitive": true,
+      "expires_for_new_profiles_after": "2028-12-31",
+      "options": [
+        { "id": "trump", "label": "Donald Trump" },
+        { "id": "harris", "label": "Kamala Harris" },
+        { "id": "other", "label": "Another candidate" },
+        { "id": "did_not_vote", "label": "Did not vote or was not eligible" },
+        { "id": "prefer_not", "label": "Prefer not to say" }
+      ]
+    },
+    {
+      "id": "education_path",
+      "category": "education_work",
+      "prompt": "Which path best describes your education or training?",
+      "sensitive": false,
+      "options": [
+        { "id": "college", "label": "College or university" },
+        { "id": "trade", "label": "Trade, apprenticeship, or certification" },
+        { "id": "self_taught", "label": "Self-taught or independent path" },
+        { "id": "mixed", "label": "A mix of paths" },
+        { "id": "other", "label": "Another path" },
+        { "id": "prefer_not", "label": "Prefer not to say" }
+      ]
+    },
+    {
+      "id": "money_health_balance",
+      "category": "values",
+      "prompt": "When life gets busy, what do you prioritize most?",
+      "sensitive": false,
+      "options": [
+        { "id": "money", "label": "Financial growth" },
+        { "id": "health", "label": "Physical and mental health" },
+        { "id": "balance", "label": "A balance of both" },
+        { "id": "relationships", "label": "Relationships and community" },
+        { "id": "other", "label": "Something else" }
+      ]
+    },
+    {
+      "id": "conflict_style",
+      "category": "communication",
+      "prompt": "How do you prefer to handle conflict?",
+      "sensitive": false,
+      "options": [
+        { "id": "talk_now", "label": "Talk it through right away" },
+        { "id": "cool_off", "label": "Take time, then talk" },
+        { "id": "written", "label": "Start in writing" },
+        { "id": "structured", "label": "Use a structured check-in" },
+        { "id": "depends", "label": "It depends" }
+      ]
+    },
+    {
+      "id": "social_energy",
+      "category": "lifestyle",
+      "prompt": "What social rhythm feels best?",
+      "sensitive": false,
+      "options": [
+        { "id": "quiet", "label": "Mostly quiet and low-key" },
+        { "id": "balanced", "label": "A balance" },
+        { "id": "social", "label": "Frequently social" },
+        { "id": "nightlife", "label": "Nightlife and events" },
+        { "id": "varies", "label": "It varies" }
+      ]
+    },
+    {
+      "id": "fitness_lifestyle",
+      "category": "lifestyle",
+      "prompt": "How would you describe your activity and fitness lifestyle?",
+      "sensitive": false,
+      "options": [
+        { "id": "relaxed", "label": "Relaxed" },
+        { "id": "light", "label": "Lightly active" },
+        { "id": "regular", "label": "Regularly active" },
+        { "id": "athletic", "label": "Athletic or training-focused" },
+        { "id": "adaptive", "label": "Adaptive or varies" },
+        { "id": "prefer_not", "label": "Prefer not to say" }
+      ]
+    },
+    {
+      "id": "body_hair_preference",
+      "category": "grooming",
+      "prompt": "What body-hair compatibility do you prefer?",
+      "sensitive": true,
+      "options": [
+        { "id": "natural", "label": "Natural" },
+        { "id": "trimmed", "label": "Trimmed" },
+        { "id": "mostly_removed", "label": "Mostly removed" },
+        { "id": "no_preference", "label": "No preference" },
+        { "id": "prefer_not", "label": "Prefer not to say" }
+      ]
+    },
+    {
+      "id": "fragrance_preference",
+      "category": "grooming",
+      "prompt": "What fragrance preference fits you best?",
+      "sensitive": false,
+      "options": [
+        { "id": "fragrance", "label": "I like perfume or cologne" },
+        { "id": "light", "label": "Light fragrance only" },
+        { "id": "fragrance_free", "label": "Fragrance-free" },
+        { "id": "no_preference", "label": "No preference" }
+      ]
+    },
+    {
+      "id": "intimacy_style",
+      "category": "adult_intimacy",
+      "prompt": "Which adult intimacy style sounds most compatible?",
+      "sensitive": true,
+      "options": [
+        { "id": "vanilla", "label": "Mostly vanilla" },
+        { "id": "adventurous", "label": "Adventurous" },
+        { "id": "kink_bdsm", "label": "Kink or BDSM-aware" },
+        { "id": "varies", "label": "Depends on trust and connection" },
+        { "id": "prefer_not", "label": "Prefer not to say" }
+      ]
+    },
+    {
+      "id": "preferred_position_style",
+      "category": "adult_intimacy",
+      "prompt": "Which answer best reflects your current adult sexual preference?",
+      "sensitive": true,
+      "options": [
+        { "id": "face_to_face", "label": "Face-to-face / missionary" },
+        { "id": "rear_entry", "label": "Rear-entry / doggy style" },
+        { "id": "variety", "label": "Variety" },
+        { "id": "not_a_priority", "label": "Not a priority" },
+        { "id": "prefer_not", "label": "Prefer not to say" }
+      ]
+    },
+    {
+      "id": "conversation_depth",
+      "category": "communication",
+      "prompt": "What kind of conversation do you enjoy most?",
+      "sensitive": false,
+      "options": [
+        { "id": "playful", "label": "Playful and light" },
+        { "id": "deep", "label": "Deep and reflective" },
+        { "id": "practical", "label": "Practical and problem-solving" },
+        { "id": "mixed", "label": "A mix" }
+      ]
+    },
+    {
+      "id": "technology_ai_outlook",
+      "category": "technology",
+      "prompt": "How do you feel about AI and new technology?",
+      "sensitive": false,
+      "options": [
+        { "id": "enthusiastic", "label": "Enthusiastic" },
+        { "id": "cautious", "label": "Interested but cautious" },
+        { "id": "skeptical", "label": "Mostly skeptical" },
+        { "id": "not_interested", "label": "Not very interested" }
+      ]
+    }
+  ]
+}
