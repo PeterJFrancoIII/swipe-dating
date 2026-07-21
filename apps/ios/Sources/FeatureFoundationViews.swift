@@ -126,7 +126,8 @@ struct SkinShopView: View {
                     .font(.footnote)
             }
 
-            ForEach(Array(SkinShopItem.syntheticCatalog.enumerated()), id: \.element.id) { index, item in
+            ForEach(SkinShopItem.syntheticCatalog.indices, id: \.self) { index in
+                let item = SkinShopItem.syntheticCatalog[index]
                 Section(item.category) {
                     HStack(spacing: 14) {
                         RoundedRectangle(cornerRadius: 14)
@@ -221,6 +222,11 @@ struct MatchLocationConsentView: View {
         .navigationTitle("Location with \(profile.displayName)")
         .onAppear {
             choice = model.locationShareByMatch[profile.id] ?? .none
+        }
+        .onChange(of: choice) { _, newChoice in
+            if !newChoice.isPrecise {
+                preciseConfirmation = false
+            }
         }
     }
 }
