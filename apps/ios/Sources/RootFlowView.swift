@@ -14,7 +14,7 @@ struct RootFlowView: View {
         }
         .overlay(alignment: .top) {
             if model.emergencyPrivacyMode {
-                Text("EMERGENCY PRIVACY ON — presence withdrawn")
+                Text("EMERGENCY PRIVACY ON — discovery/proximity stopped; active location grants cleared")
                     .font(.caption.bold())
                     .foregroundStyle(.white)
                     .frame(maxWidth: .infinity)
@@ -65,30 +65,41 @@ struct WelcomeView: View {
                 Text("LocalFirst Dating")
                     .font(.largeTitle.bold())
                     .accessibilityAddTraits(.isHeader)
-                Text("STAGING / INTERNAL BETA")
+                Text("STAGING / INTERNAL — ADULTS 18+ ONLY")
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(.orange)
-                Text("Adults only. Profiles and messages stay on your device. The operator does not get ordinary private content.")
+
+                Text("A consent-driven, local-first dating experience designed especially for adults 18–25 while remaining open to eligible adults. Ordinary profiles, preferences, and messages stay primarily on your device.")
                     .font(.body)
+
                 VStack(alignment: .leading, spacing: 8) {
-                    Label("18+ fail-closed age gate", systemImage: "checkmark.shield")
-                    Label("No exact location sharing", systemImage: "location.slash")
+                    Label("Exact-date 18+ gate", systemImage: "checkmark.shield")
+                    Label("Private Looking For and alignment controls", systemImage: "slider.horizontal.3")
+                    Label("Optional Get fk'd nearby alerts", systemImage: "dot.radiowaves.left.and.right")
+                    Label("Optional expiring match-location grants", systemImage: "map")
+                    Label("Skin Shop previews isolated from dating data", systemImage: "paintpalette")
                     Label("Match before messaging", systemImage: "lock.heart")
                     Label("Block & report always free", systemImage: "hand.raised")
                 }
                 .font(.subheadline)
-                Text("Safety tools reduce risk but cannot prevent screenshots, guarantee identity, or make in-person meetings safe.")
+
+                Text("No minor access, forced gender-based disclosure, covert tracking, public sexual-intent broadcast, protected-trait ranking, or paid bypass of safety controls.")
+                    .font(.footnote.weight(.semibold))
+
+                Text("Safety tools reduce risk but cannot prevent screenshots, guarantee identity, ensure a Bluetooth alert, or make in-person meetings safe.")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
+
                 Text("Protocol v\(model.protocolVersion) · Core: \(model.usingStagingFallback ? "STAGING mock" : "UniFFI")")
                     .font(.caption.monospaced())
                     .foregroundStyle(.secondary)
+
                 Button("Continue") {
                     model.completeWelcome()
                 }
                 .buttonStyle(.borderedProminent)
                 .frame(maxWidth: .infinity)
-                .accessibilityHint("Continue to age eligibility")
+                .accessibilityHint("Continue to adult eligibility")
             }
             .padding()
         }
