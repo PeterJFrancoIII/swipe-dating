@@ -41,12 +41,13 @@ struct SwipeDeckView: View {
         VStack(spacing: 12) {
             StagingBannerView()
             availabilityRow
+            getFkdRow
             if model.emergencyPrivacyMode || !model.availabilityOnline {
                 ContentUnavailableView(
                     "Offline for discovery",
                     systemImage: "eye.slash",
                     description: Text(model.emergencyPrivacyMode
-                        ? "Emergency privacy mode withdrew presence."
+                        ? "Emergency privacy stopped refresh and nearby mode. A previous short staging lease may expire after a brief delay."
                         : "Turn availability on to browse.")
                 )
             } else if let profile = model.visibleCandidates.first {
@@ -80,6 +81,11 @@ struct SwipeDeckView: View {
                 }
             }
         }
+        .sheet(item: $model.pendingLocationSharePrompt) { profile in
+            NavigationStack {
+                MatchLocationConsentView(profile: profile)
+            }
+        }
     }
 
     private var availabilityRow: some View {
@@ -94,6 +100,7 @@ struct SwipeDeckView: View {
                             Task { await model.publishPresenceAndRefreshDiscovery() }
                         } else {
                             model.stopPresenceRefreshLoop()
+                            model.setGetFkdEnabled(false)
                         }
                     }
                 ))
@@ -124,9 +131,49 @@ struct SwipeDeckView: View {
         .padding(.horizontal)
     }
 
+    private var getFkdRow: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Toggle("Get fk'd", isOn: Binding(
+                get: { model.getFkdEnabled },
+                set: { model.setGetFkdEnabled($0) }
+            ))
+            .disabled(model.emergencyPrivacyMode || model.eligibility?.adult != true)
+            .accessibilityHint("Turns consent-based nearby encounter mode on or off")
+
+            if model.getFkdEnabled {
+                Picker("Nearby profile sharing", selection: $model.proximityDisclosurePolicy) {
+                    ForEach(ProximityDisclosurePolicy.allCases) { policy in
+                        Text(policy.title).tag(policy)
+                    }
+                }
+                .pickerStyle(.menu)
+                Text(model.proximityDisclosurePolicy.detail)
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                Text("STAGING UI ONLY — Bluetooth advertising and scanning are not active. The same prompt-first default applies to every gender.")
+                    .font(.caption2.weight(.semibold))
+                    .foregroundStyle(.orange)
+            } else {
+                Text("Off by default. No Bluetooth proximity participation.")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
+
+            if !model.selectedLookingForModes.isEmpty {
+                Text("Looking for: \(model.selectedLookingForModes.map(\.title).sorted().joined(separator: ", "))")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(2)
+            }
+        }
+        .padding(10)
+        .background(Color.secondary.opacity(0.08), in: RoundedRectangle(cornerRadius: 12))
+        .padding(.horizontal)
+    }
+
     @ViewBuilder
     private func accessibilityActions(for profile: SyntheticProfile) -> some View {
-        // Swiping must not be the only way to act (Phase 9 requirement).
+        // Swiping must not be the only way to act.
         VStack(spacing: 10) {
             HStack(spacing: 12) {
                 Button("Pass") { model.passCurrent() }
@@ -151,6 +198,7 @@ struct SwipeDeckView: View {
 }
 
 struct ProfileCardView: View {
+    @EnvironmentObject private var model: AppModel
     let profile: SyntheticProfile
 
     var body: some View {
@@ -174,6 +222,17 @@ struct ProfileCardView: View {
                         .background(.ultraThinMaterial, in: Capsule())
                         .padding(12)
                 }
+                .overlay(alignment: .topTrailing) {
+                    if let score = model.alignmentScore(for: profile) {
+                        Text("\(score)% aligned")
+                            .font(.caption.weight(.semibold))
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(.ultraThinMaterial, in: Capsule())
+                            .padding(12)
+                            .accessibilityLabel("\(score) percent aligned based on local staging answers")
+                    }
+                }
                 .overlay(alignment: .bottomLeading) {
                     VStack(alignment: .leading, spacing: 4) {
                         Text(profile.displayName)
@@ -188,7 +247,7 @@ struct ProfileCardView: View {
             Text(profile.about)
                 .font(.body)
             if profile.source == .liveTicket, !profile.ticketIdShort.isEmpty {
-                Text("Ticket \(profile.ticketIdShort)… · capsule not fetched")
+                Text("Ticket \(profile.ticketIdShort)… · reciprocal match receipt required")
                     .font(.caption.monospaced())
                     .foregroundStyle(.secondary)
             }
@@ -197,6 +256,7 @@ struct ProfileCardView: View {
 }
 
 struct ProfileDetailView: View {
+    @EnvironmentObject private var model: AppModel
     let profile: SyntheticProfile
     @Environment(\.dismiss) private var dismiss
 
@@ -208,9 +268,15 @@ struct ProfileDetailView: View {
                 Text(profile.distanceBand)
                 Text(profile.about)
                 LabeledContent("Source", value: profile.source == .liveTicket ? "Live ticket" : "Synthetic")
+                if let score = model.alignmentScore(for: profile) {
+                    LabeledContent("Local alignment", value: "\(score)%")
+                }
             }
             Section("Privacy") {
-                Text("Exact location is never shown. Pre-match transport is relay-first. Live tickets do not include bio/photos until capsule fetch is wired.")
+                Text("Exact location is never shown by discovery. Pre-match transport is relay-first. Live tickets do not include bio/photos until a consent-scoped capsule fetch is wired.")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+                Text("Alignment is a local compatibility aid, not a prediction of relationship success.")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
             }
