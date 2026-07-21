@@ -73,9 +73,9 @@ pub enum AlignmentError {
     DuplicateQuestion(String),
 }
 
-fn index_answers<'a>(
-    answers: &'a [AlignmentAnswer],
-) -> Result<BTreeMap<&'a str, &'a AlignmentAnswer>, AlignmentError> {
+fn index_answers(
+    answers: &[AlignmentAnswer],
+) -> Result<BTreeMap<&str, &AlignmentAnswer>, AlignmentError> {
     let mut indexed = BTreeMap::new();
     for answer in answers {
         if answer.question_id.is_empty() {
@@ -140,9 +140,11 @@ pub fn score_alignment(
         }
     }
 
-    if result.possible_weight > 0 {
-        let rounded =
-            (result.matched_weight * 100 + result.possible_weight / 2) / result.possible_weight;
+    let rounded_numerator = result
+        .matched_weight
+        .saturating_mul(100)
+        .saturating_add(result.possible_weight / 2);
+    if let Some(rounded) = rounded_numerator.checked_div(result.possible_weight) {
         result.score_percent = rounded.min(100) as u8;
     }
 
