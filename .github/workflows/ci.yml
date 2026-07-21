@@ -2,11 +2,15 @@ name: CI
 
 on:
   push:
-    branches: [main, feat/**]
+    branches: [main, feat/**, agent/**]
   pull_request:
 
 permissions:
   contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   rust:
@@ -18,12 +22,94 @@ jobs:
         with:
           components: rustfmt, clippy
       - uses: Swatinem/rust-cache@v2
-      - name: Format check
-        run: cargo fmt --all -- --check
+      - name: Format sources and capture patch
+        shell: bash
+        run: |
+          set -euo pipefail
+          cargo fmt --all
+          git diff -- . > rustfmt.patch
+          if [[ -s rustfmt.patch ]]; then
+            echo "Rust formatting changes are required:"
+            cat rustfmt.patch
+          else
+            echo "Rust formatting is clean."
+          fi
+      - name: Upload rustfmt patch
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rustfmt-patch-${{ github.sha }}
+          path: rustfmt.patch
+          if-no-files-found: ignore
+          retention-days: 7
       - name: Clippy
-        run: cargo clippy --workspace --all-targets -- -D warnings
-      - name: Unit tests
+        shell: bash
+        run: |
+          set -o pipefail
+          cargo clippy --workspace --all-targets -- -D warnings 2>&1 | tee clippy.log
+      - name: Upload Clippy log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: clippy-log-${{ github.sha }}
+          path: clippy.log
+          if-no-files-found: error
+          retention-days: 7
+      - name: Unit and integration tests
         run: cargo test --workspace
+      - name: Alignment tests
+        run: cargo test -p dating-matching alignment -- --nocapture
+      - name: Preference tests
+        run: cargo test -p dating-matching preferences -- --nocapture
+      - name: Proximity tests
+        run: cargo test -p dating-matching proximity -- --nocapture
+      - name: Location grant tests
+        run: cargo test -p dating-matching location_share -- --nocapture
+      - name: Anti-abuse tests
+        run: cargo test -p dating-safety anti_abuse -- --nocapture
+      - name: Skin Shop boundary tests
+        run: cargo test -p dating-profile skin_shop -- --nocapture
+      - name: Enforce committed Rust formatting
+        shell: bash
+        run: test ! -s rustfmt.patch
+
+  questionnaire-and-governance:
+    name: Questionnaire / governance contracts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate questionnaire JSON
+        run: python -m json.tool config/alignment-questionnaire-v1.json >/dev/null
+      - name: Required adult and consent contracts
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -Fq 'adults-only' MISSION.md
+          grep -Fq 'No person under 18' policies/community-rules.md
+          grep -Fq 'Identical privacy defaults for every gender' docs/governance/release-gates.md
+          grep -Fq 'Purchases never affect dating rank' docs/governance/release-gates.md
+          grep -Fq 'autoMatchOnLike: false' apps/ios/Sources/AppModel.swift
+          grep -Fq 'return nil' apps/ios/Sources/AppModel.swift
+          test -f apps/ios/Sources/AppModel+AdultEligibility.swift
+          test -f core/matching/src/proximity.rs
+          test -f core/matching/src/location_share.rs
+          test -f core/safety/src/anti_abuse.rs
+          test -f core/profile/src/skin_shop.rs
+          test -f docs/architecture/adr-0009-consent-based-proximity.md
+          test -f docs/architecture/adr-0010-matched-location-sharing.md
+          test -f docs/architecture/adr-0011-local-sensitive-alignment.md
+          test -f docs/architecture/adr-0012-skin-shop-boundary.md
+          test -f docs/architecture/adr-0013-bot-sybil-resistance.md
+      - name: Marketplace allowlist excludes executable formats
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -Fq 'Initial denylist:' docs/product/adult-feature-expansion.md
+          grep -Fq -- '- JavaScript;' docs/product/adult-feature-expansion.md
+          grep -Fq -- '- arbitrary HTML;' docs/product/adult-feature-expansion.md
+          grep -Fq -- '- executable plugins;' docs/product/adult-feature-expansion.md
+          allowed_block="$(sed -n '/const ALLOWED_SKIN_MIMES/,/];/p' core/profile/src/skin_shop.rs)"
+          ! grep -Eiq 'text/html|application/javascript|text/javascript' <<<"$allowed_block"
 
   command-integrity:
     name: Deploy command integrity
@@ -34,44 +120,62 @@ jobs:
         run: bash scripts/command_integrity_check.sh
 
   android:
-    name: Android (placeholder)
+    name: Android assembleDebug
     runs-on: ubuntu-latest
-    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
-      - name: Check Java
-        id: java
-        run: |
-          if command -v java >/dev/null 2>&1; then
-            echo "available=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "available=false" >> "$GITHUB_OUTPUT"
-          fi
-      - name: Skip — Java missing
-        if: steps.java.outputs.available != 'true'
-        run: echo "SKIP android job — Java not available on runner"
-      - name: Structural check
-        if: steps.java.outputs.available == 'true'
-        run: |
-          test -f apps/android/settings.gradle.kts
-          test -f apps/android/app/build.gradle.kts
-          echo "Android skeleton present; full assemble not run in CI scaffold"
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: gradle
+      - name: Assemble staging app
+        working-directory: apps/android
+        run: ./gradlew --no-daemon :app:assembleDebug
+      - name: Verify artifact
+        run: test -s apps/android/app/build/outputs/apk/debug/app-debug.apk
 
-  ios:
-    name: iOS (placeholder)
+  ios-swift-package:
+    name: iOS Swift source build
     runs-on: macos-latest
-    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
-      - name: Structural check
+      - name: Swift package build
+        working-directory: apps/ios
+        shell: bash
         run: |
-          test -f apps/ios/Package.swift
-          test -f apps/ios/Sources/StagingRootView.swift
-      - name: Swift build (optional)
-        continue-on-error: true
+          set -o pipefail
+          swift build 2>&1 | tee ../../swift-package-build.log
+      - name: Upload Swift package build log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: swift-package-build-${{ github.sha }}
+          path: swift-package-build.log
+          if-no-files-found: error
+          retention-days: 7
+
+  ios-xcode:
+    name: iOS Simulator Xcode build with UniFFI
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Install xcodegen
+        run: brew install xcodegen
+      - name: Build app and linked Rust core
+        shell: bash
         run: |
-          cd apps/ios
-          swift build 2>/dev/null || echo "SKIP swift build — toolchain or deps unavailable"
+          set -o pipefail
+          make ios-build 2>&1 | tee ios-xcode-build.log
+      - name: Upload iOS Xcode build log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-xcode-build-${{ github.sha }}
+          path: ios-xcode-build.log
+          if-no-files-found: error
+          retention-days: 7
 
   production-gate:
     name: Production preflight (must fail without approvals)
@@ -79,9 +183,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: production-preflight must block
+        shell: bash
         run: |
-          if bash scripts/production_preflight.sh; then
+          set -euo pipefail
+          set +e
+          output="$(bash scripts/production_preflight.sh 2>&1)"
+          status=$?
+          set -e
+          printf '%s\n' "$output"
+          if [[ $status -eq 0 ]]; then
             echo "ERROR: production-preflight should have blocked"
             exit 1
           fi
-          echo "OK: PRODUCTION_BLOCKED_HUMAN_APPROVALS_REQUIRED (expected)"
+          grep -Fq 'PRODUCTION_BLOCKED_HUMAN_APPROVALS_REQUIRED' <<<"$output"
+          echo "OK: production remains human-gated"

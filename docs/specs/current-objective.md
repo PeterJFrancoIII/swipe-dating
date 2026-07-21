@@ -3,79 +3,97 @@
 ```yaml
 mission_control_packet:
   project_name: local-first-dating-platform
+  updated_at: 2026-07-21
+  branch: agent/consent-proximity-marketplace-preferences
   user_objective: >
-    Build and deploy a complete staging implementation of a local-first,
-    privacy-preserving adults-only swipe dating app; prepare production
-    artifacts; stop before production without fabricating approvals.
+    Extend the adults-only local-first dating app with consent-based Bluetooth
+    proximity, a cosmetic Skin Shop, optional match-scoped location sharing,
+    private Looking For modes, inclusive identity and discovery preferences,
+    local sensitive compatibility ranking, and layered bot/Sybil resistance.
   current_objective: >
-    Phase 0+ execution of deploy-decentralized-dating-app.md on
-    feat/local-first-dating-platform after verified SHA-256 integrity.
+    Land a truthful staging foundation: governance, architecture decisions,
+    local models, synthetic UI, and regression fixes. Do not activate real
+    Bluetooth, location, payments, attestation vendors, minors, or production.
   success_criteria:
-    - Staging platform with control plane + E2EE peer path scaffolds
-    - Tests, CI, IaC, safety/privacy docs, and final agent report
-    - Production gate blocks autonomous production deploy
+    - Get fk'd toggle is visible on Discover and defaults off
+    - Prompt-before-share is the default for every gender
+    - Live discovery tickets no longer create unilateral matches
+    - Declining location no longer maps to a real fallback region
+    - Preferences and versioned questionnaire are local-first
+    - Synthetic Skin Shop and matched-location consent UI are clearly labeled
+    - Rust alignment scoring has deterministic unit tests
+    - Governance and release gates cover proximity, location, marketplace, sensitive data, and bots
+    - Closed beta and production remain blocked
   non_goals:
-    - Production deploy / store submission / real legal filings
-    - Minors, public feeds, crypto, facial recognition, peer replication MVP
+    - Any access for people under 18
+    - Gender-asymmetric disclosure defaults
+    - Real BLE advertising/scanning in this slice
+    - Real Core Location, MapKit tracking, or background location in this slice
+    - StoreKit, Play Billing, creator uploads, payouts, or public marketplace in this slice
+    - Real App Attest, Play Integrity, adult-assurance vendor, or production credentials
+    - Production deploy, store submission, real legal filing, or fabricated approval
   target_users:
-    - Adults 18+ seeking mutual-consent dating discovery
-    - Operators running staging for closed beta preparation
+    - Adults 18+; product design emphasis on adults 18-25
+    - Internal operators using synthetic staging data
   constraints:
-    time: autonomous session until staging gate / production stop
-    budget: local and staging-only; no vendor purchases by agent
-    stack: Rust core, UniFFI, iOS/Android, Axum services, PG, Valkey, Terraform
-    compliance: adults-only; fail-closed age/auth; drafts marked unapproved
-    deployment: staging allowed; production forbidden to autonomous agent
-  assumptions:
-    confirmed:
-      - Repository was greenfield (Research/ only) at start
-      - Command SHA-256 matches Research/*.sha256
-      - Rust stable 1.97.1 installable via rustup
-    unconfirmed:
-      - Staging cloud account credentials available for Phase 17 apply
-      - Docker daemon availability for local compose
-      - Java/Android SDK and Terraform installability on this host
-  architecture_hypothesis:
-    style: hybrid local-first with ephemeral control plane
-    main_components:
-      - name: core
-        responsibility: identity, protocol, crypto adapters, matching, storage interfaces
-      - name: services
-        responsibility: rendezvous, signaling metadata, TURN creds, push broker, report ingest
-      - name: apps
-        responsibility: native iOS/Android UI with UniFFI audited-core boundary
-      - name: safety
-        responsibility: block/report/appeal and isolated evidence vault interfaces
+    stack: Rust core, UniFFI, SwiftUI iOS first, Kotlin Android later, Axum control plane
+    privacy: local-first, E2EE, equal defaults, no encounter graph, no sensitive ads
+    safety: adult-only, mutual consent, free block/report/emergency controls
+    marketplace: cosmetics only, isolated plane, no pay-to-win dating
+    deployment: staging scaffold only; beta/production human-gated
+  architecture:
+    proximity: ADR-0009, random rotating BLE IDs, off by default
+    location: ADR-0010, match-scoped expiring E2EE grants
+    alignment: ADR-0011, local scoring and sensitive-category consent
+    marketplace: ADR-0012, isolated declarative public assets
+    anti_abuse: ADR-0013, layered account/device/adult/request/risk controls
   data_classification:
-    public: [protocol docs, openapi contracts, community rules drafts]
-    internal: [staging metrics aggregates, feature flags]
-    confidential: [push tokens, pseudonymous block tokens, presence leases]
-    regulated: [age eligibility results, safety report evidence, identity docs NEVER retained]
-  integrations:
-    required: [WebRTC/TURN, APNs/FCM interfaces, age-assurance interface, attestation interface]
-    optional: [sealed mailbox disabled by default, personal availability node post-MVP]
-  risks:
-    product: [background suspension limits zero-store availability]
-    technical: [missing Java/Terraform/Docker on host]
-    security: [metadata leakage via TURN/push; no bespoke crypto]
-    delivery: [staging cloud credentials may block Phase 17 apply]
+    public:
+      - community rules and product documentation
+      - reviewed Skin Shop assets and catalog metadata
+    internal:
+      - synthetic catalog
+      - feature flags
+      - aggregate technical metrics
+    confidential:
+      - presence capabilities
+      - purchase entitlements
+      - bot-risk state
+    sensitive:
+      - gender and orientation
+      - Looking For modes
+      - political and intimacy questionnaire answers
+      - proximity grants
+      - match-scoped location
+    regulated:
+      - adult-eligibility results
+      - safety report evidence
+      - creator payout/tax records
   verification_plan:
-    static_checks: [cargo fmt/clippy, make lint, schema lint]
-    unit_tests: [cargo test --workspace, protocol vectors]
-    integration_tests: [compose local control plane]
-    e2e_tests: [synthetic device pair smoke when runners available]
-    manual_acceptance: [staging smoke; production gate must fail]
-  first_three_slices:
-    - objective: Preflight + constitution scaffolding
-      allowed_files: [docs/**, .cursor/**, AGENTS.md, MISSION.md, governance root files]
-      forbidden_files: [production secrets, real user data]
-      done_when: [preflight report, state JSON, Phase 0 commit]
-    - objective: Architecture ADRs and threat model
-      allowed_files: [docs/architecture/**, docs/privacy/**, docs/security/**, docs/product/**]
-      forbidden_files: [apps/** feature code before ADR freeze]
-      done_when: [ADRs 0001-0008, data-map, threat-model]
-    - objective: Toolchains and CI skeleton
-      allowed_files: [Cargo.*, core/**, Makefile, .github/**, apps/** skeletons]
-      forbidden_files: [infra production apply]
-      done_when: [make doctor/bootstrap/test-unit pass or blockers documented]
+    static_checks:
+      - cargo fmt --all -- --check
+      - cargo clippy --workspace --all-targets -- -D warnings
+      - Swift build / Xcode build
+    unit_tests:
+      - cargo test -p dating-matching
+      - questionnaire alignment dealbreaker and weighting tests
+    integration_tests:
+      - one-sided live ticket cannot match
+      - hidden region cannot publish presence
+      - production preflight remains blocked
+    future_adversarial_tests:
+      - BLE replay and long-range scanning
+      - modified client bypass
+      - location replay and stale cache
+      - bot/profile farm
+      - marketplace hostile asset and receipt replay
+  implementation_slices:
+    - objective: Governance and ADR update
+      status: complete_on_feature_branch
+    - objective: Local preference, questionnaire, and alignment model
+      status: in_progress
+    - objective: iOS staging controls and synthetic views
+      status: in_progress
+    - objective: Provider/platform integrations
+      status: blocked_by_release_gates
 ```

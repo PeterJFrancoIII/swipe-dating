@@ -7,7 +7,7 @@ struct SafetyCenterView: View {
         List {
             Section {
                 StagingBannerView()
-                Text("Safety tools are free. They reduce risk but cannot guarantee identity, prevent screenshots, or make meetings safe.")
+                Text("Safety tools are free. They reduce risk but cannot guarantee identity, Bluetooth detection, prevent screenshots, or make meetings safe.")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
             }
@@ -16,7 +16,10 @@ struct SafetyCenterView: View {
                     get: { model.emergencyPrivacyMode },
                     set: { _ in model.toggleEmergencyPrivacy() }
                 ))
-                .accessibilityHint("Withdraws presence and hides you from discovery")
+                .accessibilityHint("Stops presence refresh, nearby mode, and local location grants; a prior short staging lease may expire after a delay")
+                Text("Emergency privacy disables Get fk'd and clears staging location choices. Production requires an authenticated immediate withdrawal path; short TTL remains a fallback.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
             Section("Blocked") {
                 if model.blockedIds.isEmpty {
@@ -29,10 +32,15 @@ struct SafetyCenterView: View {
                     }
                 }
             }
+            Section("Active privacy state") {
+                LabeledContent("Get fk'd", value: model.getFkdEnabled ? "on (UI only)" : "off")
+                LabeledContent("Location grants", value: "\(model.locationShareByMatch.count) staging choice(s)")
+                LabeledContent("Blocked", value: "\(model.blockedIds.count)")
+            }
             Section("Resources") {
                 Text("If you are in immediate danger, contact local emergency services. This app does not dispatch police.")
                     .font(.footnote)
-                Text("Child-safety and NCII legal reporting are human-owned processes — not available from this staging build.")
+                Text("Child-safety, NCII, proximity abuse, location coercion, and marketplace legal reporting are human-owned processes — not operational in this staging build.")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
             }
@@ -50,9 +58,13 @@ struct ReportFlowView: View {
 
     enum ReportReason: String, CaseIterable, Identifiable {
         case harassment = "Harassment / contact after block"
-        case scam = "Scam or impersonation"
+        case proximity = "Proximity stalking or Bluetooth harvesting"
+        case location = "Location coercion or misuse"
+        case scam = "Scam, bot, or impersonation"
         case ncii = "Nonconsensual intimate imagery"
         case minor = "Suspected minor / age evasion"
+        case groupConsent = "Group participant or consent abuse"
+        case marketplace = "Skin Shop impersonation or malicious asset"
         case threat = "Credible threat"
         case other = "Other prohibited conduct"
         var id: String { rawValue }
@@ -61,7 +73,7 @@ struct ReportFlowView: View {
     var body: some View {
         Form {
             Section("Reporting \(profile.displayName)") {
-                Text("You choose what evidence is submitted. Staging stores hashes/metadata only — no automatic upload of your whole gallery.")
+                Text("You choose what evidence is submitted. Staging stores hashes/metadata only — no automatic upload of your whole gallery, BLE history, or location history.")
                     .font(.footnote)
             }
             Section("Reason") {
@@ -108,12 +120,24 @@ struct SettingsView: View {
             Section {
                 StagingBannerView()
             }
+            Section("Discovery & expression") {
+                NavigationLink("Preferences & alignment") {
+                    PreferenceCenterView()
+                }
+                NavigationLink("Skin Shop") {
+                    SkinShopView()
+                }
+                NavigationLink("Matched location map") {
+                    MatchMapView()
+                }
+            }
             Section("Privacy modes") {
                 Toggle("Relay-only (recommended)", isOn: $model.relayOnly)
                 Toggle("Sealed mailbox opt-in (off by default)", isOn: $model.sealedMailboxOptIn)
                 Text("Sealed mailbox stores encrypted envelopes the operator cannot read. Disabled by default.")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
+                LabeledContent("Nearby disclosure", value: model.proximityDisclosurePolicy.title)
             }
             Section("Account") {
                 LabeledContent("Display name", value: model.displayName)
@@ -158,6 +182,12 @@ struct DiagnosticsView: View {
                 LabeledContent("Matches", value: "\(model.matches.count)")
                 LabeledContent("Blocked", value: "\(model.blockedIds.count)")
                 LabeledContent("Region band", value: model.coarseRegionLabel)
+                LabeledContent("Get fk'd", value: model.getFkdEnabled ? "UI on / BLE off" : "off")
+                LabeledContent("Nearby disclosure", value: model.proximityDisclosurePolicy.title)
+                LabeledContent("Looking For", value: "\(model.selectedLookingForModes.count) mode(s)")
+                LabeledContent("Questionnaire", value: "\(model.alignmentAnswers.count) answer(s)")
+                LabeledContent("Location grants", value: "\(model.locationShareByMatch.count) synthetic")
+                LabeledContent("Skin", value: model.selectedSkinID ?? "default")
             }
             Section("Local control plane") {
                 Text("Probes Mac `127.0.0.1:8080–8085` (`make smoke-local`). Failures are expected if services are down.")
@@ -175,7 +205,7 @@ struct DiagnosticsView: View {
                 }
             }
             Section {
-                Text("No profile text, messages, exact location, or secrets are logged.")
+                Text("No profile text, messages, exact location, BLE encounter IDs, sexual intent, questionnaire answers, or secrets are logged.")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
             }

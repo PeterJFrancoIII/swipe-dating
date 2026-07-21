@@ -12,7 +12,7 @@ struct MatchesListView: View {
                 ContentUnavailableView(
                     "No matches yet",
                     systemImage: "heart",
-                    description: Text("Mutual interest required before messaging.")
+                    description: Text("Mutual interest required before messaging or location sharing.")
                 )
                 .listRowBackground(Color.clear)
             } else {
@@ -24,6 +24,11 @@ struct MatchesListView: View {
                                 .font(.footnote)
                                 .foregroundStyle(.secondary)
                                 .lineLimit(1)
+                            if let share = model.locationShareByMatch[match.id] {
+                                Label(share.title, systemImage: "location")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
                         }
                     }
                     .accessibilityLabel("Conversation with \(match.displayName)")
@@ -34,6 +39,16 @@ struct MatchesListView: View {
         .navigationDestination(for: SyntheticProfile.self) { match in
             ConversationView(profile: match)
         }
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                NavigationLink {
+                    MatchMapView()
+                } label: {
+                    Image(systemName: "map")
+                }
+                .accessibilityLabel("Matched location map")
+            }
+        }
     }
 }
 
@@ -42,10 +57,11 @@ struct ConversationView: View {
     let profile: SyntheticProfile
     @State private var draft = ""
     @State private var showReport = false
+    @State private var showLocationShare = false
 
     var body: some View {
         VStack(spacing: 0) {
-            Text("Screenshots can’t be fully prevented. Meet in public if you meet at all.")
+            Text("Screenshots can’t be fully prevented. Meet in public if you meet at all. Location is never shared just because you matched.")
                 .font(.caption2)
                 .foregroundStyle(.secondary)
                 .padding(8)
@@ -92,8 +108,11 @@ struct ConversationView: View {
         }
         .navigationTitle(profile.displayName)
         .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
+            ToolbarItem(placement: .primaryAction) {
                 Menu {
+                    Button("Review location sharing") {
+                        showLocationShare = true
+                    }
                     Button("Block", role: .destructive) {
                         model.block(profileId: profile.id)
                     }
@@ -103,11 +122,14 @@ struct ConversationView: View {
                 } label: {
                     Image(systemName: "ellipsis.circle")
                 }
-                .accessibilityLabel("Conversation safety actions")
+                .accessibilityLabel("Conversation privacy and safety actions")
             }
         }
         .sheet(isPresented: $showReport) {
             NavigationStack { ReportFlowView(profile: profile) }
+        }
+        .sheet(isPresented: $showLocationShare) {
+            NavigationStack { MatchLocationConsentView(profile: profile) }
         }
     }
 }

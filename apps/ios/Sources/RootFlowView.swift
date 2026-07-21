@@ -14,7 +14,7 @@ struct RootFlowView: View {
         }
         .overlay(alignment: .top) {
             if model.emergencyPrivacyMode {
-                Text("EMERGENCY PRIVACY ON — presence withdrawn")
+                Text("EMERGENCY PRIVACY ON — refresh, nearby mode, and local location grants stopped")
                     .font(.caption.bold())
                     .foregroundStyle(.white)
                     .frame(maxWidth: .infinity)
@@ -68,16 +68,18 @@ struct WelcomeView: View {
                 Text("STAGING / INTERNAL BETA")
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(.orange)
-                Text("Adults only. Profiles and messages stay on your device. The operator does not get ordinary private content.")
+                Text("Adults 18+ only. Profiles, private intent, questionnaire answers, messages, and match-scoped location are designed to stay on your device or move through consent-scoped encrypted paths.")
                     .font(.body)
                 VStack(alignment: .leading, spacing: 8) {
-                    Label("18+ fail-closed age gate", systemImage: "checkmark.shield")
-                    Label("No exact location sharing", systemImage: "location.slash")
-                    Label("Match before messaging", systemImage: "lock.heart")
+                    Label("Full-date 18+ staging boundary", systemImage: "checkmark.shield")
+                    Label("No exact location in discovery", systemImage: "location.slash")
+                    Label("Mutual match before messaging", systemImage: "lock.heart")
+                    Label("Get fk'd proximity starts off and prompt-first", systemImage: "wave.3.right")
+                    Label("Local alignment — no pay-to-win rank", systemImage: "slider.horizontal.3")
                     Label("Block & report always free", systemImage: "hand.raised")
                 }
                 .font(.subheadline)
-                Text("Safety tools reduce risk but cannot prevent screenshots, guarantee identity, or make in-person meetings safe.")
+                Text("Safety tools reduce risk but cannot guarantee identity, Bluetooth detection, prevent screenshots, or make in-person meetings safe.")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
                 Text("Protocol v\(model.protocolVersion) · Core: \(model.usingStagingFallback ? "STAGING mock" : "UniFFI")")
@@ -88,7 +90,7 @@ struct WelcomeView: View {
                 }
                 .buttonStyle(.borderedProminent)
                 .frame(maxWidth: .infinity)
-                .accessibilityHint("Continue to age eligibility")
+                .accessibilityHint("Continue to adult eligibility")
             }
             .padding()
         }
