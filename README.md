@@ -40,6 +40,7 @@ Blocking, reporting, age assurance foundations, and encrypted messaging are free
 | `docs/product/closed-beta-readiness.md` | Beta checklist |
 | `AGENTS.md` | Agent rules |
 | `docs/operations/github-sync.md` | Local ↔ GitHub sync (`make sync`) |
+| `docs/operations/ramdisk.md` | macOS RAM disk for agent-speed worktrees |
 | `.cursor/commands/deploy-decentralized-dating-app.md` | Deploy runbook |
 
 ## License
