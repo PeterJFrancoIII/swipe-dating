@@ -32,6 +32,14 @@ jobs:
         run: cargo test -p dating-matching alignment -- --nocapture
       - name: Preference tests
         run: cargo test -p dating-matching preferences -- --nocapture
+      - name: Proximity tests
+        run: cargo test -p dating-matching proximity -- --nocapture
+      - name: Location grant tests
+        run: cargo test -p dating-matching location_share -- --nocapture
+      - name: Anti-abuse tests
+        run: cargo test -p dating-safety anti_abuse -- --nocapture
+      - name: Skin Shop boundary tests
+        run: cargo test -p dating-profile skin_shop -- --nocapture
 
   questionnaire-and-governance:
     name: Questionnaire / governance contracts
@@ -50,6 +58,11 @@ jobs:
           grep -Fq 'Purchases never affect dating rank' docs/governance/release-gates.md
           grep -Fq 'autoMatchOnLike: false' apps/ios/Sources/AppModel.swift
           grep -Fq 'return nil' apps/ios/Sources/AppModel.swift
+          test -f apps/ios/Sources/AppModel+AdultEligibility.swift
+          test -f core/matching/src/proximity.rs
+          test -f core/matching/src/location_share.rs
+          test -f core/safety/src/anti_abuse.rs
+          test -f core/profile/src/skin_shop.rs
           test -f docs/architecture/adr-0009-consent-based-proximity.md
           test -f docs/architecture/adr-0010-matched-location-sharing.md
           test -f docs/architecture/adr-0011-local-sensitive-alignment.md
@@ -60,6 +73,7 @@ jobs:
         run: |
           set -euo pipefail
           ! grep -Eiq 'allow(list|ed).*(javascript|executable plugin|arbitrary html)' docs/product/adult-feature-expansion.md
+          ! grep -Eiq '"(text/html|application/javascript|text/javascript)"' core/profile/src/skin_shop.rs
 
   command-integrity:
     name: Deploy command integrity
