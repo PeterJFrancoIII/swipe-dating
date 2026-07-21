@@ -6,7 +6,7 @@ SHELL := /bin/bash
 	test-mobile android-build test-e2e test-load test-chaos fuzz-smoke security sbom licenses \
 	local-up local-down local-reset-test-data smoke-local local-services-up infra-fmt infra-validate infra-plan-staging \
 	deploy-staging smoke-staging release-readiness production-preflight ios-build ios-open ios-gen ios-uniffi \
-	sync sync-pull sync-push sync-status
+	sync sync-pull sync-push sync-status ramdisk-status ramdisk-up ramdisk-sync-back ramdisk-down
 
 COMPOSE_FILE := infra/local/compose.yaml
 STAGING_IDENTITY := infra/terraform/environments/staging/ACCOUNT_IDENTITY.md
@@ -42,6 +42,7 @@ doctor: ## Report toolchain and environment health
 	@printf "staging id:  "; grep -E '^status:' $(STAGING_IDENTITY) 2>/dev/null || echo "file missing"
 	@echo "Latest audit: docs/audits/2026-07-21-adult-features-readiness-review.md"
 	@echo "GitHub sync: make sync (docs/operations/github-sync.md)"
+	@echo "RAM disk: make ramdisk-status (docs/operations/ramdisk.md)"
 
 format: ## Run rustfmt on workspace
 	cargo fmt --all
@@ -106,6 +107,24 @@ sync-push: ## Push current branch to GitHub (mirrors main from primary feature b
 sync: ## Bidirectional sync: pull --rebase then push
 	@chmod +x scripts/git-sync.sh
 	./scripts/git-sync.sh sync
+
+## --- RAM disk (macOS) ---
+
+ramdisk-status: ## Show RAM disk / memory headroom
+	@chmod +x scripts/ramdisk.sh
+	./scripts/ramdisk.sh status
+
+ramdisk-up: ## Create RAM disk and mirror project into /Volumes/SwipeDatingRAM
+	@chmod +x scripts/ramdisk.sh
+	./scripts/ramdisk.sh up
+
+ramdisk-sync-back: ## Copy RAM worktree back to persistent disk
+	@chmod +x scripts/ramdisk.sh
+	./scripts/ramdisk.sh sync-back
+
+ramdisk-down: ## Sync back then destroy RAM disk
+	@chmod +x scripts/ramdisk.sh
+	./scripts/ramdisk.sh down
 
 test-e2e:
 	@echo "STUB: E2E device-pair smoke not wired in CI yet (requires staging URL + test harness)."
