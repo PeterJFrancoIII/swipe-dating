@@ -29,9 +29,15 @@ This interpretation advances the product mission while reducing stalking, coerci
 - governed `LookingForMode`, gender-feed category, proximity policy, match-location mode, activity/body-hair/fragrance preference types;
 - explicit allowlist and prohibited-filter keys;
 - proximity defaults to off;
-- deterministic local reciprocal alignment scoring;
-- dealbreaker conflict exclusion;
-- version, duplicate-question, importance, hidden-answer, and prefer-not-to-say tests.
+- rotating, device-local encounter-id derivation and a minimal advertisement type containing no profile attributes;
+- proximity decision model that suppresses blocked, underage, emergency, cooldown, and disabled events and never auto-shares to an incompatible peer;
+- expiring match-scoped location-grant and revocation metadata containing no coordinates, with precise-mode second confirmation and bounded TTLs;
+- deterministic local reciprocal alignment scoring with dealbreaker exclusion;
+- safe Skin Shop manifests with bounded MIME, bytes, dimensions, frames, integrity ids, no executable payloads, and no hidden network references;
+- privacy-preserving request-risk assessment using adult credential, attestation, velocity, scraping, BLE replay, impossible travel, malicious-link, brigading, and prior-enforcement signals;
+- progressive allow/throttle/challenge/temporary-containment outcomes, with no autonomous permanent-ban action;
+- rotating service-pairwise quota-key derivation that does not place profile ids in rate-limit storage;
+- unit tests for proximity defaults and consent, location expiry/revocation, cosmetic asset safety, alignment, filters, adult credential gating, replay, scraping friction, and quota rotation.
 
 ### iOS staging application
 
@@ -45,15 +51,15 @@ This interpretation advances the product mission while reducing stalking, coerci
 - Skin Shop synthetic catalog and local mock cosmetic entitlement;
 - post-match location prompt, consent choices, synthetic Matched Map, and stop control;
 - expanded report categories and diagnostics;
-- full-date 18th-birthday boundary instead of birth-year subtraction;
+- full-date 18th-birthday boundary with future-date and implausible-age rejection instead of birth-year subtraction;
 - hidden region no longer publishes a real fallback discovery region;
 - live discovery tickets no longer auto-create unilateral matches;
 - emergency privacy disables local proximity and location state and honestly discloses TTL limitations.
 
 ### Delivery controls
 
-- CI updated to run on `agent/**` branches;
-- Rust fmt/clippy/workspace tests and focused alignment/preference tests are blocking;
+- CI runs on `agent/**` branches;
+- Rust fmt/clippy/workspace tests and focused matching tests are blocking;
 - questionnaire JSON and governance contract checks are blocking;
 - Android `assembleDebug` is blocking;
 - Swift package and linked iOS Xcode/UniFFI builds are blocking;
@@ -63,19 +69,19 @@ This interpretation advances the product mission while reducing stalking, coerci
 
 ### Adult eligibility
 
-The full-date UI boundary remains a staging aid. There is no production provider integration or signed, expiring, revocable adult credential enforced by presence, proximity, matching, map, group, and messaging services.
+The full-date UI boundary remains a staging aid. There is no production provider integration or signed, expiring, revocable adult credential enforced by presence, proximity, matching, map, group, and messaging services. The Rust risk model can reject an absent/revoked credential, but no public endpoint yet supplies or verifies the real credential.
 
 ### Bluetooth proximity
 
-No CoreBluetooth or Android BLE advertising/scanning, challenge-response, replay cache, relay/wormhole mitigation, haptic cooldown implementation, background/battery validation, or block-aware pairwise capability exchange exists yet.
+The core now defines unlinkable encounter-id derivation and consent decisions, but no CoreBluetooth or Android BLE advertising/scanning, challenge-response transport, server/device replay cache, relay/wormhole mitigation, haptic cooldown implementation, background/battery validation, or block-aware pairwise capability exchange exists yet.
 
 ### Match location
 
-No Core Location/MapKit collection, E2EE location envelope, sequence/revocation protocol, active background-share indicator, receiver purge, push wake, or adversarial location test exists yet. Staging stores consent choices only and collects no coordinates.
+The core now defines bounded grant/revocation metadata without coordinates, but no Core Location/MapKit collection, E2EE location payload, signing/key binding, active background-share indicator, receiver purge, push wake, or adversarial location test exists yet. Staging stores consent choices only and collects no coordinates.
 
 ### Marketplace
 
-No creator upload, production asset parser, moderation, object storage/CDN, StoreKit, Play Billing, receipt validation, entitlement restore, refunds, IP process, payout/tax flow, or marketplace fraud operations exist yet.
+The core now rejects unsafe manifest shapes, but no creator upload, production decoder/parser sandbox, moderation, object storage/CDN, StoreKit, Play Billing, receipt validation, entitlement restore, refunds, IP process, payout/tax flow, or marketplace fraud operations exist yet.
 
 ### Questionnaire privacy
 
@@ -83,7 +89,7 @@ Answers remain local in staging. A production score-only exchange protocol has n
 
 ### Bot and Sybil resistance
 
-The strategy is documented, but passkeys, device-key enrollment/revocation, App Attest, Play Integrity, signed request challenges, pairwise quotas, proof-of-work, risk storage, review tooling, and appeal operations are not implemented.
+The core has a deterministic content-blind risk and quota foundation, but passkeys, device-key enrollment/revocation, App Attest, Play Integrity, signed request challenges, persistent pairwise quotas, proof-of-work, production risk storage, review tooling, and appeal operations are not integrated.
 
 ### Safety operations
 
@@ -100,7 +106,7 @@ At authoring time, source changes were committed through the GitHub connector an
 | Check | Status |
 |---|---|
 | Rust fmt / clippy / workspace tests | PENDING CI |
-| Alignment/preference focused tests | PENDING CI |
+| Proximity/location/alignment/preference/anti-abuse/Skin Shop unit tests | PENDING CI |
 | Questionnaire/governance contracts | PENDING CI |
 | Android assembleDebug | PENDING CI |
 | Swift package build | PENDING CI |
@@ -114,8 +120,8 @@ At authoring time, source changes were committed through the GitHub connector an
 2. Complete protocol identity binding, trusted issuer configuration, bilateral match verification, and authenticated presence withdrawal.
 3. Implement network-enforced adult credentials and layered account/device/request integrity.
 4. Implement and red-team BLE proximity behind a real-user-off feature flag.
-5. Implement and red-team match-scoped E2EE location grants and revocation.
-6. Implement isolated Skin Shop asset validation, moderation, billing, entitlements, and creator operations.
+5. Implement and red-team match-scoped E2EE location payloads, signing, and revocation.
+6. Implement isolated Skin Shop decoder validation, moderation, billing, entitlements, and creator operations.
 7. Select and review the score-only privacy protocol; complete questionnaire DPIA and user-rights flow.
 8. Build durable safety operations and real staging infrastructure.
 9. Obtain named owners and authentic beta approvals bound to the reviewed commit/environment.
