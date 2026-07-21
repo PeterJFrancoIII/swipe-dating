@@ -137,7 +137,10 @@ impl LocationShareGrant {
 mod tests {
     use super::*;
 
-    fn base(kind: LocationShareKind, precise_confirmation: bool) -> Result<LocationShareGrant, LocationShareError> {
+    fn base(
+        kind: LocationShareKind,
+        precise_confirmation: bool,
+    ) -> Result<LocationShareGrant, LocationShareError> {
         LocationShareGrant::new(
             [1; 16],
             [2; 32],
