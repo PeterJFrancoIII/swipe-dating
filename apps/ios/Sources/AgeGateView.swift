@@ -3,48 +3,56 @@ import SwiftUI
 /// Adults-only age eligibility gate — fail-closed via audited core bridge.
 public struct AgeGateView: View {
     @EnvironmentObject private var model: AppModel
-    @State private var birthYear: String = ""
+    @State private var birthDate: Date = Calendar(identifier: .gregorian)
+        .date(byAdding: .year, value: -18, to: Date()) ?? Date()
+    @State private var confirmedDate = false
 
     public init() {}
 
     public var body: some View {
         Form {
             Section {
-                Text("Confirm you are 18 or older. Parental consent cannot bypass this floor.")
+                Text("This dating service is for adults 18+ only. Parental consent cannot bypass the age floor, and sexual or proximity features are never available to minors.")
                     .font(.footnote)
             }
-            Section("Age eligibility (18+)") {
-                TextField("Birth year (YYYY)", text: $birthYear)
-                    #if os(iOS)
-                    .keyboardType(.numberPad)
-                    #endif
-                    .accessibilityLabel("Birth year")
+
+            Section("Date of birth") {
+                DatePicker(
+                    "Date of birth",
+                    selection: $birthDate,
+                    in: ...Date(),
+                    displayedComponents: .date
+                )
+                .datePickerStyle(.compact)
+                .accessibilityHint("Used for an exact 18-or-older eligibility check")
+
+                Toggle("I confirm this is my date of birth", isOn: $confirmedDate)
+
                 if model.usingStagingFallback {
-                    Text("STAGING mock provider — real age vendors disabled until DPA/legal review.")
+                    Text("STAGING mock provider — the date is checked locally. A network-enforced adult credential and provider review are required before real-user beta.")
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                 }
             }
-            if let err = model.lastError {
+
+            if let error = model.lastError {
                 Section {
-                    Text(err)
+                    Text(error)
                         .foregroundStyle(.orange)
                         .font(.footnote)
-                        .accessibilityLabel("Error: \(err)")
+                        .accessibilityLabel("Error: \(error)")
                 }
             }
+
             Section {
                 Button("Continue") {
-                    if let year = Int(birthYear.trimmingCharacters(in: .whitespaces)) {
-                        model.submitAgeGate(birthYear: year)
-                    } else {
-                        model.lastError = "Enter a valid birth year."
-                    }
+                    model.submitAgeGate(birthDate: birthDate)
                 }
-                .accessibilityHint("Submit age eligibility")
+                .disabled(!confirmedDate)
+                .accessibilityHint("Submit adult eligibility")
             }
         }
-        .navigationTitle("Age Gate")
+        .navigationTitle("Adults only")
         .navigationBarBackButtonHidden(true)
     }
 }
