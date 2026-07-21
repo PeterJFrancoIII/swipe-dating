@@ -154,7 +154,10 @@ pub fn assess_request(signals: &RiskSignals) -> RiskAssessment {
     if signals.accounts_created_24h > 2 {
         add_capped(
             &mut score,
-            signals.accounts_created_24h.saturating_sub(2).saturating_mul(12),
+            signals
+                .accounts_created_24h
+                .saturating_sub(2)
+                .saturating_mul(12),
             48,
         );
         reasons.push(RiskReason::MassRegistration);
