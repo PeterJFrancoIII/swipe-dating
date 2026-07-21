@@ -3,7 +3,7 @@
 use crate::limits::*;
 use crate::types::*;
 use crate::PROTOCOL_VERSION;
-use dating_crypto::{verify, Signature};
+use dating_crypto::{constant_time_eq, hash_blake3, verify, Signature};
 use dating_test_support::TestClock;
 use thiserror::Error;
 
@@ -25,6 +25,10 @@ pub enum ValidationError {
     InvalidSignature,
     #[error("object too large")]
     ObjectTooLarge,
+}
+
+fn profile_id_matches_public_key(profile_id: &[u8; 32], public_key: &[u8; 32]) -> bool {
+    constant_time_eq(profile_id, &hash_blake3(public_key))
 }
 
 pub fn validate_presence_lease(
@@ -102,6 +106,9 @@ pub fn validate_like_envelope(
     if like.expires_at <= clock.now_unix() {
         return Err(ValidationError::Expired);
     }
+    if !profile_id_matches_public_key(&like.sender_profile_id, &like.signer_public_key) {
+        return Err(ValidationError::InvalidSignature);
+    }
     let payload = like_signing_payload(like);
     if !verify(
         &like.signer_public_key,
@@ -116,6 +123,14 @@ pub fn validate_like_envelope(
 pub fn validate_match_receipt(receipt: &MatchReceipt) -> Result<(), ValidationError> {
     if receipt.protocol_version != PROTOCOL_VERSION {
         return Err(ValidationError::UnsupportedVersion);
+    }
+    if constant_time_eq(&receipt.profile_a, &receipt.profile_b) {
+        return Err(ValidationError::InvalidSignature);
+    }
+    if !profile_id_matches_public_key(&receipt.profile_a, &receipt.public_key_a)
+        || !profile_id_matches_public_key(&receipt.profile_b, &receipt.public_key_b)
+    {
+        return Err(ValidationError::InvalidSignature);
     }
     let payload_a = match_receipt_signing_payload(receipt, true);
     let payload_b = match_receipt_signing_payload(receipt, false);
@@ -139,6 +154,9 @@ pub fn validate_match_receipt(receipt: &MatchReceipt) -> Result<(), ValidationEr
 pub fn validate_block_record(block: &BlockRecord) -> Result<(), ValidationError> {
     if block.protocol_version != PROTOCOL_VERSION {
         return Err(ValidationError::UnsupportedVersion);
+    }
+    if !profile_id_matches_public_key(&block.blocker_profile_id, &block.signer_public_key) {
+        return Err(ValidationError::InvalidSignature);
     }
     let payload = block_signing_payload(block);
     if !verify(
@@ -169,6 +187,11 @@ pub fn validate_profile_capsule(
     }
     if capsule.expires_at <= clock.now_unix() {
         return Err(ValidationError::Expired);
+    }
+    if !profile_id_matches_public_key(&capsule.profile_id, &capsule.root_public_key)
+        || !constant_time_eq(&capsule.root_public_key, &capsule.signer_public_key)
+    {
+        return Err(ValidationError::InvalidSignature);
     }
     let payload = profile_signing_payload(capsule);
     if !verify(
