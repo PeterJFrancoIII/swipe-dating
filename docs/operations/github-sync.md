@@ -1,6 +1,6 @@
 # GitHub bidirectional sync
 
-**Engineering source of truth:** GitHub repo  
+**Engineering source of truth:** GitHub repo (public)  
 https://github.com/PeterJFrancoIII/swipe-dating
 
 Local path:
