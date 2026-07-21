@@ -1,9 +1,7 @@
 //! Opaque identity handle — signing keys never cross FFI.
 
 use dating_identity::{RootIdentity, RotatingRendezvousId};
-use dating_protocol::{
-    encode_cbor, presence_signing_payload, PresenceLease, PROTOCOL_VERSION,
-};
+use dating_protocol::{encode_cbor, presence_signing_payload, PresenceLease, PROTOCOL_VERSION};
 use rand_core::{OsRng, RngCore};
 use std::fmt;
 use std::sync::Arc;
