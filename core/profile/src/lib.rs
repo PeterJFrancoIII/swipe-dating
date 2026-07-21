@@ -1,4 +1,8 @@
-//! Profile capsule build and validation helpers.
+//! Profile capsule build/validation helpers and safe cosmetic Skin Shop manifests.
+
+mod skin_shop;
+
+pub use skin_shop::*;
 
 use dating_crypto::{hash_blake3, SigningKeypair};
 use dating_protocol::{
