@@ -1,0 +1,55 @@
+{
+  "questionnaireId": "alignment-us-en-rnd-v1",
+  "status": "synthetic-rnd-only",
+  "questions": [
+    {
+      "id": "relationship_primary_intent",
+      "category": "relationship",
+      "prompt": "What kind of connection matters most right now?",
+      "sensitive": true,
+      "options": ["long_term", "dating", "casual", "friends_first", "prefer_not"]
+    },
+    {
+      "id": "political_alignment_importance",
+      "category": "politics",
+      "prompt": "How important is political alignment?",
+      "sensitive": true,
+      "options": ["not_important", "somewhat", "very", "dealbreaker", "prefer_not"]
+    },
+    {
+      "id": "us_2024_presidential_preference",
+      "category": "politics",
+      "prompt": "2024 U.S. presidential preference",
+      "sensitive": true,
+      "options": ["trump", "harris", "other", "did_not_vote", "prefer_not"]
+    },
+    {
+      "id": "education_path",
+      "category": "education_work",
+      "prompt": "Which education or training path fits you?",
+      "sensitive": false,
+      "options": ["college", "trade", "self_taught", "mixed", "other"]
+    },
+    {
+      "id": "money_health_balance",
+      "category": "values",
+      "prompt": "What do you prioritize when life gets busy?",
+      "sensitive": false,
+      "options": ["money", "health", "balance", "relationships"]
+    },
+    {
+      "id": "body_hair_preference",
+      "category": "grooming",
+      "prompt": "What body-hair compatibility do you prefer?",
+      "sensitive": true,
+      "options": ["natural", "trimmed", "mostly_removed", "no_preference", "prefer_not"]
+    },
+    {
+      "id": "intimacy_style",
+      "category": "adult_intimacy",
+      "prompt": "Which adult intimacy style sounds most compatible?",
+      "sensitive": true,
+      "options": ["vanilla", "adventurous", "kink_bdsm", "varies", "prefer_not"]
+    }
+  ]
+}
