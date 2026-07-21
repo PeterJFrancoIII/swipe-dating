@@ -78,6 +78,19 @@ cd apps/android
 
 Android remains behind iOS for the new adult feature UX; parity is a later reviewed slice.
 
+### macOS RAM disk workflow
+
+For an optional high-speed disposable worktree:
+
+```bash
+make ramdisk-status
+make ramdisk-up
+make ramdisk-sync-back
+make ramdisk-down
+```
+
+See `docs/operations/ramdisk.md`. Always sync reviewed work back to persistent disk before destroying the RAM disk.
+
 ## Architecture
 
 - **Mode A (default):** strict zero-store—discoverable only while online.
@@ -107,6 +120,7 @@ Core dating and safety are free. Marketplace purchases must never change reach, 
 | `docs/product/closed-beta-readiness.md` | Real-user beta checklist |
 | `AGENTS.md` | Autonomous-agent rules |
 | `docs/operations/github-sync.md` | Local ↔ GitHub sync (`make sync`) |
+| `docs/operations/ramdisk.md` | macOS RAM disk for agent-speed worktrees |
 | `.cursor/commands/deploy-decentralized-dating-app.md` | Original staging deployment runbook |
 
 ## Release state
