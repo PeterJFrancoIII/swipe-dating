@@ -2,13 +2,26 @@ name: CI
 
 on:
   push:
-    branches: [main, feat/**]
+    branches: [main, "feat/**", "agent/**"]
   pull_request:
+  workflow_dispatch:
 
 permissions:
   contents: read
 
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
+  feature-policy:
+    name: Adult consent feature policy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Enforce source and governance invariants
+        run: bash scripts/feature_policy_check.sh
+
   rust:
     name: Rust fmt / clippy / test
     runs-on: ubuntu-latest
@@ -22,7 +35,7 @@ jobs:
         run: cargo fmt --all -- --check
       - name: Clippy
         run: cargo clippy --workspace --all-targets -- -D warnings
-      - name: Unit tests
+      - name: Unit and integration tests
         run: cargo test --workspace
 
   command-integrity:
@@ -34,51 +47,40 @@ jobs:
         run: bash scripts/command_integrity_check.sh
 
   android:
-    name: Android (placeholder)
+    name: Android assembleDebug
     runs-on: ubuntu-latest
-    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
-      - name: Check Java
-        id: java
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Assemble staging APK
         run: |
-          if command -v java >/dev/null 2>&1; then
-            echo "available=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "available=false" >> "$GITHUB_OUTPUT"
-          fi
-      - name: Skip — Java missing
-        if: steps.java.outputs.available != 'true'
-        run: echo "SKIP android job — Java not available on runner"
-      - name: Structural check
-        if: steps.java.outputs.available == 'true'
-        run: |
-          test -f apps/android/settings.gradle.kts
-          test -f apps/android/app/build.gradle.kts
-          echo "Android skeleton present; full assemble not run in CI scaffold"
+          chmod +x apps/android/gradlew
+          cd apps/android
+          ./gradlew :app:assembleDebug --no-daemon
+      - name: Verify APK exists
+        run: test -s apps/android/app/build/outputs/apk/debug/app-debug.apk
 
   ios:
-    name: iOS (placeholder)
+    name: iOS Simulator build with UniFFI
     runs-on: macos-latest
-    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
-      - name: Structural check
-        run: |
-          test -f apps/ios/Package.swift
-          test -f apps/ios/Sources/StagingRootView.swift
-      - name: Swift build (optional)
-        continue-on-error: true
-        run: |
-          cd apps/ios
-          swift build 2>/dev/null || echo "SKIP swift build — toolchain or deps unavailable"
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Install xcodegen
+        run: brew install xcodegen
+      - name: Build current iOS staging app
+        run: make ios-build
 
   production-gate:
-    name: Production preflight (must fail without approvals)
+    name: Production preflight must block
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: production-preflight must block
+      - name: Verify missing approvals fail closed
         run: |
           if bash scripts/production_preflight.sh; then
             echo "ERROR: production-preflight should have blocked"
