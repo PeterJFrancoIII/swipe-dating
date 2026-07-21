@@ -29,8 +29,8 @@ struct IdentitySetupView: View {
                     }
                 }
             }
-            if let err = model.lastError {
-                Text(err).foregroundStyle(.orange).font(.footnote)
+            if let error = model.lastError {
+                Text(error).foregroundStyle(.orange).font(.footnote)
             }
             Button("Create local identity") {
                 model.createLocalIdentity(acknowledgeRecovery: acknowledged)
@@ -49,14 +49,24 @@ struct PermissionsEducationView: View {
     var body: some View {
         Form {
             Section("Location (optional)") {
-                Text("We only use foreground location to derive a coarse region with jitter. Exact coordinates never leave the device. Distance is shown as bands like “nearby”, never meters.")
+                Text("We only use foreground location to derive a coarse region with jitter. Exact coordinates never leave your device during discovery. Turning this off now disables location-based presence rather than substituting a hidden region.")
                     .font(.footnote)
                 Toggle("Use coarse discovery region", isOn: $allowCoarse)
             }
+
+            Section("Get fk'd proximity (off by default)") {
+                Text("Bluetooth permission is requested only when you turn the adult-only proximity mode on. The same prompt-before-profile-sharing default applies to every gender.")
+                    .font(.footnote)
+                Text("Background delivery is best-effort and must pass battery, replay, stalking, blocked-user, and attestation tests before real-user beta.")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+            }
+
             Section("Photos") {
                 Text("Profile photos stay on-device. GPS/camera metadata is stripped before any peer transfer.")
                     .font(.footnote)
             }
+
             Button("Continue") {
                 model.finishPermissions(enableCoarseRegion: allowCoarse)
             }
@@ -78,14 +88,42 @@ struct ProfileSetupView: View {
                     .lineLimit(4 ... 8)
                     .accessibilityLabel("About text")
             }
+
+            Section("Identity (optional)") {
+                Picker("Gender identity", selection: $model.genderIdentity) {
+                    ForEach(GenderIdentity.allCases) { value in
+                        Text(value.rawValue).tag(value)
+                    }
+                }
+                Picker("Sexual orientation", selection: $model.sexualOrientation) {
+                    ForEach(SexualOrientation.allCases) { value in
+                        Text(value.rawValue).tag(value)
+                    }
+                }
+                Text("These are separate, optional fields. They do not change proximity or location privacy defaults.")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+            }
+
+            Section("Looking for") {
+                ForEach(LookingForMode.allCases) { mode in
+                    Toggle(mode.rawValue, isOn: lookingForBinding(mode))
+                }
+                Text("Sexual modes are available only after adult eligibility and are shared only with independently compatible adults.")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+            }
+
             Section {
                 Text("Region band: \(model.coarseRegionLabel)")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
             }
-            if let err = model.lastError {
-                Text(err).foregroundStyle(.orange).font(.footnote)
+
+            if let error = model.lastError {
+                Text(error).foregroundStyle(.orange).font(.footnote)
             }
+
             Button("Save & start discovering") {
                 model.saveProfile()
             }
@@ -93,5 +131,15 @@ struct ProfileSetupView: View {
         }
         .navigationTitle("Your profile")
         .navigationBarBackButtonHidden(true)
+    }
+
+    private func lookingForBinding(_ mode: LookingForMode) -> Binding<Bool> {
+        Binding(
+            get: { model.lookingForModes.contains(mode) },
+            set: { enabled in
+                if enabled { model.lookingForModes.insert(mode) }
+                else { model.lookingForModes.remove(mode) }
+            }
+        )
     }
 }
