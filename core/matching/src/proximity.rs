@@ -73,9 +73,7 @@ pub enum ProximityEncounterDecision {
 ///
 /// A buzz does not itself disclose a profile. Auto-share produces only a short-lived,
 /// revocable profile-fetch capability and is allowed solely after explicit opt-in.
-pub fn decide_proximity_event(
-    context: ProximityEncounterContext,
-) -> ProximityEncounterDecision {
+pub fn decide_proximity_event(context: ProximityEncounterContext) -> ProximityEncounterDecision {
     if !context.adult_credential_valid
         || context.emergency_privacy
         || context.blocked
@@ -151,9 +149,7 @@ mod tests {
     #[test]
     fn prompt_is_the_safe_disclosure_default() {
         assert_eq!(
-            decide_proximity_event(context(
-                ProximityDisclosurePolicy::PromptBeforeSharing
-            )),
+            decide_proximity_event(context(ProximityDisclosurePolicy::PromptBeforeSharing)),
             ProximityEncounterDecision::BuzzAndPromptBeforeSharing
         );
     }
@@ -171,9 +167,7 @@ mod tests {
     #[test]
     fn auto_share_requires_explicit_policy_and_compatibility() {
         assert_eq!(
-            decide_proximity_event(context(
-                ProximityDisclosurePolicy::AutoShareCompatible
-            )),
+            decide_proximity_event(context(ProximityDisclosurePolicy::AutoShareCompatible)),
             ProximityEncounterDecision::BuzzAndShareScopedCapability
         );
     }
