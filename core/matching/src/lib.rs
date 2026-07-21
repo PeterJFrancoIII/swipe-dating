@@ -1,7 +1,12 @@
-//! Local matching state machine and dislike store.
+//! Local matching, dislike state, discovery preferences, and alignment scoring.
 
+mod alignment;
 mod location;
+mod preferences;
+
+pub use alignment::*;
 pub use location::*;
+pub use preferences::*;
 
 use dating_protocol::{BlockRecord, MatchReceipt, PROTOCOL_VERSION};
 use serde::{Deserialize, Serialize};
@@ -78,12 +83,12 @@ impl MatchStateMachine {
     pub fn confirm_match(
         &mut self,
         profile_id: [u8; 32],
-        _receipt: &MatchReceipt,
+        receipt: &MatchReceipt,
     ) -> Result<(), MatchingError> {
         if self.state_of(&profile_id) == MatchState::Blocked {
             return Err(MatchingError::Blocked);
         }
-        if _receipt.protocol_version != PROTOCOL_VERSION {
+        if receipt.protocol_version != PROTOCOL_VERSION {
             return Err(MatchingError::InvalidTransition);
         }
         self.states.insert(profile_id, MatchState::Matched);
