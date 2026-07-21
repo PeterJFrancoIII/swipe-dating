@@ -1,12 +1,14 @@
-//! Local matching, dislike state, discovery preferences, and alignment scoring.
+//! Local matching, dislike state, discovery preferences, proximity, and alignment scoring.
 
 mod alignment;
 mod location;
 mod preferences;
+mod proximity;
 
 pub use alignment::*;
 pub use location::*;
 pub use preferences::*;
+pub use proximity::*;
 
 use dating_protocol::{BlockRecord, MatchReceipt, PROTOCOL_VERSION};
 use serde::{Deserialize, Serialize};
