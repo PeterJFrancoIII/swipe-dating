@@ -40,7 +40,7 @@ struct MatchesListView: View {
             ConversationView(profile: match)
         }
         .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
+            ToolbarItem(placement: .primaryAction) {
                 NavigationLink {
                     MatchMapView()
                 } label: {
@@ -108,7 +108,7 @@ struct ConversationView: View {
         }
         .navigationTitle(profile.displayName)
         .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
+            ToolbarItem(placement: .primaryAction) {
                 Menu {
                     Button("Review location sharing") {
                         showLocationShare = true
