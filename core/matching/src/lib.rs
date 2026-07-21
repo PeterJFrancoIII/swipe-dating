@@ -1,12 +1,14 @@
-//! Local matching, dislike state, discovery preferences, proximity, and alignment scoring.
+//! Local matching, dislike state, discovery preferences, proximity, location grants, and alignment scoring.
 
 mod alignment;
 mod location;
+mod location_share;
 mod preferences;
 mod proximity;
 
 pub use alignment::*;
 pub use location::*;
+pub use location_share::*;
 pub use preferences::*;
 pub use proximity::*;
 
