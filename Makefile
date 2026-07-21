@@ -1,9 +1,9 @@
 # Swipe Dating — local-first staging platform
-# Phases 7–17 scaffold. Not production-ready.
+# Adult consent feature foundation. Not production-ready.
 
 SHELL := /bin/bash
-.PHONY: bootstrap doctor format lint test test-unit test-integration test-protocol-vectors \
-	test-mobile test-e2e test-load test-chaos fuzz-smoke security sbom licenses \
+.PHONY: bootstrap doctor format lint feature-policy-check test test-unit test-integration test-protocol-vectors \
+	test-mobile android-build test-e2e test-load test-chaos fuzz-smoke security sbom licenses \
 	local-up local-down local-reset-test-data smoke-local local-services-up infra-fmt infra-validate infra-plan-staging \
 	deploy-staging smoke-staging release-readiness production-preflight ios-build ios-open ios-gen ios-uniffi \
 	sync sync-pull sync-push sync-status
@@ -19,7 +19,7 @@ bootstrap: ## Install local dev dependencies (Rust, hooks, optional tools)
 	rustup show active-toolchain >/dev/null 2>&1 || rustup default stable
 	rustup component add rustfmt clippy 2>/dev/null || true
 	cargo fetch
-	@echo "bootstrap: Rust workspace fetched. Optional: Docker, Terraform, Java/Android SDK (see make doctor)."
+	@echo "bootstrap: Rust workspace fetched. Required for full readiness: Xcode/xcodegen, JDK17+, Android SDK, Docker, Terraform."
 
 doctor: ## Report toolchain and environment health
 	@echo "=== Swipe Dating doctor ==="
@@ -37,15 +37,19 @@ doctor: ## Report toolchain and environment health
 	else \
 		echo "MISSING (blocks Android)"; \
 	fi
+	@printf "xcodegen:    "; command -v xcodegen >/dev/null && xcodegen --version || echo "MISSING (blocks iOS)"
 	@printf "compose:     "; test -f $(COMPOSE_FILE) && echo "$(COMPOSE_FILE) present" || echo "MISSING"
 	@printf "staging id:  "; grep -E '^status:' $(STAGING_IDENTITY) 2>/dev/null || echo "file missing"
-	@echo "See docs/execution/phase-scaffold-notes.md for known blockers."
+	@echo "Latest audit: docs/audits/2026-07-21-adult-features-readiness-review.md"
 	@echo "GitHub sync: make sync (docs/operations/github-sync.md)"
 
 format: ## Run rustfmt on workspace
 	cargo fmt --all
 
-lint: ## Run clippy and format check
+feature-policy-check: ## Enforce adult/consent/privacy source and governance invariants
+	@bash $(SCRIPTS)/feature_policy_check.sh
+
+lint: feature-policy-check ## Run policy, clippy, and format checks
 	cargo fmt --all -- --check
 	cargo clippy --workspace --all-targets -- -D warnings
 
@@ -62,13 +66,12 @@ test-integration:
 test-protocol-vectors:
 	@source "$$HOME/.cargo/env" && cargo test -p dating-protocol --test golden_vectors -- --nocapture
 
-test-mobile: ios-build
-	@echo "=== Android (optional; deferred while iPhone-first) ==="
-	@if command -v java >/dev/null 2>&1 && test -f apps/android/gradlew; then \
-		echo "Android wrapper present — run ./gradlew :app:assembleDebug when ready"; \
-	else \
-		echo "Android toolchain optional for current iPhone-first focus"; \
-	fi
+test-mobile: ios-build android-build ## Build current iOS and Android staging targets
+
+android-build: ## Build Android staging APK; no continue-on-error
+	@test -f apps/android/gradlew || { echo "ERROR: Android Gradle wrapper missing"; exit 1; }
+	@chmod +x apps/android/gradlew
+	cd apps/android && ./gradlew :app:assembleDebug --no-daemon
 
 ios-gen:
 	@command -v xcodegen >/dev/null 2>&1 || { echo "Install xcodegen: brew install xcodegen"; exit 1; }
@@ -96,7 +99,7 @@ sync-pull: ## Fetch + rebase from GitHub
 	@chmod +x scripts/git-sync.sh
 	./scripts/git-sync.sh pull
 
-sync-push: ## Push current branch to GitHub (mirrors main from feature branch)
+sync-push: ## Push current branch to GitHub (mirrors main from primary feature branch only)
 	@chmod +x scripts/git-sync.sh
 	./scripts/git-sync.sh push
 
@@ -106,12 +109,14 @@ sync: ## Bidirectional sync: pull --rebase then push
 
 test-e2e:
 	@echo "STUB: E2E device-pair smoke not wired in CI yet (requires staging URL + test harness)."
+	@exit 1
 
 test-load:
 	@source "$$HOME/.cargo/env" && cargo test -p dating-rendezvous concurrent_discovery_load_smoke -- --nocapture
 
 test-chaos:
 	@echo "STUB: chaos tests not implemented (requires running staging cluster)."
+	@exit 1
 
 fuzz-smoke:
 	@source "$$HOME/.cargo/env" && cargo test -p dating-protocol --test cbor_fuzz_smoke cbor_mutation_smoke -- --nocapture
@@ -169,14 +174,16 @@ infra-fmt:
 	@if command -v terraform >/dev/null 2>&1; then \
 		terraform fmt -recursive infra/terraform; \
 	else \
-		echo "STUB: terraform not installed — infra-fmt skipped"; \
+		echo "ERROR: terraform not installed — infra-fmt cannot verify"; \
+		exit 1; \
 	fi
 
 infra-validate:
 	@if command -v terraform >/dev/null 2>&1; then \
 		cd infra/terraform/environments/staging && terraform init -backend=false && terraform validate; \
 	else \
-		echo "STUB: terraform not installed — infra-validate skipped"; \
+		echo "ERROR: terraform not installed — infra-validate cannot verify"; \
+		exit 1; \
 	fi
 
 infra-plan-staging:
@@ -195,20 +202,22 @@ deploy-staging:
 	cd infra/terraform/environments/staging && terraform init && terraform apply
 
 smoke-staging:
-	@echo "STUB: smoke-staging requires deployed staging URL in .cursor/state or STAGING_BASE_URL env."
 	@if [ -n "$$STAGING_BASE_URL" ]; then \
-		curl -sf "$$STAGING_BASE_URL/health" && echo " health ok" || echo "health check failed"; \
+		curl -sf "$$STAGING_BASE_URL/healthz" && echo " health ok"; \
 	else \
 		echo "Set STAGING_BASE_URL to run smoke checks."; \
 		exit 1; \
 	fi
 
-release-readiness:
+release-readiness: ## Full local release evidence; requires all mobile/toolchains
 	@echo "=== Release readiness checklist (staging) ==="
 	@$(MAKE) doctor
+	@$(MAKE) feature-policy-check
 	@$(MAKE) lint
 	@$(MAKE) test-unit
-	@echo "Manual: staging smoke, safety docs human review, approvals still required for production."
+	@$(MAKE) test-integration
+	@$(MAKE) test-mobile
+	@echo "Automated staging checks passed. Human safety/legal/privacy/security/store/market approvals remain required."
 
 production-preflight:
 	@$(SCRIPTS)/production_preflight.sh
