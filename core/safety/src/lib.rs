@@ -1,4 +1,8 @@
-//! Safety actions and report bundles (metadata only, no content logging).
+//! Safety actions, report bundles, and privacy-preserving abuse controls.
+
+mod anti_abuse;
+
+pub use anti_abuse::*;
 
 use dating_protocol::limits::MAX_REPORT_EVIDENCE_HASHES;
 use serde::{Deserialize, Serialize};
