@@ -59,7 +59,7 @@ This interpretation advances the product mission while reducing stalking, coerci
 ### Delivery controls
 
 - CI runs on `agent/**` branches;
-- Rust fmt/clippy/workspace tests and focused matching tests are blocking;
+- Rust fmt/clippy/workspace tests and focused domain tests are blocking;
 - questionnaire JSON and governance contract checks are blocking;
 - Android `assembleDebug` is blocking;
 - Swift package and linked iOS Xcode/UniFFI builds are blocking;
@@ -99,33 +99,40 @@ Report submission and safety review remain staging stubs. There is no staffed qu
 
 The branch does not yet close all prior critical review findings, including complete identity binding for every protocol object, configured server-ticket trust roots, authenticated immediate presence withdrawal, production WebRTC/messaging, hardware-backed key persistence, complete media decode/re-encode, or production infrastructure modules.
 
-## Verification state
+## Verification evidence
 
-At authoring time, source changes were committed through the GitHub connector and CI was configured to provide a blocking verdict. The final status of the draft PR checks must be recorded below after GitHub Actions completes.
+GitHub Actions CI run **29864806630** validated implementation commit **`380ab611c74a768ec45fd912095f794f8a3f801c`**. Every blocking job and every focused feature-domain test passed. This audit-only documentation commit re-runs the same required checks; the current PR check state remains the authoritative final result.
 
-| Check | Status |
+| Check | Verified result |
 |---|---|
-| Rust fmt / clippy / workspace tests | PENDING CI |
-| Proximity/location/alignment/preference/anti-abuse/Skin Shop unit tests | PENDING CI |
-| Questionnaire/governance contracts | PENDING CI |
-| Android assembleDebug | PENDING CI |
-| Swift package build | PENDING CI |
-| iOS Xcode + UniFFI Simulator build | PENDING CI |
-| Production preflight expected block | PENDING CI |
-| Real BLE/location/commerce/attestation tests | NOT IMPLEMENTED — BLOCKING |
+| Rust formatting | PASS |
+| Rust clippy with warnings denied | PASS |
+| Rust workspace unit/integration tests | PASS |
+| Alignment tests | PASS |
+| Preference/filter-boundary tests | PASS |
+| Proximity consent/default tests | PASS |
+| Location grant/expiry/revocation tests | PASS |
+| Anti-abuse/adult-credential/replay/scraping/quota tests | PASS |
+| Skin Shop manifest and executable-format boundary tests | PASS |
+| Questionnaire JSON and governance contracts | PASS |
+| Android `assembleDebug` and artifact verification | PASS |
+| Swift package build | PASS |
+| iOS Simulator Xcode build with linked UniFFI core | PASS |
+| Deploy-command integrity | PASS |
+| Production preflight expected block | PASS — `PRODUCTION_BLOCKED_HUMAN_APPROVALS_REQUIRED` |
+| Real BLE/location/commerce/attestation integrations | NOT IMPLEMENTED — BLOCKING REAL USERS |
 
 ## Required next sequence
 
-1. Resolve all CI failures on the draft PR.
-2. Complete protocol identity binding, trusted issuer configuration, bilateral match verification, and authenticated presence withdrawal.
-3. Implement network-enforced adult credentials and layered account/device/request integrity.
-4. Implement and red-team BLE proximity behind a real-user-off feature flag.
-5. Implement and red-team match-scoped E2EE location payloads, signing, and revocation.
-6. Implement isolated Skin Shop decoder validation, moderation, billing, entitlements, and creator operations.
-7. Select and review the score-only privacy protocol; complete questionnaire DPIA and user-rights flow.
-8. Build durable safety operations and real staging infrastructure.
-9. Obtain named owners and authentic beta approvals bound to the reviewed commit/environment.
-10. Re-run this audit before inviting any real user.
+1. Complete protocol identity binding, trusted issuer configuration, bilateral match verification, and authenticated presence withdrawal.
+2. Implement network-enforced adult credentials and layered account/device/request integrity.
+3. Implement and red-team BLE proximity behind a real-user-off feature flag.
+4. Implement and red-team match-scoped E2EE location payloads, signing, and revocation.
+5. Implement isolated Skin Shop decoder validation, moderation, billing, entitlements, and creator operations.
+6. Select and review the score-only privacy protocol; complete questionnaire DPIA and user-rights flow.
+7. Build durable safety operations and real staging infrastructure.
+8. Obtain named owners and authentic beta approvals bound to the reviewed commit/environment.
+9. Re-run this audit before inviting any real user.
 
 ## Stop condition
 
