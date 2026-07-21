@@ -22,8 +22,26 @@ jobs:
         with:
           components: rustfmt, clippy
       - uses: Swatinem/rust-cache@v2
-      - name: Format check
-        run: cargo fmt --all -- --check
+      - name: Format sources and capture patch
+        shell: bash
+        run: |
+          set -euo pipefail
+          cargo fmt --all
+          git diff -- . > rustfmt.patch
+          if [[ -s rustfmt.patch ]]; then
+            echo "Rust formatting changes are required:"
+            cat rustfmt.patch
+          else
+            echo "Rust formatting is clean."
+          fi
+      - name: Upload rustfmt patch
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rustfmt-patch-${{ github.sha }}
+          path: rustfmt.patch
+          if-no-files-found: ignore
+          retention-days: 7
       - name: Clippy
         run: cargo clippy --workspace --all-targets -- -D warnings
       - name: Unit and integration tests
@@ -40,6 +58,9 @@ jobs:
         run: cargo test -p dating-safety anti_abuse -- --nocapture
       - name: Skin Shop boundary tests
         run: cargo test -p dating-profile skin_shop -- --nocapture
+      - name: Enforce committed Rust formatting
+        shell: bash
+        run: test ! -s rustfmt.patch
 
   questionnaire-and-governance:
     name: Questionnaire / governance contracts
@@ -68,12 +89,16 @@ jobs:
           test -f docs/architecture/adr-0011-local-sensitive-alignment.md
           test -f docs/architecture/adr-0012-skin-shop-boundary.md
           test -f docs/architecture/adr-0013-bot-sybil-resistance.md
-      - name: No executable marketplace asset formats in allowlist
+      - name: Marketplace allowlist excludes executable formats
         shell: bash
         run: |
           set -euo pipefail
-          ! grep -Eiq 'allow(list|ed).*(javascript|executable plugin|arbitrary html)' docs/product/adult-feature-expansion.md
-          ! grep -Eiq '"(text/html|application/javascript|text/javascript)"' core/profile/src/skin_shop.rs
+          grep -Fq 'Initial denylist:' docs/product/adult-feature-expansion.md
+          grep -Fq -- '- JavaScript;' docs/product/adult-feature-expansion.md
+          grep -Fq -- '- arbitrary HTML;' docs/product/adult-feature-expansion.md
+          grep -Fq -- '- executable plugins;' docs/product/adult-feature-expansion.md
+          allowed_block="$(sed -n '/const ALLOWED_SKIN_MIMES/,/];/p' core/profile/src/skin_shop.rs)"
+          ! grep -Eiq 'text/html|application/javascript|text/javascript' <<<"$allowed_block"
 
   command-integrity:
     name: Deploy command integrity
@@ -106,7 +131,18 @@ jobs:
       - uses: actions/checkout@v4
       - name: Swift package build
         working-directory: apps/ios
-        run: swift build
+        shell: bash
+        run: |
+          set -o pipefail
+          swift build 2>&1 | tee ../../swift-package-build.log
+      - name: Upload Swift package build log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: swift-package-build-${{ github.sha }}
+          path: swift-package-build.log
+          if-no-files-found: error
+          retention-days: 7
 
   ios-xcode:
     name: iOS Simulator Xcode build with UniFFI
@@ -117,7 +153,18 @@ jobs:
       - name: Install xcodegen
         run: brew install xcodegen
       - name: Build app and linked Rust core
-        run: make ios-build
+        shell: bash
+        run: |
+          set -o pipefail
+          make ios-build 2>&1 | tee ios-xcode-build.log
+      - name: Upload iOS Xcode build log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-xcode-build-${{ github.sha }}
+          path: ios-xcode-build.log
+          if-no-files-found: error
+          retention-days: 7
 
   production-gate:
     name: Production preflight (must fail without approvals)
