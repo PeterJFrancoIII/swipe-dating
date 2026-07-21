@@ -2,9 +2,7 @@
 
 use crate::util::parse_profile_id;
 use dating_matching::{LocalDislikeStore, MatchState, MatchStateMachine, MatchingError};
-use dating_protocol::{
-    decode_cbor, BlockRecord, MatchReceipt, ProtocolError, PROTOCOL_VERSION,
-};
+use dating_protocol::{decode_cbor, BlockRecord, MatchReceipt, ProtocolError, PROTOCOL_VERSION};
 use std::sync::Mutex;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, thiserror::Error, uniffi::Error)]
