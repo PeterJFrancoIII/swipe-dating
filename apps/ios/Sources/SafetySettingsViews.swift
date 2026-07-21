@@ -3,6 +3,10 @@ import SwiftUI
 struct SafetyCenterView: View {
     @EnvironmentObject private var model: AppModel
 
+    private var activeLocationShares: [MatchLocationShare] {
+        model.matchLocationShares.values.filter(\.isActive)
+    }
+
     var body: some View {
         List {
             Section {
@@ -11,13 +15,44 @@ struct SafetyCenterView: View {
                     .font(.footnote)
                     .foregroundStyle(.secondary)
             }
+
             Section("Emergency") {
                 Toggle("Emergency privacy mode", isOn: Binding(
                     get: { model.emergencyPrivacyMode },
                     set: { _ in model.toggleEmergencyPrivacy() }
                 ))
-                .accessibilityHint("Withdraws presence and hides you from discovery")
+                .accessibilityHint("Stops discovery refresh, Get fk'd proximity, and all active location grants")
+
+                if model.emergencyPrivacyMode {
+                    Text("The current presence lease may remain discoverable for up to 120 seconds until an authenticated withdrawal endpoint is implemented. Location grants are removed from this device immediately.")
+                        .font(.caption)
+                        .foregroundStyle(.orange)
+                }
             }
+
+            Section("Active location grants") {
+                if activeLocationShares.isEmpty {
+                    Text("No active location shares")
+                        .foregroundStyle(.secondary)
+                } else {
+                    ForEach(activeLocationShares) { share in
+                        HStack {
+                            VStack(alignment: .leading) {
+                                Text(share.profileId)
+                                    .font(.caption.monospaced())
+                                Text("\(share.mode.rawValue) · expires \(share.expiresAt.formatted(date: .omitted, time: .shortened))")
+                                    .font(.caption2)
+                                    .foregroundStyle(.secondary)
+                            }
+                            Spacer()
+                            Button("Stop", role: .destructive) {
+                                model.revokeLocationShare(profileId: share.profileId)
+                            }
+                        }
+                    }
+                }
+            }
+
             Section("Blocked") {
                 if model.blockedIds.isEmpty {
                     Text("No blocked profiles")
@@ -29,6 +64,7 @@ struct SafetyCenterView: View {
                     }
                 }
             }
+
             Section("Resources") {
                 Text("If you are in immediate danger, contact local emergency services. This app does not dispatch police.")
                     .font(.footnote)
@@ -50,7 +86,10 @@ struct ReportFlowView: View {
 
     enum ReportReason: String, CaseIterable, Identifiable {
         case harassment = "Harassment / contact after block"
+        case proximity = "Proximity stalking / encounter-ID abuse"
+        case location = "Location coercion / tracking"
         case scam = "Scam or impersonation"
+        case marketplace = "Skin Shop theft / malicious asset"
         case ncii = "Nonconsensual intimate imagery"
         case minor = "Suspected minor / age evasion"
         case threat = "Credible threat"
@@ -61,9 +100,10 @@ struct ReportFlowView: View {
     var body: some View {
         Form {
             Section("Reporting \(profile.displayName)") {
-                Text("You choose what evidence is submitted. Staging stores hashes/metadata only — no automatic upload of your whole gallery.")
+                Text("You choose what evidence is submitted. Staging stores hashes/metadata only — no automatic upload of your whole gallery, Bluetooth history, or location history.")
                     .font(.footnote)
             }
+
             Section("Reason") {
                 Picker("Reason", selection: $reason) {
                     ForEach(ReportReason.allCases) { item in
@@ -71,17 +111,20 @@ struct ReportFlowView: View {
                     }
                 }
             }
+
             Section("Evidence") {
                 Toggle("Include selected message/profile evidence package", isOn: $includeSelectedEvidence)
                 Text("Exact contents of the package are shown before send in production. Staging simulates confirmation only.")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
             }
+
             if submitted {
                 Text("Report recorded locally for staging. Human review queues are not staffed in this build.")
                     .foregroundStyle(.green)
                     .font(.footnote)
             }
+
             Button(submitted ? "Done" : "Submit report") {
                 if submitted {
                     dismiss()
@@ -108,6 +151,27 @@ struct SettingsView: View {
             Section {
                 StagingBannerView()
             }
+
+            Section("Dating") {
+                NavigationLink {
+                    ProductPreferencesView()
+                } label: {
+                    Label("Gender, orientation, Looking For & filters", systemImage: "person.2")
+                }
+
+                NavigationLink {
+                    AlignmentQuestionnaireView()
+                } label: {
+                    Label("Alignment questionnaire", systemImage: "checklist")
+                }
+
+                NavigationLink {
+                    ProximitySettingsView()
+                } label: {
+                    Label("Get fk'd privacy", systemImage: "dot.radiowaves.left.and.right")
+                }
+            }
+
             Section("Privacy modes") {
                 Toggle("Relay-only (recommended)", isOn: $model.relayOnly)
                 Toggle("Sealed mailbox opt-in (off by default)", isOn: $model.sealedMailboxOptIn)
@@ -115,14 +179,26 @@ struct SettingsView: View {
                     .font(.footnote)
                     .foregroundStyle(.secondary)
             }
+
+            Section("Integrity") {
+                NavigationLink {
+                    BotProtectionView()
+                } label: {
+                    Label("Bot & Sybil protection", systemImage: "checkmark.shield")
+                }
+                LabeledContent("Real-user network", value: model.botProtection.realUserNetworkReady ? "eligible for further review" : "blocked")
+            }
+
             Section("Account") {
                 LabeledContent("Display name", value: model.displayName)
                 LabeledContent("Protocol", value: "v\(model.protocolVersion)")
                 LabeledContent("Core", value: model.usingStagingFallback ? "STAGING mock" : "UniFFI")
+                LabeledContent("Target experience", value: "Adults 18–25 (18+ floor)")
                 NavigationLink("Diagnostics (internal)") {
                     DiagnosticsView()
                 }
             }
+
             Section("Data") {
                 Button("Export local data (staging stub)") {}
                 Button("Delete account on this device", role: .destructive) {
@@ -155,10 +231,14 @@ struct DiagnosticsView: View {
                 LabeledContent("Core path", value: model.usingStagingFallback ? "STAGING mock" : "UniFFI linked")
                 LabeledContent("Profile id", value: model.profileIdHex.isEmpty ? "none" : String(model.profileIdHex.prefix(16)) + "…")
                 LabeledContent("Online", value: model.availabilityOnline ? "yes" : "no")
+                LabeledContent("Get fk'd", value: model.proximityPreferences.enabled ? "simulation on" : "off")
                 LabeledContent("Matches", value: "\(model.matches.count)")
                 LabeledContent("Blocked", value: "\(model.blockedIds.count)")
                 LabeledContent("Region band", value: model.coarseRegionLabel)
+                LabeledContent("Questionnaire answers", value: "\(model.questionnaireResponses.count) local")
+                LabeledContent("Skin entitlement count", value: "\(model.skinEntitlements.count)")
             }
+
             Section("Local control plane") {
                 Text("Probes Mac `127.0.0.1:8080–8085` (`make smoke-local`). Failures are expected if services are down.")
                     .font(.footnote)
@@ -174,8 +254,9 @@ struct DiagnosticsView: View {
                     }
                 }
             }
+
             Section {
-                Text("No profile text, messages, exact location, or secrets are logged.")
+                Text("No profile text, messages, exact location, questionnaire answers, Bluetooth encounter history, or secrets are logged.")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
             }
