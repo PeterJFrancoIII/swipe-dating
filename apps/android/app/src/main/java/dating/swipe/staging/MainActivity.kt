@@ -25,7 +25,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import dating.swipe.core.DatingCoreBridge
-import java.util.Calendar
+import java.time.DateTimeException
+import java.time.LocalDate
+import java.time.Period
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -42,7 +44,7 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun StagingScreen() {
-    var birthYear by remember { mutableStateOf("") }
+    var birthDate by remember { mutableStateOf("") }
     var statusMessage by remember { mutableStateOf<String?>(null) }
 
     Box(
@@ -59,6 +61,10 @@ fun StagingScreen() {
                 style = MaterialTheme.typography.titleMedium,
             )
             Text(
+                text = "Adults 18+ only · target experience 18–25",
+                style = MaterialTheme.typography.bodySmall,
+            )
+            Text(
                 text = "Protocol v${DatingCoreBridge.protocolVersion()}",
                 style = MaterialTheme.typography.bodyMedium,
             )
@@ -69,17 +75,17 @@ fun StagingScreen() {
                 )
             }
             Text(
-                text = "Age gate (18+)",
+                text = "Exact-date adult gate",
                 style = MaterialTheme.typography.titleSmall,
             )
             OutlinedTextField(
-                value = birthYear,
-                onValueChange = { birthYear = it },
-                label = { Text("Birth year") },
+                value = birthDate,
+                onValueChange = { birthDate = it },
+                label = { Text("Date of birth (YYYY-MM-DD)") },
                 singleLine = true,
             )
             Button(onClick = {
-                statusMessage = runAgeGate(birthYear)
+                statusMessage = runAgeGate(birthDate)
             }) {
                 Text("Continue")
             }
@@ -90,17 +96,25 @@ fun StagingScreen() {
                     color = MaterialTheme.colorScheme.primary,
                 )
             }
+            Text(
+                text = "Get fk'd proximity, sexual-intent modes, maps, and marketplace social features remain unavailable to minors and are staging-only until their release gates pass.",
+                style = MaterialTheme.typography.bodySmall,
+            )
             Spacer(modifier = Modifier.height(8.dp))
         }
     }
 }
 
-private fun runAgeGate(birthYearInput: String): String {
-    val year = birthYearInput.trim().toIntOrNull()
-        ?: return "Enter a valid birth year."
-    val currentYear = Calendar.getInstance().get(Calendar.YEAR)
-    if (year !in 1900..currentYear) return "Enter a valid birth year."
-    val age = currentYear - year
+private fun runAgeGate(birthDateInput: String): String {
+    val birthDate = try {
+        LocalDate.parse(birthDateInput.trim())
+    } catch (_: DateTimeException) {
+        return "Enter a valid date in YYYY-MM-DD format."
+    }
+
+    val today = LocalDate.now()
+    if (birthDate.isAfter(today)) return "Enter a valid date of birth."
+    val age = Period.between(birthDate, today).years
     if (age < 18) return "Must be 18+ to continue."
 
     return try {
@@ -111,7 +125,7 @@ private fun runAgeGate(birthYearInput: String): String {
         )
         val now = System.currentTimeMillis() / 1000
         DatingCoreBridge.assertDiscoveryAllowed(summary, now)
-        "Discovery gate passed (protocol v${DatingCoreBridge.protocolVersion()})."
+        "Adult staging gate passed. Real-user networking still requires a signed network adult credential."
     } catch (_: DatingCoreBridge.EligibilityError) {
         "Ineligible — fail closed."
     }
