@@ -1,81 +1,112 @@
-# Mission Control Packet
+# Current objective — adult consent feature foundation
+
+**Updated:** 2026-07-21  
+**Branch:** `agent/adult-consent-features`  
+**Environment:** synthetic/internal staging only  
+**Release state:** closed beta and production blocked
 
 ```yaml
 mission_control_packet:
   project_name: local-first-dating-platform
+  objective_id: adult-consent-features-2026-07-21
   user_objective: >
-    Build and deploy a complete staging implementation of a local-first,
-    privacy-preserving adults-only swipe dating app; prepare production
-    artifacts; stop before production without fabricating approvals.
-  current_objective: >
-    Phase 0+ execution of deploy-decentralized-dating-app.md on
-    feat/local-first-dating-platform after verified SHA-256 integrity.
-  success_criteria:
-    - Staging platform with control plane + E2EE peer path scaffolds
-    - Tests, CI, IaC, safety/privacy docs, and final agent report
-    - Production gate blocks autonomous production deploy
-  non_goals:
-    - Production deploy / store submission / real legal filings
-    - Minors, public feeds, crypto, facial recognition, peer replication MVP
+    Add adult proximity alerts, purchasable/custom avatars and skins, optional
+    matched-location maps, private Looking For modes, inclusive gender and
+    orientation preferences, lifestyle/grooming filters, a values/intimacy
+    questionnaire, local compatibility ranking, and strong bot resistance.
+  safety_resolution:
+    - The requested 16-25 audience is implemented as an 18+ service designed
+      especially for adults 18-25. No 16/17-year-old access is permitted.
+    - Gender does not determine profile-disclosure defaults. Prompt before sharing
+      is the default for every adult; automatic disclosure is explicit opt-in.
+    - Real BLE, real location, real billing, real sensitive-answer exchange, and
+      real-user beta remain blocked until feature-specific gates pass.
+  staging_deliverables:
+    - Get fk'd switch on the main swipe page
+    - equal consent and compatible-adult proximity preferences
+    - simulated haptic nearby encounter without BLE identity payload
+    - Skin Shop catalog, local preview entitlement, creator prototype
+    - optional synthetic match-area / meeting-pin / live-location map grants
+    - Looking For taxonomy including adult sexual and nonsexual intentions
+    - separate gender identity, orientation, Show me, and visibility controls
+    - activity, conversation, body-hair, fragrance, and coarse-distance preferences
+    - versioned hard-coded questionnaire with local transparent scoring
+    - Rust anti-abuse primitives for adult/passkey/device/attestation gates,
+      request binding, replay rejection, velocity, challenge, and containment
+    - revised mission, rules, data map, threat model, ADRs, audit, and release gates
+    - blocking CI for Rust and current mobile build targets
+  non_goals_for_this_slice:
+    - minor access or mixed minor/adult graph
+    - real Bluetooth scan/advertise transport
+    - real user coordinates or background location
+    - real StoreKit/Play purchases, creator payouts, or asset publication
+    - central questionnaire answer storage
+    - production fraud model or unique-human proof
+    - public beta, production deployment, or store submission
   target_users:
-    - Adults 18+ seeking mutual-consent dating discovery
-    - Operators running staging for closed beta preparation
-  constraints:
-    time: autonomous session until staging gate / production stop
-    budget: local and staging-only; no vendor purchases by agent
-    stack: Rust core, UniFFI, iOS/Android, Axum services, PG, Valkey, Terraform
-    compliance: adults-only; fail-closed age/auth; drafts marked unapproved
-    deployment: staging allowed; production forbidden to autonomous agent
-  assumptions:
-    confirmed:
-      - Repository was greenfield (Research/ only) at start
-      - Command SHA-256 matches Research/*.sha256
-      - Rust stable 1.97.1 installable via rustup
-    unconfirmed:
-      - Staging cloud account credentials available for Phase 17 apply
-      - Docker daemon availability for local compose
-      - Java/Android SDK and Terraform installability on this host
-  architecture_hypothesis:
+    primary: adults 18-25 seeking consent-based dating and social connection
+    permitted: other adults 18+ subject to launch-market policy
+    excluded: every person under 18
+  architecture:
     style: hybrid local-first with ephemeral control plane
-    main_components:
-      - name: core
-        responsibility: identity, protocol, crypto adapters, matching, storage interfaces
-      - name: services
-        responsibility: rendezvous, signaling metadata, TURN creds, push broker, report ingest
-      - name: apps
-        responsibility: native iOS/Android UI with UniFFI audited-core boundary
-      - name: safety
-        responsibility: block/report/appeal and isolated evidence vault interfaces
-  data_classification:
-    public: [protocol docs, openapi contracts, community rules drafts]
-    internal: [staging metrics aggregates, feature flags]
-    confidential: [push tokens, pseudonymous block tokens, presence leases]
-    regulated: [age eligibility results, safety report evidence, identity docs NEVER retained]
-  integrations:
-    required: [WebRTC/TURN, APNs/FCM interfaces, age-assurance interface, attestation interface]
-    optional: [sealed mailbox disabled by default, personal availability node post-MVP]
-  risks:
-    product: [background suspension limits zero-store availability]
-    technical: [missing Java/Terraform/Docker on host]
-    security: [metadata leakage via TURN/push; no bespoke crypto]
-    delivery: [staging cloud credentials may block Phase 17 apply]
-  verification_plan:
-    static_checks: [cargo fmt/clippy, make lint, schema lint]
-    unit_tests: [cargo test --workspace, protocol vectors]
-    integration_tests: [compose local control plane]
-    e2e_tests: [synthetic device pair smoke when runners available]
-    manual_acceptance: [staging smoke; production gate must fail]
-  first_three_slices:
-    - objective: Preflight + constitution scaffolding
-      allowed_files: [docs/**, .cursor/**, AGENTS.md, MISSION.md, governance root files]
-      forbidden_files: [production secrets, real user data]
-      done_when: [preflight report, state JSON, Phase 0 commit]
-    - objective: Architecture ADRs and threat model
-      allowed_files: [docs/architecture/**, docs/privacy/**, docs/security/**, docs/product/**]
-      forbidden_files: [apps/** feature code before ADR freeze]
-      done_when: [ADRs 0001-0008, data-map, threat-model]
-    - objective: Toolchains and CI skeleton
-      allowed_files: [Cargo.*, core/**, Makefile, .github/**, apps/** skeletons]
-      forbidden_files: [infra production apply]
-      done_when: [make doctor/bootstrap/test-unit pass or blockers documented]
+    new_components:
+      - consent-based BLE proximity protocol (ADR-0009; transport pending)
+      - recipient-scoped E2EE location grants (ADR-0010; transport pending)
+      - local sensitive alignment system (ADR-0011)
+      - isolated public Skin Shop domain (ADR-0012; commerce pending)
+      - layered anti-abuse policy core (ADR-0013)
+  privacy_invariants:
+    - no profile/gender/intent/stable ID in Bluetooth advertisements
+    - no automatic location on match
+    - no sensitive questionnaire plaintext in control plane or telemetry
+    - no protected-trait or spending-based ranking
+    - marketplace has no access to dating or safety data
+  consent_invariants:
+    - prompt-before-proximity-disclosure for every gender
+    - live messaging only after reciprocal authenticated interest
+    - sexual intent visible only to independently compatible adults
+    - group participant changes require renewed unanimous consent
+    - every location grant is explicit, current-match-only, expiring, revocable
+  verification:
+    automated:
+      - cargo fmt --all -- --check
+      - cargo clippy --workspace --all-targets -- -D warnings
+      - cargo test --workspace
+      - bash scripts/feature_policy_check.sh
+      - Android assembleDebug
+      - make ios-build
+      - production preflight must remain blocked
+    manual_or_external:
+      - BLE stalking/linkability/battery red team
+      - adult-credential and attestation integration
+      - E2EE location protocol and revocation acknowledgement
+      - marketplace parser/billing/moderation/finance review
+      - questionnaire DPIA/fairness/private-comparison review
+      - staffed T&S and legal/store approvals
+  completion_condition: >
+    Merge only after branch CI is green and review confirms all unfinished high-risk
+    capabilities remain visibly blocked. Merging this foundation is not approval
+    for real-user beta or production.
 ```
+
+## Immediate next engineering slices
+
+1. Fix any branch CI failures and make mobile checks truly blocking.
+2. Implement cryptographic identity binding and bilateral match validation.
+3. Add network adult credentials, passkeys, authorized-device lifecycle, and server attestation verification.
+4. Design/test rotating BLE encounter IDs without enabling real-user transport.
+5. Design/test recipient-bound E2EE location envelopes and revocation acknowledgements.
+6. Build hardware-backed local storage adapters and a bounded media re-encode pipeline.
+7. Build authenticated safety case/evidence/appeal operations.
+
+## Stop conditions
+
+Stop before:
+
+- real user enrollment;
+- collecting real Bluetooth encounters or coordinates;
+- charging money or paying creators;
+- exchanging real sensitive questionnaire answers;
+- deploying cloud staging without verified account identity;
+- creating, signing, or simulating human approvals;
+- production or store submission.
