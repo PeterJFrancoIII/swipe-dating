@@ -34,11 +34,13 @@
 		<false/>
 	</dict>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Location is used only while the app is open to derive a coarse discovery region. Exact coordinates never leave your device.</string>
+	<string>Location is optional and used only to derive a coarse discovery area or a location grant you explicitly share with a current match.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Photos are stored on-device for your profile. Location metadata is stripped before any peer transfer.</string>
 	<key>NSCameraUsageDescription</key>
-	<string>Camera access is optional for adding profile photos. Photos stay on-device unless you share them after a match.</string>
+	<string>Camera access is optional for adding profile photos. Photos stay on-device unless you share them.</string>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>Bluetooth is used only when you turn on the adult-only Get fk'd proximity mode, to detect other opted-in nearby adults using rotating identifiers.</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsLocalNetworking</key>
