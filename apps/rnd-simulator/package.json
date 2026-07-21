@@ -1,0 +1,10 @@
+{
+  "name": "@swipe/rnd-simulator",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@swipe/rnd-crypto-node": "0.1.0",
+    "@swipe/rnd-domain": "0.1.0"
+  }
+}

@@ -23,6 +23,23 @@
 | Authentic approvals bound to reviewed commit and environment | required | required |
 | `make production-preflight` | must fail without approvals | must pass only with authentic approvals |
 
+## JavaScript R&D architecture gate
+
+The JavaScript reset authorizes **synthetic research only**. It is not a closed-beta or production approval.
+
+- [x] Active app, service, domain, simulation, and test source is JavaScript under `apps/rnd-*` and `packages/rnd-*`
+- [x] Node.js 24 LTS is pinned for CI and local `.nvmrc`
+- [ ] A reviewed dependency lockfile is committed before any real-user build
+- [x] Expo SDK 57 web export is blocking in CI
+- [x] Node syntax, active-surface, unit/API, simulation, and high/critical dependency-audit thresholds are blocking
+- [ ] Legacy Rust/Swift/Kotlin code is archived or removed after parity review
+- [ ] Custom Expo development builds are verified on controlled iOS and Android devices
+- [ ] No manually maintained generated native project becomes a second source of truth
+- [ ] High-risk native adapters have named owners, dependency review, permission review, and feature flags
+- [ ] The ten current moderate Expo native-build-tooling advisories are resolved, accepted with expiry, or superseded by reviewed upstream releases before any real-user build
+
+Generated native files and third-party native modules may exist below Expo/React Native, but newly authored product behavior remains JavaScript unless a superseding ADR documents a measured exception.
+
 ## Get fk'd proximity gates
 
 `Get fk'd` remains unavailable to real users until all items below are evidenced.
@@ -69,7 +86,7 @@
 ## Skin Shop gates
 
 - [ ] Marketplace data plane is isolated from private dating, safety, location, and questionnaire data
-- [ ] Only bounded declarative assets; no JavaScript, arbitrary shaders, executable plugins, or hidden network calls
+- [ ] Only bounded declarative assets; no executable JavaScript inside assets, arbitrary shaders, executable plugins, or hidden network calls
 - [ ] MIME/type/size/decompression/animation limits and hostile-asset fuzzing pass
 - [ ] Avatars clearly distinguish avatar, photo, and photo-verified profiles
 - [ ] Creator terms, content rules, copyright process, moderation, refunds, tax/payout, and fraud controls approved
@@ -92,10 +109,11 @@
 
 ## Agent rules
 
-- Autonomous agents may deploy **staging** only after staging account identity is verified.
+- Autonomous agents may run and publish **synthetic JavaScript R&D** and may deploy staging only after staging account identity is verified.
 - Autonomous agents must not enable real Bluetooth scanning, location sharing, purchases, creator payouts, real-user reporting, App Store / Play submission, vendor contracts, legal processes, or production data without the corresponding human gate.
 - Agents must not author or simulate legal, privacy, security, T&S, mobile-store, finance, or executive approval.
 - Agents must not implement minors, gender-asymmetric disclosure, covert tracking, or purchase-weighted dating rank.
+- Agents must not add new active Rust, Swift, Kotlin, Java, Python, Dart, Objective-C, or TypeScript product code without a superseding ADR and explicit human architecture approval.
 - Beta and production remain **BLOCKED** until every applicable table and checklist item is satisfied with authentic evidence.
 
 ## Validator

@@ -18,14 +18,25 @@ secrets/
 **/google-services.json
 **/AuthKey_*.p8
 
-# Build
+# Active JavaScript / Expo R&D
+**/node_modules/
+**/.expo/
+**/dist-web/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+# Generated native projects are disposable; JavaScript remains source of truth.
+/apps/rnd-mobile/ios/
+/apps/rnd-mobile/android/
+
+# Legacy native/Rust build products
 /target/
 **/build/
 **/.gradle/
 **/DerivedData/
 **/Pods/
 **/.swiftpm/
-**/node_modules/
 dist/
 out/
 coverage/
@@ -60,7 +71,8 @@ sbom/
 apps/ios/.build/
 target
 .cache
-# Local-only caches (symlinked outside Google Drive)
+
+# Local-only caches
 .toolchains
 apps/android/app/build
 apps/ios/.build
