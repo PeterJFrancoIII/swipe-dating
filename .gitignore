@@ -64,3 +64,6 @@ target
 .toolchains
 apps/android/app/build
 apps/ios/.build
+
+.tmp.drivedownload/
+.tmp.driveupload/

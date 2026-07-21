@@ -1,38 +1,43 @@
-# Google Drive bi-directional sync
+# Google Drive sync notes
 
-## Source of truth
+## Engineering authority (updated 2026-07-21)
 
-**Google Drive (cloud) is the current / authoritative version** of this project.
+**GitHub is the engineering source of truth** for this project:
 
-Local Cursor/Finder edits go through the Drive for Desktop mount and sync both ways. If a conflict copy appears, prefer the Drive/cloud revision unless you intentionally keep a local conflict file.
+https://github.com/PeterJFrancoIII/swipe-dating
 
-## Setup (2026-07-20)
+Use `make sync` / `docs/operations/github-sync.md` for bidirectional local ↔ GitHub sync.
 
-Canonical path on this Mac (Drive-backed):
+Google Drive may still hold a **mirror or convenience copy**. It is **not** authoritative for code once the GitHub repo exists. If Drive and local diverge, prefer Git (commit + `make sync`) over Drive conflict copies.
 
-`My Drive/App Development/Swipe Dating`
+## Drive path (optional mirror)
 
-Convenience symlink (same files):
+Drive for Desktop path (if present):
 
-`/Users/computer/App Development/Swipe Dating` → that Drive folder
+`~/Library/CloudStorage/GoogleDrive-…/My Drive/App Development/Swipe Dating`
 
-Drive for Desktop syncs **bi-directionally** (this Mac ↔ Google Drive cloud).
+Local Cursor workspace:
 
-## Local-only (not for cloud)
+`/Users/computer/App Development/Swipe Dating`
 
-Symlinked to `~/.cache/swipe-dating-local/`:
+These are currently **separate directories** (different inodes) unless you intentionally re-symlink.
+
+## Local-only caches (do not sync to Drive or git)
+
+Prefer parking build artifacts under `~/.cache/swipe-dating-local/`:
 
 - `target/`
 - `.toolchains/`
 - `apps/android/app/build/`
 - `apps/ios/.build/`
+- `apps/ios/Native/lib/*.a` (gitignored; rebuild with `make ios-uniffi`)
 
 ## Related Drive pointer
 
-`My Drive/Dating.gprj` references Drive id `10fykI-lY--GrFiWUf8NiPleaj_FVcJxg`. If GPT edited a *different* Drive folder than `App Development/Swipe Dating`, point Cursor at that folder so we can align paths.
+`My Drive/Dating.gprj` may reference Drive id `10fykI-lY--GrFiWUf8NiPleaj_FVcJxg`. That folder is not automatically merged with this GitHub repo.
 
 ## Notes
 
-- Wait for Drive upload/download icons to settle after large changes.
-- Avoid editing the same file offline on two machines without syncing first.
-- Keep secrets out of the synced tree (use local `.env`, already gitignored).
+- Avoid editing the same file in Drive and local Git without syncing via GitHub.
+- Drive “conflict copies” of `.git/refs` break git — delete refs named like `branch (1)`.
+- Keep secrets out of both Drive and git (`.env` is gitignored).

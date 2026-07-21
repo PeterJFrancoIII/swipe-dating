@@ -5,7 +5,8 @@ SHELL := /bin/bash
 .PHONY: bootstrap doctor format lint test test-unit test-integration test-protocol-vectors \
 	test-mobile test-e2e test-load test-chaos fuzz-smoke security sbom licenses \
 	local-up local-down local-reset-test-data smoke-local local-services-up infra-fmt infra-validate infra-plan-staging \
-	deploy-staging smoke-staging release-readiness production-preflight ios-build ios-open ios-gen ios-uniffi
+	deploy-staging smoke-staging release-readiness production-preflight ios-build ios-open ios-gen ios-uniffi \
+	sync sync-pull sync-push sync-status
 
 COMPOSE_FILE := infra/local/compose.yaml
 STAGING_IDENTITY := infra/terraform/environments/staging/ACCOUNT_IDENTITY.md
@@ -24,6 +25,7 @@ doctor: ## Report toolchain and environment health
 	@echo "=== Swipe Dating doctor ==="
 	@printf "rust:        "; command -v rustc >/dev/null && rustc --version || echo "MISSING"
 	@printf "cargo:       "; command -v cargo >/dev/null && cargo --version || echo "MISSING"
+	@printf "git remote:  "; git remote get-url origin 2>/dev/null || echo "MISSING"
 	@printf "docker:      "; command -v docker >/dev/null && docker --version || echo "MISSING"
 	@printf "docker up:   "; docker info >/dev/null 2>&1 && echo "ok" || echo "daemon not running or unavailable"
 	@printf "terraform:   "; command -v terraform >/dev/null && terraform version -json 2>/dev/null | head -1 || echo "MISSING"
@@ -38,6 +40,7 @@ doctor: ## Report toolchain and environment health
 	@printf "compose:     "; test -f $(COMPOSE_FILE) && echo "$(COMPOSE_FILE) present" || echo "MISSING"
 	@printf "staging id:  "; grep -E '^status:' $(STAGING_IDENTITY) 2>/dev/null || echo "file missing"
 	@echo "See docs/execution/phase-scaffold-notes.md for known blockers."
+	@echo "GitHub sync: make sync (docs/operations/github-sync.md)"
 
 format: ## Run rustfmt on workspace
 	cargo fmt --all
@@ -82,6 +85,24 @@ ios-build: ios-uniffi ios-gen ## Build iPhone staging app (UniFFI linked) for Si
 
 ios-open: ios-uniffi ios-gen ## Open the iPhone app in Xcode
 	open apps/ios/SwipeDating.xcodeproj
+
+## --- GitHub bidirectional sync ---
+
+sync-status: ## Show ahead/behind vs origin
+	@chmod +x scripts/git-sync.sh
+	./scripts/git-sync.sh status
+
+sync-pull: ## Fetch + rebase from GitHub
+	@chmod +x scripts/git-sync.sh
+	./scripts/git-sync.sh pull
+
+sync-push: ## Push current branch to GitHub (mirrors main from feature branch)
+	@chmod +x scripts/git-sync.sh
+	./scripts/git-sync.sh push
+
+sync: ## Bidirectional sync: pull --rebase then push
+	@chmod +x scripts/git-sync.sh
+	./scripts/git-sync.sh sync
 
 test-e2e:
 	@echo "STUB: E2E device-pair smoke not wired in CI yet (requires staging URL + test harness)."

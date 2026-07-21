@@ -39,6 +39,7 @@ Blocking, reporting, age assurance foundations, and encrypted messaging are free
 | `docs/audits/2026-07-20-mission-readiness-review.md` | Latest readiness verdict |
 | `docs/product/closed-beta-readiness.md` | Beta checklist |
 | `AGENTS.md` | Agent rules |
+| `docs/operations/github-sync.md` | Local ↔ GitHub sync (`make sync`) |
 | `.cursor/commands/deploy-decentralized-dating-app.md` | Deploy runbook |
 
 ## License
