@@ -84,7 +84,10 @@ fn index_answers<'a>(
         if answer.importance > MAX_IMPORTANCE {
             return Err(AlignmentError::InvalidImportance);
         }
-        if indexed.insert(answer.question_id.as_str(), answer).is_some() {
+        if indexed
+            .insert(answer.question_id.as_str(), answer)
+            .is_some()
+        {
             return Err(AlignmentError::DuplicateQuestion(
                 answer.question_id.clone(),
             ));
@@ -138,8 +141,8 @@ pub fn score_alignment(
     }
 
     if result.possible_weight > 0 {
-        let rounded = (result.matched_weight * 100 + result.possible_weight / 2)
-            / result.possible_weight;
+        let rounded =
+            (result.matched_weight * 100 + result.possible_weight / 2) / result.possible_weight;
         result.score_percent = rounded.min(100) as u8;
     }
 
