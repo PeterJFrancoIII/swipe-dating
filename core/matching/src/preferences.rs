@@ -57,33 +57,23 @@ pub enum GenderDiscoveryCategory {
     AdditionalSelfDescribedIdentities,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum ProximityDisclosurePolicy {
+    #[default]
     Off,
     PromptBeforeSharing,
     AutoShareCompatible,
 }
 
-impl Default for ProximityDisclosurePolicy {
-    fn default() -> Self {
-        Self::Off
-    }
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum MatchLocationShareMode {
+    #[default]
     None,
     ApproximateMatchArea,
     MeetingPin,
     TemporaryLive,
-}
-
-impl Default for MatchLocationShareMode {
-    fn default() -> Self {
-        Self::None
-    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
