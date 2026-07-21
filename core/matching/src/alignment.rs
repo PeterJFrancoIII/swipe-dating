@@ -150,12 +150,7 @@ pub fn score_alignment(
 mod tests {
     use super::*;
 
-    fn answer(
-        question: &str,
-        value: &str,
-        importance: u8,
-        dealbreaker: bool,
-    ) -> AlignmentAnswer {
+    fn answer(question: &str, value: &str, importance: u8, dealbreaker: bool) -> AlignmentAnswer {
         AlignmentAnswer {
             question_id: question.to_string(),
             answer_id: value.to_string(),
