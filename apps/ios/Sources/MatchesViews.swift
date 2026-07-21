@@ -12,18 +12,26 @@ struct MatchesListView: View {
                 ContentUnavailableView(
                     "No matches yet",
                     systemImage: "heart",
-                    description: Text("Mutual interest required before messaging.")
+                    description: Text("Authenticated mutual interest is required before messaging.")
                 )
                 .listRowBackground(Color.clear)
             } else {
                 ForEach(model.matches) { match in
                     NavigationLink(value: match) {
-                        VStack(alignment: .leading) {
+                        VStack(alignment: .leading, spacing: 4) {
                             Text(match.displayName).font(.headline)
                             Text(match.about)
                                 .font(.footnote)
                                 .foregroundStyle(.secondary)
                                 .lineLimit(1)
+                            if let share = model.activeLocationShare(for: match.id) {
+                                Label(
+                                    "\(share.mode.rawValue) · until \(share.expiresAt.formatted(date: .omitted, time: .shortened))",
+                                    systemImage: "location.fill"
+                                )
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                            }
                         }
                     }
                     .accessibilityLabel("Conversation with \(match.displayName)")
@@ -42,6 +50,7 @@ struct ConversationView: View {
     let profile: SyntheticProfile
     @State private var draft = ""
     @State private var showReport = false
+    @State private var showLocationConsent = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -51,6 +60,8 @@ struct ConversationView: View {
                 .padding(8)
                 .frame(maxWidth: .infinity)
                 .background(Color.orange.opacity(0.12))
+
+            locationStrip
 
             ScrollViewReader { proxy in
                 ScrollView {
@@ -93,7 +104,19 @@ struct ConversationView: View {
         .navigationTitle(profile.displayName)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
+                NavigationLink {
+                    MatchMapView(profile: profile)
+                } label: {
+                    Image(systemName: "map")
+                }
+                .accessibilityLabel("Location map with \(profile.displayName)")
+            }
+
+            ToolbarItem(placement: .topBarTrailing) {
                 Menu {
+                    Button("Share location…") {
+                        showLocationConsent = true
+                    }
                     Button("Block", role: .destructive) {
                         model.block(profileId: profile.id)
                     }
@@ -108,6 +131,39 @@ struct ConversationView: View {
         }
         .sheet(isPresented: $showReport) {
             NavigationStack { ReportFlowView(profile: profile) }
+        }
+        .sheet(isPresented: $showLocationConsent) {
+            NavigationStack { MatchLocationConsentSheet(profile: profile) }
+        }
+    }
+
+    @ViewBuilder
+    private var locationStrip: some View {
+        if let share = model.activeLocationShare(for: profile.id) {
+            HStack {
+                Label(share.mode.rawValue, systemImage: "location.fill")
+                    .font(.caption)
+                Spacer()
+                Text("Expires \(share.expiresAt.formatted(date: .omitted, time: .shortened))")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                Button("Stop", role: .destructive) {
+                    model.revokeLocationShare(profileId: profile.id)
+                }
+                .font(.caption)
+            }
+            .padding(8)
+            .background(Color.blue.opacity(0.08))
+        } else {
+            Button {
+                showLocationConsent = true
+            } label: {
+                Label("Location off · share only when you choose", systemImage: "location.slash")
+                    .font(.caption)
+            }
+            .padding(8)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Color.gray.opacity(0.08))
         }
     }
 }
