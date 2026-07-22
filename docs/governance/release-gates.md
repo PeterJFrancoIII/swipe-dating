@@ -16,7 +16,7 @@
 | Market row allowed in launch matrix | required | required |
 | Infra account attestation (staging/prod) | staging verified | prod verified |
 | Adult-assurance design counsel-reviewed | required | required |
-| Network rejects presence/proximity without valid adult credential | required | required |
+| Network rejects presence/proximity/matching/messaging without valid adult credential | required | required |
 | Child-safety contact + public CSAE standards | required | required |
 | NCII request channel operational | required | required |
 | In-app report/block/delete paths are end-to-end, not local stubs | required | required |
@@ -31,12 +31,12 @@ The JavaScript reset authorizes **synthetic research only**. It is not a closed-
 - [x] Node.js 24 LTS is pinned for CI and local `.nvmrc`
 - [ ] A reviewed dependency lockfile is committed before any real-user build
 - [x] Expo SDK 57 web export is blocking in CI
-- [x] Node syntax, active-surface, unit/API, simulation, and high/critical dependency-audit thresholds are blocking
+- [x] Node syntax, active-surface, unit/API/storage/discovery/conversation/simulation, and high/critical dependency-audit thresholds are blocking
 - [ ] Legacy Rust/Swift/Kotlin code is archived or removed after parity review
 - [ ] Custom Expo development builds are verified on controlled iOS and Android devices
 - [ ] No manually maintained generated native project becomes a second source of truth
 - [ ] High-risk native adapters have named owners, dependency review, permission review, and feature flags
-- [ ] The ten current moderate Expo native-build-tooling advisories are resolved, accepted with expiry, or superseded by reviewed upstream releases before any real-user build
+- [ ] The current moderate Expo native-build-tooling advisories are resolved, accepted with expiry, or superseded by reviewed upstream releases before any real-user build
 
 Generated native files and third-party native modules may exist below Expo/React Native, but newly authored product behavior remains JavaScript unless a superseding ADR documents a measured exception.
 
@@ -45,16 +45,17 @@ Generated native files and third-party native modules may exist below Expo/React
 The AsyncStorage-backed implementation is approved only for synthetic R&D and only for the allowlisted fields in ADR-0015.
 
 - [x] Versioned JavaScript schema, migration, sanitization, corruption recovery, reset, and redacted export are tested
-- [x] Current store contains only profile presentation, mock cosmetic ownership, last tab, and haptic preference
-- [x] Tests prove date of birth, adult status, sexual/relationship intent, discovery preferences, questionnaire answers, likes, matches, messages, location, and BLE identifiers are discarded
-- [ ] Real-user profile/preference persistence uses an externally reviewed encrypted vault
+- [x] Current store contains only profile presentation, mock cosmetic ownership, an approved non-sensitive last tab, and haptic preference
+- [x] Tests prove adult, intent, discovery, questionnaire, decision, match, message, block, location, and BLE fields are discarded
+- [x] The Matches tab is rejected as persisted last-tab state
+- [ ] Real-user profile/preference/match/message persistence uses an externally reviewed encrypted vault
 - [ ] Encryption keys are OS/hardware protected where available and never stored beside ciphertext
 - [ ] Backup, device transfer, recovery, logout, deletion, export, corruption, and migration behavior is documented and tested
 - [ ] Sensitive local data is excluded from unencrypted browser storage, device backups where required, logs, crash reports, and analytics
 - [ ] Physical-device security tests cover supported iOS and Android versions
 - [ ] Privacy/DPIA and external security review accept the exact persisted field list and retention behavior
 
-AsyncStorage persistence must not be described as encryption, secure storage, hardware-backed custody, or permission to collect real profiles.
+AsyncStorage persistence must not be described as encryption, secure storage, hardware-backed custody, or permission to collect real profiles, matches, or messages.
 
 ## Intent-driven discovery gates
 
@@ -77,6 +78,32 @@ ADR-0016 authorizes mutual-intent, boundary, ranking, and progressive-reveal beh
 - [ ] Self-reported health or safety tags are never represented as medically verified without an approved verification process
 
 The product must not fabricate matching effort, artificial delays, scarcity, or compatibility evidence. Another person must never receive the reason they were excluded by private intent, boundary, orientation, or discovery settings.
+
+## Reciprocal match and conversation gates
+
+ADR-0017 authorizes session-only synthetic lifecycle research. It does not authorize real matching or messaging.
+
+- [x] Unilateral interest remains pending and creates no match
+- [x] Synthetic match creation requires an explicit reciprocal fixture
+- [x] Fixture reciprocity is labeled as synthetic and never claimed as authentication or another person's real action
+- [x] Pass and pending interest can be undone; an established match requires explicit unmatch
+- [x] First local message requires the same visible shared-ground tag selected during discovery
+- [x] Matching does not automatically send a message, enable proximity, or share location
+- [x] Unmatch disables sending; block purges visible content/context and suppresses rediscovery
+- [x] Match, message, block, transcript, and Matches-tab state remains out of AsyncStorage
+- [x] Matching, messaging, unmatch, and block controls are unaffected by purchases or subscription status
+- [ ] Real likes are signed by authorized device/root identities and protected from replay
+- [ ] Both devices verify a bilateral match receipt before messaging
+- [ ] Reviewed E2EE protocol covers key agreement, authentication, verification, rotation, device changes, compromise, recovery, and multi-device behavior
+- [ ] Message transport covers ordering, deduplication, retry, expiry, offline mailbox, deletion, and failure states without exposing plaintext
+- [ ] Block/unmatch/account deletion propagates across discovery, proximity, messaging, groups, push, and location and is tested against stale/modified clients
+- [ ] Push and lock-screen content reveals no sexual intent, message body, match identity, exact location, or sensitive context without explicit user choice
+- [ ] Spam, harassment, rate limits, reporting, user-selected evidence, moderation, appeals, and emergency escalation are operational
+- [ ] Attachment/media support remains disabled until hostile-media processing, NCII, screenshot limitations, retention, and evidence handling are approved
+- [ ] Two-device and modified-client tests cover unilateral match creation, impersonation, replay, duplicate delivery, blocked delivery, stale revocation, device replacement, and account recovery
+- [ ] Privacy/DPIA, external security, conversation safety, accessibility, and store review approve the exact implementation
+
+A synthetic state machine, fixture flag, local transcript, or UI label must never be described as authenticated reciprocity, E2EE, message delivery, screenshot protection, moderation, or cross-device block propagation.
 
 ## Get fk'd proximity gates
 
@@ -129,7 +156,7 @@ The product must not fabricate matching effort, artificial delays, scarcity, or 
 - [ ] Avatars clearly distinguish avatar, photo, and photo-verified profiles
 - [ ] Creator terms, content rules, copyright process, moderation, refunds, tax/payout, and fraud controls approved
 - [ ] Apple/Google billing and entitlement restoration validated where required
-- [ ] Purchases never affect dating rank, profile reach, messaging, reporting, appeals, or safety access
+- [ ] Purchases never affect dating rank, profile reach, matching, messaging, reporting, appeals, or safety access
 - [ ] Creator and sponsor access to dating data is technically prevented
 
 ## Bot, spam, scraping, and Sybil gates
@@ -140,17 +167,17 @@ The product must not fabricate matching effort, artificial delays, scarcity, or 
 - [ ] Unsupported devices receive an explicit lower-trust path, not silent full trust
 - [ ] Adult credential, attestation, and request signatures are independent controls
 - [ ] Adaptive rate limits, anonymous/pairwise quotas, replay caches, and risk challenges implemented
-- [ ] Mass registration, automated liking, profile scraping, BLE harvesting, fake matches, and report brigading red-teamed
+- [ ] Mass registration, automated likes, profile scraping, BLE harvesting, fake matches, message spam, and report brigading red-teamed
 - [ ] Ordinary human use is not paywalled as an anti-bot mechanism
 - [ ] Temporary containment is explained; consequential action has human review and appeal
-- [ ] Risk data is pseudonymous, purpose-limited, retention-limited, and excluded from advertising
+- [ ] Risk data is pseudonymous, purpose-limited, retention-limited, and excludes private message plaintext
 
 ## Agent rules
 
 - Autonomous agents may run and publish **synthetic JavaScript R&D** and may deploy staging only after staging account identity is verified.
-- Autonomous agents must not enable real Bluetooth scanning, location sharing, purchases, creator payouts, real-user reporting, App Store / Play submission, vendor contracts, legal processes, or production data without the corresponding human gate.
+- Autonomous agents must not enable real matching, message delivery, Bluetooth scanning, location sharing, purchases, creator payouts, real-user reporting, App Store / Play submission, vendor contracts, legal processes, or production data without the corresponding human gate.
 - Agents must not author or simulate legal, privacy, security, T&S, mobile-store, finance, or executive approval.
-- Agents must not implement minors, gender-asymmetric disclosure, covert tracking, deceptive ranking UX, exclusion-reason disclosure, or purchase-weighted dating rank.
+- Agents must not implement minors, gender-asymmetric disclosure, unilateral matching, automatic message/location behavior, deceptive ranking UX, exclusion-reason disclosure, or purchase-weighted dating behavior.
 - Agents must not add new active Rust, Swift, Kotlin, Java, Python, Dart, Objective-C, or TypeScript product code without a superseding ADR and explicit human architecture approval.
 - Agents must not persist non-allowlisted or sensitive fields in AsyncStorage or other unencrypted R&D storage.
 - Beta and production remain **BLOCKED** until every applicable table and checklist item is satisfied with authentic evidence.

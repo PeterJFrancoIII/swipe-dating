@@ -15,6 +15,7 @@ export const SYNTHETIC_PROFILES = Object.freeze([
     requiredBoundaries: ["condoms_required", "public_first_meet"],
     lifestyleTags: ["coffee", "hiking", "movie_night", "live_music"],
     distanceKm: 7,
+    syntheticReciprocalLike: true,
   },
   {
     id: "p2",
@@ -32,6 +33,7 @@ export const SYNTHETIC_PROFILES = Object.freeze([
     requiredBoundaries: ["condoms_required"],
     lifestyleTags: ["live_music", "fitness", "building_things", "concerts"],
     distanceKm: 14,
+    syntheticReciprocalLike: false,
   },
   {
     id: "p3",
@@ -49,6 +51,7 @@ export const SYNTHETIC_PROFILES = Object.freeze([
     requiredBoundaries: ["public_first_meet", "no_drugs"],
     lifestyleTags: ["museums", "cooking", "gaming", "movie_night"],
     distanceKm: 24,
+    syntheticReciprocalLike: true,
   },
 ]);
 

@@ -13,6 +13,7 @@
   "dependencies": {
     "@expo/metro-runtime": "57.0.6",
     "@react-native-async-storage/async-storage": "2.2.0",
+    "@swipe/rnd-conversations": "0.1.0",
     "@swipe/rnd-discovery": "0.1.0",
     "@swipe/rnd-domain": "0.1.0",
     "@swipe/rnd-storage": "0.1.0",
