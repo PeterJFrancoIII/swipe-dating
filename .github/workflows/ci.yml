@@ -13,6 +13,46 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  tree-language-audit:
+    name: Git tree must contain no non-JavaScript implementation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const legacyRoots = ['apps/ios', 'apps/android', 'core', 'services', 'infra'];
+            const prohibitedExtensions = new Set([
+              '.bash', '.c', '.cc', '.cpp', '.cs', '.dart', '.fish', '.fs', '.fsx', '.go',
+              '.gradle', '.h', '.hpp', '.java', '.kt', '.kts', '.m', '.mm', '.php', '.podspec',
+              '.py', '.rb', '.rs', '.scala', '.sh', '.swift', '.tf', '.tfvars', '.ts', '.tsx',
+              '.xcconfig', '.zsh',
+            ]);
+            const prohibitedNames = new Set([
+              'Cargo.lock', 'Cargo.toml', 'Gemfile', 'Gemfile.lock', 'Makefile', 'Package.swift',
+              'Pipfile', 'Podfile', 'Podfile.lock', 'build.gradle', 'build.gradle.kts', 'go.mod', 'go.sum',
+              'gradlew', 'gradlew.bat', 'package.resolved', 'pubspec.yaml', 'pyproject.toml', 'requirements.txt',
+              'settings.gradle', 'settings.gradle.kts', 'setup.py',
+            ]);
+            const { data } = await github.rest.git.getTree({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tree_sha: context.sha,
+              recursive: 'true',
+            });
+            const violations = data.tree
+              .filter((entry) => entry.type === 'blob')
+              .map((entry) => entry.path)
+              .filter((path) => {
+                const name = path.split('/').at(-1);
+                const extension = name.includes('.') ? `.${name.split('.').at(-1).toLowerCase()}` : '';
+                return legacyRoots.some((root) => path.startsWith(`${root}/`))
+                  || prohibitedNames.has(name)
+                  || prohibitedExtensions.has(extension);
+              })
+              .sort();
+            console.log(`JAVASCRIPT_ONLY_VIOLATIONS=${JSON.stringify(violations)}`);
+            if (violations.length > 0) core.setFailed(`${violations.length} non-JavaScript implementation file(s) remain.`);
+
   language-audit:
     name: Repository implementation must be JavaScript-only
     runs-on: ubuntu-latest
