@@ -8,19 +8,24 @@
 4. `docs/architecture/adr-0016-intent-driven-discovery.md`
 5. `docs/architecture/adr-0017-reciprocal-match-conversations.md`
 6. `docs/architecture/adr-0018-deepen-connection.md`
-7. `docs/specs/current-objective.md`
-8. `docs/governance/release-gates.md`
-9. `policies/community-rules.md`
+7. `docs/architecture/adr-0019-javascript-only-consolidation.md`
+8. `docs/specs/current-objective.md`
+9. `docs/governance/release-gates.md`
+10. `policies/community-rules.md`
 
-## Active implementation rule
+## Repository language rule
 
-All new R&D application and service behavior belongs in JavaScript under:
+All project-authored application, service, domain, simulation, test, validation, and release-tooling behavior belongs in JavaScript under:
 
 - `apps/rnd-*`
 - `packages/rnd-*`
 - `scripts/*.mjs`
 
-Do not add new active Rust, Swift, Kotlin, Objective-C, Java, Python, Dart, or TypeScript feature code. Existing native and Rust files are frozen historical reference until a dedicated archival/removal change is approved.
+Do not add Rust, Swift, Kotlin, Objective-C, Java, C/C++, Python, Dart, TypeScript, Terraform, shell, or another implementation language. The former cross-language implementation has been removed; historical code is available through Git history and must not be copied back into the active tree.
+
+A non-JavaScript exception requires a superseding ADR, named owners, measured evidence that a maintained JavaScript-facing dependency cannot satisfy the capability, narrowly scoped files, and explicit human architecture approval.
+
+Generated native output from Expo development builds is disposable and must not be committed as a second source of truth. Third-party native code beneath reviewed JavaScript dependencies does not authorize project-authored native product logic.
 
 ## Required implementation loop
 
@@ -33,10 +38,22 @@ Do not add new active Rust, Swift, Kotlin, Objective-C, Java, Python, Dart, or T
 npm install --ignore-scripts
 npm run check
 npm run mobile:export:web
+node scripts/check-governance-contracts.mjs
+node scripts/verify-production-block.mjs
 ```
 
 5. Update the relevant ADR/spec when a trust boundary changes.
 6. Never represent a mock, fixture, simulator, schema, UI control, storage adapter, or JavaScript wrapper as operational hardware, encryption, billing, age assurance, authentication, delivery, verification, or safety capability.
+
+## JavaScript validation rule
+
+Agents must keep both language controls green:
+
+- `check-active-javascript-surface.mjs` must dynamically discover every `apps/rnd-*` and `packages/rnd-*` workspace;
+- `check-javascript-only-repository.mjs` must reject prohibited source extensions, build manifests, shell tooling, and deleted legacy roots;
+- the GitHub tree audit must independently reject committed violations;
+- validators must never return to hard-coded package lists;
+- validation scripts and production preflight must remain JavaScript.
 
 ## Intent-driven discovery rule
 
@@ -134,5 +151,7 @@ Adult assurance, real matching, bilateral relationship transitions, E2EE messagi
 - private exclusion, decline, pass, unmatch, or block-reason disclosure;
 - purchase-weighted dating reach, matching, messaging, phase access, or safety access;
 - sensitive fields in unencrypted local storage;
-- disabling tests or production blockers;
+- non-JavaScript implementation or build automation without the ADR-0019 exception process;
+- committed generated native projects;
+- disabling tests, language audits, governance checks, or production blockers;
 - fabricated legal, security, privacy, Trust & Safety, financial, or executive approval.
