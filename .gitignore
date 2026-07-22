@@ -3,10 +3,8 @@
 .idea/
 .vscode/
 *.swp
-*.xcuserstate
-xcuserdata/
 
-# Env / secrets
+# Environment / secrets
 .env
 .env.*
 !.env.example
@@ -18,64 +16,39 @@ secrets/
 **/google-services.json
 **/AuthKey_*.p8
 
-# Active JavaScript / Expo R&D
+# JavaScript / npm / Expo
 **/node_modules/
 **/.expo/
 **/dist-web/
+coverage/
+dist/
+out/
+.cache/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+
 # Generated native projects are disposable; JavaScript remains source of truth.
 /apps/rnd-mobile/ios/
 /apps/rnd-mobile/android/
-
-# Legacy native/Rust build products
-/target/
-**/build/
-**/.gradle/
 **/DerivedData/
 **/Pods/
-**/.swiftpm/
-dist/
-out/
-coverage/
 *.app
 *.apk
 *.aab
 *.ipa
-apps/ios/Native/lib/*.a
 
-# Terraform
-**/.terraform/
-*.tfstate
-*.tfstate.*
-*.tfvars
-!*.tfvars.example
-crash.log
-
-# Local data
-infra/local/data/
+# Local data and tooling scratch
 *.sqlite
 *.db
 .local/
+.toolchains/
+.tmp.drivedownload/
+.tmp.driveupload/
+.javascript-only-violations.json
 
-# SBOM / audit scratch
+# Audit output
 /sbom/
 /reports/
 *.cdx.json
-**/local.properties
-.toolchains/
-apps/android/**/build/
-sbom/
-apps/ios/.build/
-target
-.cache
-
-# Local-only caches
-.toolchains
-apps/android/app/build
-apps/ios/.build
-
-.tmp.drivedownload/
-.tmp.driveupload/

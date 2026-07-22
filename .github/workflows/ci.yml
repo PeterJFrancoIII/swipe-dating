@@ -13,8 +13,60 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  tree-language-audit:
+    name: Git tree must contain no non-JavaScript implementation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const legacyRoots = ['apps/ios', 'apps/android', 'core', 'services', 'infra'];
+            const prohibitedExtensions = new Set([
+              '.bash', '.c', '.cc', '.cpp', '.cs', '.dart', '.fish', '.fs', '.fsx', '.go',
+              '.gradle', '.h', '.hpp', '.java', '.kt', '.kts', '.m', '.mm', '.php', '.podspec',
+              '.py', '.rb', '.rs', '.scala', '.sh', '.swift', '.tf', '.tfvars', '.ts', '.tsx',
+              '.xcconfig', '.zsh',
+            ]);
+            const prohibitedNames = new Set([
+              'Cargo.lock', 'Cargo.toml', 'Gemfile', 'Gemfile.lock', 'Makefile', 'Package.swift',
+              'Pipfile', 'Podfile', 'Podfile.lock', 'build.gradle', 'build.gradle.kts', 'go.mod', 'go.sum',
+              'gradlew', 'gradlew.bat', 'package.resolved', 'pubspec.yaml', 'pyproject.toml', 'requirements.txt',
+              'settings.gradle', 'settings.gradle.kts', 'setup.py',
+            ]);
+            const { data } = await github.rest.git.getTree({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tree_sha: context.sha,
+              recursive: 'true',
+            });
+            const violations = data.tree
+              .filter((entry) => entry.type === 'blob')
+              .map((entry) => entry.path)
+              .filter((path) => {
+                const name = path.split('/').at(-1);
+                const extension = name.includes('.') ? `.${name.split('.').at(-1).toLowerCase()}` : '';
+                return legacyRoots.some((root) => path.startsWith(`${root}/`))
+                  || prohibitedNames.has(name)
+                  || prohibitedExtensions.has(extension);
+              })
+              .sort();
+            console.log(`JAVASCRIPT_ONLY_VIOLATIONS=${JSON.stringify(violations)}`);
+            if (violations.length > 0) core.setFailed(`${violations.length} non-JavaScript implementation file(s) remain.`);
+
+  language-audit:
+    name: Repository implementation must be JavaScript-only
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: node scripts/check-javascript-only-repository.mjs
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: javascript-only-violations
+          path: .javascript-only-violations.json
+
   javascript:
-    name: JavaScript domain, API, storage, discovery, conversations, relationship phases, simulation, and active-surface checks
+    name: JavaScript repository, tests, simulation, and active-surface checks
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -36,71 +88,26 @@ jobs:
       - run: npm run mobile:export:web
         env:
           CI: '1'
-      - run: test -s apps/rnd-mobile/dist-web/index.html
+      - run: node scripts/verify-mobile-web-export.mjs
 
   governance:
-    name: Mission, JavaScript, persistence, discovery, conversation, and relationship-phase contracts
+    name: JavaScript architecture, governance, and consent contracts
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Enforce active architecture and consent boundaries
-        shell: bash
-        run: |
-          set -euo pipefail
-          grep -Fq 'entirely JavaScript rapid-R&D monorepo' README.md
-          grep -Fq 'entirely **JavaScript**' MISSION.md
-          grep -Fq 'Adults 18+ only' MISSION.md
-          grep -Fq 'privacy defaults are identical for every gender' MISSION.md
-          grep -Fq 'AsyncStorage persistence must not be described as encryption' docs/governance/release-gates.md
-          grep -Fq 'Explicitly excluded from AsyncStorage because sensitive' docs/privacy/data-map.md
-          grep -Fq 'Intent-driven discovery gates' docs/governance/release-gates.md
-          grep -Fq 'Candidate ranking must not use race' docs/privacy/data-map.md
-          grep -Fq 'must not fabricate matching effort' docs/architecture/adr-0016-intent-driven-discovery.md
-          grep -Fq 'Reciprocal match and conversation gates' docs/governance/release-gates.md
-          grep -Fq 'One-sided interest never creates a match' docs/architecture/adr-0017-reciprocal-match-conversations.md
-          grep -Fq 'R&D message transcript' docs/privacy/data-map.md
-          grep -Fq 'The Matches tab is not an approved persisted tab' AGENTS.md
-          grep -Fq 'Deepen Connection gates' docs/governance/release-gates.md
-          grep -Fq 'both sides explicitly opt in' docs/architecture/adr-0018-deepen-connection.md
-          grep -Fq 'R&D deeper prompt answers' docs/privacy/data-map.md
-          grep -Fq 'must not infer or auto-activate relationship phase' AGENTS.md
-          test -f apps/rnd-mobile/src/App.js
-          test -f apps/rnd-mobile/src/IntentDiscoveryView.js
-          test -f apps/rnd-mobile/src/ConversationsView.js
-          test -f apps/rnd-mobile/src/DeepenConnectionPanel.js
-          test -f apps/rnd-mobile/src/local-storage.js
-          test -f packages/rnd-domain/src/index.js
-          test -f packages/rnd-discovery/src/index.js
-          test -f packages/rnd-discovery/test/discovery.test.js
-          test -f packages/rnd-conversations/src/index.js
-          test -f packages/rnd-conversations/test/conversations.test.js
-          test -f packages/rnd-relationship-phases/src/index.js
-          test -f packages/rnd-relationship-phases/test/relationship-phases.test.js
-          test -f packages/rnd-storage/src/index.js
-          test -f packages/rnd-storage/test/storage.test.js
-          test -f docs/architecture/adr-0014-javascript-rnd-reset.md
-          test -f docs/architecture/adr-0015-local-persistence-boundary.md
-          test -f docs/architecture/adr-0016-intent-driven-discovery.md
-          test -f docs/architecture/adr-0017-reciprocal-match-conversations.md
-          test -f docs/architecture/adr-0018-deepen-connection.md
-          test -f docs/product/intent-driven-discovery.md
-          test -f docs/product/reciprocal-match-conversations.md
-          test -f docs/product/deepen-connection.md
-          node scripts/check-active-javascript-surface.mjs
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: node scripts/check-governance-contracts.mjs
+      - run: node scripts/check-javascript-consolidation.mjs
+      - run: node scripts/check-active-javascript-surface.mjs
 
   production-gate:
     name: Production preflight must remain blocked
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Verify expected production block
-        shell: bash
-        run: |
-          set -euo pipefail
-          set +e
-          output="$(bash scripts/production_preflight.sh 2>&1)"
-          status=$?
-          set -e
-          printf '%s\n' "$output"
-          test $status -ne 0
-          grep -Fq 'PRODUCTION_BLOCKED_HUMAN_APPROVALS_REQUIRED' <<<"$output"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: node scripts/verify-production-block.mjs
