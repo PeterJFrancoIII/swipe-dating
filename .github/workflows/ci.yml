@@ -14,7 +14,7 @@ concurrency:
 
 jobs:
   javascript:
-    name: JavaScript domain, API, simulation, and active-surface checks
+    name: JavaScript domain, API, storage, simulation, and active-surface checks
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -39,7 +39,7 @@ jobs:
       - run: test -s apps/rnd-mobile/dist-web/index.html
 
   governance:
-    name: Mission and JavaScript architecture contracts
+    name: Mission, JavaScript, and local-persistence contracts
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -51,9 +51,15 @@ jobs:
           grep -Fq 'entirely **JavaScript**' MISSION.md
           grep -Fq 'Adults 18+ only' MISSION.md
           grep -Fq 'privacy defaults are identical for every gender' MISSION.md
+          grep -Fq 'AsyncStorage persistence must not be described as encryption' docs/governance/release-gates.md
+          grep -Fq 'Explicitly excluded from AsyncStorage because sensitive' docs/privacy/data-map.md
           test -f apps/rnd-mobile/src/App.js
+          test -f apps/rnd-mobile/src/local-storage.js
           test -f packages/rnd-domain/src/index.js
+          test -f packages/rnd-storage/src/index.js
+          test -f packages/rnd-storage/test/storage.test.js
           test -f docs/architecture/adr-0014-javascript-rnd-reset.md
+          test -f docs/architecture/adr-0015-local-persistence-boundary.md
           node scripts/check-active-javascript-surface.mjs
 
   production-gate:
