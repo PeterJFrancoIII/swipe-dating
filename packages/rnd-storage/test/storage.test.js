@@ -61,7 +61,7 @@ test("sanitization truncates strings and rejects unowned selected skins", () => 
   assert.deepEqual(sanitized.ui, { hapticsEnabled: false, lastTab: "Discover" });
 });
 
-test("serialization excludes sensitive session fields", () => {
+test("serialization excludes sensitive session and discovery fields", () => {
   const text = serializeLocalState({
     profile: { displayName: "Riley", about: "Builder", pronouns: "they/them" },
     cosmetics: { ownedSkinIds: ["neon-orbit"], selectedSkinId: "neon-orbit" },
@@ -71,6 +71,13 @@ test("serialization excludes sensitive session fields", () => {
     answers: { politics: "private" },
     selectedIntents: ["casual_sex"],
     selectedGenders: ["women"],
+    immediateIntent: "casual_dating",
+    relationalOpenness: "open_to_more",
+    requiredBoundaries: ["condoms_required"],
+    discoveryWeights: { intent: 50, distance: 50 },
+    revealStages: { p1: "photo_revealed" },
+    dismissedProfileIds: ["p2"],
+    selectedConversationStarter: "hiking",
     locationChoice: "live_15_minutes",
     encounterIds: ["secret"],
   }, Date.UTC(2026, 6, 22));
@@ -84,6 +91,13 @@ test("serialization excludes sensitive session fields", () => {
     "answers",
     "selectedIntents",
     "selectedGenders",
+    "immediateIntent",
+    "relationalOpenness",
+    "requiredBoundaries",
+    "discoveryWeights",
+    "revealStages",
+    "dismissedProfileIds",
+    "selectedConversationStarter",
     "locationChoice",
     "encounterIds",
   ]) {
