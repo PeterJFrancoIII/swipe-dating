@@ -21,6 +21,7 @@
     "mobile": "npm --workspace @swipe/rnd-mobile run start",
     "mobile:web": "npm --workspace @swipe/rnd-mobile run web",
     "mobile:export:web": "npm --workspace @swipe/rnd-mobile run export:web",
+    "production:preflight": "node scripts/production-preflight.mjs",
     "check": "npm run check:repository-language && npm run check:syntax && npm run check:active-surface && npm test && npm run simulate && npm run audit:dependencies",
     "audit:dependencies": "npm audit --audit-level=high"
   }
