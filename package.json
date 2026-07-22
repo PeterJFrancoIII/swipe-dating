@@ -14,7 +14,7 @@
   "scripts": {
     "check:syntax": "node scripts/check-javascript-syntax.mjs",
     "check:active-surface": "node scripts/check-active-javascript-surface.mjs",
-    "test": "node --test packages/rnd-domain/test/*.test.js packages/rnd-crypto-node/test/*.test.js packages/rnd-storage/test/*.test.js apps/rnd-api/test/*.test.js",
+    "test": "node --test packages/rnd-domain/test/*.test.js packages/rnd-crypto-node/test/*.test.js packages/rnd-storage/test/*.test.js packages/rnd-discovery/test/*.test.js apps/rnd-api/test/*.test.js",
     "simulate": "node apps/rnd-simulator/src/run.js",
     "api": "node apps/rnd-api/src/server.js",
     "mobile": "npm --workspace @swipe/rnd-mobile run start",
