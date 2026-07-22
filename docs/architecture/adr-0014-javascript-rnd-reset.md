@@ -1,49 +1,42 @@
 # ADR-0014 — JavaScript-only active R&D reset
 
-**Status:** Accepted for active research  
-**Date:** 2026-07-21
+**Status:** Accepted for active research; repository-retention decision superseded by ADR-0019  
+**Date:** 2026-07-21  
+**Amended:** 2026-07-22
 
 ## Context
 
-The original repository was structured as a Rust core, SwiftUI iOS application, Kotlin Android application, Axum services, UniFFI bridge, and Terraform deployment scaffold. That production-shaped architecture created significant build, FFI, packaging, and infrastructure cost before the product and abuse-prevention hypotheses had stabilized.
+The original repository was structured as a Rust core, SwiftUI iOS application, Kotlin Android application, Axum services, UniFFI bridge, and Terraform deployment scaffold. That production-shaped architecture created significant build, FFI, packaging, and infrastructure cost before product and abuse-prevention hypotheses had stabilized.
 
-The project now prioritizes rapid experiments in:
-
-- exact adult eligibility and credential boundaries;
-- consent-based proximity behavior;
-- reciprocal matching;
-- local compatibility ranking;
-- matched-location consent and revocation;
-- cosmetic marketplace rules;
-- content-blind anti-bot controls;
-- decentralized and ephemeral discovery behavior.
+The project prioritized rapid experiments in adult eligibility, consent-based proximity, reciprocal matching, local compatibility, matched-location consent, marketplace boundaries, anti-bot controls, and ephemeral discovery.
 
 ## Decision
 
-The active R&D application will be implemented entirely in JavaScript.
+The active R&D application is implemented entirely in JavaScript.
 
 - Expo SDK 57 / React Native 0.86 provides Android, iOS, and web UI from JavaScript.
-- Node.js 24 LTS runs services, simulations, tests, and tooling.
+- Node.js 24 LTS runs services, simulations, tests, validation, and tooling.
 - Active source uses ECMAScript modules (`.js` / `.mjs`), not TypeScript.
 - Pure domain packages remain independent of React Native and the network.
-- Hardware, platform integrity, and cryptographic adapters are reached through JavaScript APIs in custom Expo development builds.
-- Expo Go is not treated as a capable environment for custom native BLE or platform-attestation libraries.
-- Existing Rust, Swift, Kotlin, and Terraform files remain frozen historical reference and receive no new active feature work.
+- Hardware, platform-integrity, and cryptographic dependencies are reached through JavaScript APIs in custom Expo development builds.
+- Expo Go is not treated as sufficient for custom BLE or platform-attestation dependencies.
+
+ADR-0019 later consolidated this decision across the whole repository. The former Rust, Swift, Kotlin, UniFFI, Terraform, Make, and shell implementation is no longer retained in the current tree; Git history preserves it.
 
 ## Why
 
-1. One runtime and language makes agent-assisted iteration and team onboarding faster.
+1. One runtime and language makes iteration and onboarding faster.
 2. Pure JavaScript domain rules are executable in Node, React Native, and browser simulations.
 3. Expo Fast Refresh shortens UI/product iteration.
 4. Node's built-in test runner makes safety and consent requirements executable without a separate test framework.
-5. Workspace packages allow a single implementation of product rules across mobile, API, and simulations.
-6. The app can add native capabilities through development builds while preserving a JavaScript-facing product layer.
+5. Workspace packages allow one implementation of product rules across mobile, API, and simulations.
+6. Native capabilities can be supplied through reviewed JavaScript-facing dependencies without duplicating product logic.
 
 ## Native-boundary clarification
 
-“Entirely JavaScript” applies to the application, product rules, service logic, simulations, and active repository surface. Mobile operating systems still expose Bluetooth, location, secure hardware, push, purchases, and attestation through compiled platform libraries. Those libraries are dependencies beneath JavaScript APIs; they do not justify duplicating product logic in Swift or Kotlin.
+“Entirely JavaScript” applies to project-authored application, service, domain, simulation, test, validation, and release-tooling source. Mobile operating systems still expose Bluetooth, location, secure hardware, push, purchases, attestation, camera, and storage through compiled platform libraries.
 
-A small native adapter may be unavoidable for an unsupported capability. Such an adapter is not authorized by this ADR and requires a separate exception ADR, named owners, and evidence that no maintained JavaScript-facing module can satisfy the need.
+Generated Expo native projects are disposable and uncommitted. A project-authored native adapter is not authorized by this ADR or ADR-0019; it requires a superseding exception ADR, named owners, measured need, narrow scope, and explicit human architecture approval.
 
 ## Consequences
 
@@ -51,16 +44,17 @@ A small native adapter may be unavoidable for an unsupported capability. Such an
 
 - faster feature experiments and feedback;
 - one domain model across mobile, web, API, and simulations;
-- removal of UniFFI and cross-language synchronization from active R&D;
-- simpler CI and code review;
-- easier synthetic multi-user and abuse simulation.
+- no UniFFI or cross-language synchronization;
+- simpler CI, review, and ownership;
+- easier synthetic multi-user and abuse simulation;
+- no obsolete second architecture in the current tree.
 
-### Negative
+### Costs and limits
 
+- historical prototypes require Git history to inspect;
 - JavaScript is not assumed to be the final performance answer for every media or cryptographic operation;
-- BLE background behavior, platform attestation, secure hardware keys, and app-store packaging still require real-device validation;
-- the existing native/Rust tree remains confusing until archived in a separate cleanup;
-- Expo development builds, not Expo Go, are required for custom native modules.
+- BLE background behavior, platform attestation, secure-hardware keys, and app-store packaging still require physical-device validation;
+- Expo development builds, not Expo Go, are required for custom native dependencies.
 
 ## Guardrails
 
@@ -68,7 +62,8 @@ A small native adapter may be unavoidable for an unsupported capability. Such an
 - proximity and location hardware adapters disabled by default;
 - no production claim based on a simulation;
 - adults-only, equal-consent defaults, reciprocal matching, free safety tools, and release gates remain binding;
-- active CI must validate only the JavaScript R&D surface plus governance/production blockers.
+- CI validates the complete JavaScript-only repository, governance contracts, Expo export, and production blocker;
+- no project-authored non-JavaScript exception without ADR-0019 review.
 
 ## Exit criteria before choosing a production architecture
 
