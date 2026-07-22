@@ -5,9 +5,10 @@
 1. `MISSION.md`
 2. `docs/architecture/adr-0014-javascript-rnd-reset.md`
 3. `docs/architecture/adr-0015-local-persistence-boundary.md`
-4. `docs/specs/current-objective.md`
-5. `docs/governance/release-gates.md`
-6. `policies/community-rules.md`
+4. `docs/architecture/adr-0016-intent-driven-discovery.md`
+5. `docs/specs/current-objective.md`
+6. `docs/governance/release-gates.md`
+7. `policies/community-rules.md`
 
 ## Active implementation rule
 
@@ -33,7 +34,25 @@ npm run mobile:export:web
 ```
 
 5. Update the relevant ADR/spec when a trust boundary changes.
-6. Never represent a mock, simulator, schema, UI control, storage adapter, or JavaScript wrapper as an operational hardware, encryption, billing, age-assurance, or safety capability.
+6. Never represent a mock, simulator, schema, UI control, storage adapter, or JavaScript wrapper as an operational hardware, encryption, billing, age-assurance, verification, or safety capability.
+
+## Intent-driven discovery rule
+
+The current discovery engine is governed by ADR-0016 and is synthetic/session-only.
+
+Agents must:
+
+- keep immediate intent separate from relational openness;
+- require mutual acceptance on both axes before scoring;
+- treat user-required boundaries as hard exclusions;
+- normalize user-controlled ranking weights and expose score explanations;
+- keep intent, boundaries, weights, reveal state, starter tags, and discovery history out of AsyncStorage;
+- reject race, ethnicity, skin color, disability, height, inferred attractiveness, intelligence, hygiene, sexuality, gender, fitness, grooming, body hair, popularity, purchases, spending, subscription, and creator-status ranking inputs;
+- keep private exclusion reasons private;
+- provide non-gesture and accessible reveal paths;
+- label self-reported boundaries accurately and never imply medical verification.
+
+Agents must not add artificial matching delays, fabricated labor, fake scarcity, hidden score multipliers, pay-to-rank behavior, or misleading compatibility claims.
 
 ## Local persistence rule
 
@@ -48,7 +67,7 @@ Agents may persist only:
 - last visible R&D tab;
 - haptic-feedback preference.
 
-Agents must not add date of birth, adult status, adult credentials, intent, orientation/discovery preferences, questionnaire answers, likes, matches, messages, blocks, reports, evidence, location, proximity observations, encounter/device identifiers, keys, secrets, payments, or payouts to unencrypted storage.
+Agents must not add date of birth, adult status, adult credentials, intent, relational openness, boundaries, discovery weights/history, orientation/discovery preferences, questionnaire answers, likes, matches, messages, blocks, reports, evidence, location, proximity observations, encounter/device identifiers, keys, secrets, payments, or payouts to unencrypted storage.
 
 Any expansion of the persisted field allowlist requires privacy and security review, updated tests, data-map changes, release-gate changes, and a superseding or amended ADR.
 
@@ -63,6 +82,8 @@ Adult assurance, BLE, location, cryptographic identity, encrypted local custody,
 - gender-asymmetric disclosure defaults;
 - unilateral matching;
 - hidden exact-location defaults;
+- discriminatory or proxy ranking;
+- private exclusion-reason disclosure;
 - purchase-weighted dating reach;
 - sensitive fields in unencrypted local storage;
 - disabling tests or production blockers;

@@ -10,7 +10,7 @@ The JavaScript implementation is a governed research scaffold. It is not permiss
 - [ ] Legal + privacy drafts counsel-approved for each beta jurisdiction
 - [ ] Named owners replace every `CHANGE_ME` in `docs/governance/roles-and-owners.md`
 - [ ] T&S staffing and P0 coverage plan funded for cohort size
-- [ ] Child-safety, NCII, support, privacy, security, proximity-abuse, location-abuse, and creator/IP contacts operational
+- [ ] Child-safety, NCII, support, privacy, security, proximity-abuse, location-abuse, ranking-fairness, and creator/IP contacts operational
 - [ ] External security review scope approved and scheduled
 - [ ] Staging account identity verified; no production credentials in client
 - [ ] Authentic beta approvals present and bound to reviewed commit/environment
@@ -23,7 +23,7 @@ The JavaScript implementation is a governed research scaffold. It is not permiss
 - [x] Node.js 24 LTS CI
 - [x] Plain JavaScript/ECMAScript-module active surface; no active TypeScript source
 - [x] Node syntax and active-language checks
-- [x] Domain, crypto, API, storage, and simulation tests
+- [x] Domain, crypto, API, storage, discovery, and simulation tests
 - [x] Expo SDK 57 dependency compatibility check
 - [x] Expo web export
 - [x] High/critical dependency audit threshold passes
@@ -64,6 +64,26 @@ The JavaScript implementation is a governed research scaffold. It is not permiss
 - [ ] One-sided like or live discovery ticket cannot create a match
 - [ ] Bilateral match receipt and reciprocal interest flow tested across two devices
 - [ ] Block/unmatch suppresses discovery, proximity, messaging, groups, and location grants
+
+## Intent-driven discovery and profile reveal
+
+- [x] Immediate intent and relational openness are separate in the synthetic engine
+- [x] Mutual acceptance on both axes is required before ranking
+- [x] Missing user-required boundaries hard-exclude the synthetic candidate
+- [x] Ranking uses only intent, boundaries, lifestyle, alignment, and distance
+- [x] User-controlled weights normalize to 100 and explanations show component/weight values
+- [x] Protected, inferred, popularity, purchase, spending, subscription, and creator-status inputs are rejected
+- [x] Synthetic profile visuals remain hidden until a non-visual micro-interaction
+- [x] Synthetic interest requires selecting visible shared-ground context
+- [x] Intent, boundaries, weights, reveal, and queue history remain session-only and absent from AsyncStorage
+- [ ] Real-user intent, boundaries, and ranking preferences use encrypted local custody
+- [ ] Candidate retrieval discloses no private exclusion reason and resists enumeration/scraping
+- [ ] Modified-client tests prove the server cannot be coerced into prohibited ranking inputs
+- [ ] Fairness review covers proxy discrimination, disparate impact, empty queues, accessibility, and recourse
+- [ ] Accessibility review verifies non-gesture reveal, screen-reader order, contrast, and reduced-motion behavior
+- [ ] Privacy/DPIA review accepts each discovery purpose, field, retention period, and telemetry rule
+- [ ] Self-reported health or boundary tags are accurately labeled and never presented as verified medical facts without an approved process
+- [ ] No artificial matching delays, fabricated labor, fake scarcity, or misleading compatibility evidence
 
 ## Get fk'd proximity
 
@@ -137,11 +157,11 @@ The JavaScript implementation is a governed research scaffold. It is not permiss
 - [ ] Evidence vault has separate keys, RBAC, purpose logging, immutable access audit, retention, and legal hold
 - [ ] Proximity stalking, location coercion, group-consent abuse, bot/scam, marketplace, NCII, child-safety, and credible-threat queues have playbooks and owners
 - [ ] Appeals and emergency escalation tested with synthetic cases
-- [ ] Crash and observability systems exclude messages, location, BLE IDs, sexual intent, questionnaire answers, local-vault plaintext, and secrets
+- [ ] Crash and observability systems exclude messages, location, BLE IDs, sexual intent, relational openness, boundaries, discovery weights, questionnaire answers, local-vault plaintext, and secrets
 
 ## Delivery and infrastructure
 
-- [ ] JavaScript syntax, active-surface, unit/API/storage/simulation, dependency-audit, and Expo export checks green on exact beta commit
+- [ ] JavaScript syntax, active-surface, unit/API/storage/discovery/simulation, dependency-audit, and Expo export checks green on exact beta commit
 - [ ] Physical iOS development-build tests green and blocking for the iOS cohort
 - [ ] Physical Android development-build tests green and blocking for the Android cohort
 - [ ] Device-pair E2E test passes for profile fetch, mutual match, E2EE chat, block, report, and revocation
