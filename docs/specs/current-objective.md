@@ -1,23 +1,25 @@
-# Current objective — JavaScript rapid-R&D vertical slice
+# Current objective — durable local profile R&D slice
 
 **Status:** ACTIVE  
-**Branch:** `agent/javascript-rnd-platform`  
+**Branch:** `agent/local-profile-persistence`  
 **Real users:** Prohibited
 
 ## Objective
 
-Establish a complete JavaScript research surface before adding any more production-shaped native or infrastructure work.
+Add durable, versioned local profile presentation and UI settings to the JavaScript Expo app without writing sensitive dating, eligibility, questionnaire, proximity, match, message, or location data to unencrypted storage.
 
 ## Deliverables
 
-- npm workspace monorepo using Node.js and JavaScript ESM;
-- Expo/React Native synthetic mobile/web app;
-- Node content-minimizing control-plane simulator;
-- deterministic multi-user simulator;
-- shared domain packages covering age, consent, preferences, alignment, proximity, matched location, Skin Shop, reciprocal matching, and bot risk;
-- executable tests for safety and consent invariants;
-- JavaScript-focused CI;
-- updated mission, agent instructions, architecture decision, and readiness audit.
+- shared `@swipe/rnd-storage` JavaScript package;
+- versioned allowlist schema and migration path;
+- invalid/corrupt record recovery;
+- adapter-based load, save, clear, and redacted export operations;
+- Expo AsyncStorage adapter using the SDK-supported package;
+- persistent display name, about text, pronouns, mock cosmetics, last tab, and haptic preference;
+- session-only adult gate, intents, gender-feed selections, questionnaire answers, proximity state, and location choices;
+- mobile profile/settings UI with save state, export preview, and reset;
+- deterministic tests proving sensitive fields are discarded;
+- ADR, data map, release-gate, closed-beta, and system-overview updates.
 
 ## Acceptance commands
 
@@ -28,28 +30,28 @@ npm run check
 npm run mobile:export:web
 ```
 
-## Required simulation outcomes
+## Required outcomes
 
-- a person whose eighteenth birthday is tomorrow is rejected;
-- a person whose eighteenth birthday is today is accepted in the local boundary model;
-- presence requires a subject-bound, unexpired staging adult credential;
-- discovery excludes the requesting profile;
-- a single like does not match;
-- reciprocal likes create the synthetic receipt;
-- Get fk'd defaults to off and prompt-first when explicitly enabled;
-- encounter and quota identifiers rotate;
-- ordinary synthetic activity receives `allow` while scraping/replay receives friction;
-- immediate presence withdrawal removes discoverability.
+- a valid saved record restores across repository instances;
+- schema version 1 migrates to the current schema;
+- malformed or unsupported data fails safe to defaults;
+- selected cosmetics can only reference locally owned cosmetic IDs;
+- date of birth, adult status, intents, discovery preferences, questionnaire answers, location, and encounter IDs are absent from serialized state;
+- reset removes the local record;
+- Expo web export remains green;
+- production preflight remains blocked.
 
 ## Explicitly deferred
 
+- encrypted local vault and hardware-backed key custody;
+- backup/device transfer and production recovery;
+- real profiles or user-generated photos;
 - BLE scanning/advertising and background behavior;
 - real location collection and E2EE coordinate payloads;
 - production age assurance and app/device attestation;
-- secure-hardware identity and production cryptography;
+- production E2EE messaging;
 - StoreKit / Play Billing and creator operations;
-- real reports, safety case systems, and evidence vault;
-- production deployment.
+- real reports, safety cases, evidence vault, staging cloud, or production deployment.
 
 ## Release state
 
