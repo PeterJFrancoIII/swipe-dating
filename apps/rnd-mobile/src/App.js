@@ -31,6 +31,16 @@ import {
   decideProximityEvent,
   isAdultOn,
 } from "@swipe/rnd-domain";
+import {
+  answerDeepenPrompt,
+  clearDeepenPromptAnswer,
+  createRelationshipPhaseState,
+  requestDeepen,
+  respondToDeepen,
+  returnToCasual,
+  terminateRelationshipPhase,
+  withdrawDeepenRequest,
+} from "@swipe/rnd-relationship-phases";
 import { createDefaultLocalState } from "@swipe/rnd-storage";
 
 import { ConversationsView } from "./ConversationsView.js";
@@ -59,6 +69,7 @@ export default function App() {
   const [locationChoice, setLocationChoice] = useState("none");
 
   const [conversationState, setConversationState] = useState(createConversationState);
+  const [relationshipPhaseState, setRelationshipPhaseState] = useState(createRelationshipPhaseState);
   const [restoreToken, setRestoreToken] = useState(null);
 
   const ownedSkins = useMemo(
@@ -207,16 +218,76 @@ export default function App() {
     return result.message;
   }
 
-  function handleUnmatch(matchId) {
-    const result = unmatchConversation(conversationState, { matchId });
-    setConversationState(result.state);
+  function handleRequestDeepen(payload) {
+    const result = requestDeepen(relationshipPhaseState, payload);
+    setRelationshipPhaseState(result.state);
     return result.outcome;
   }
 
-  function handleBlock(matchId) {
-    const result = blockConversation(conversationState, { matchId });
-    setConversationState(result.state);
+  function handleCandidateDeepenResponse({ matchId, accept }) {
+    const result = respondToDeepen(relationshipPhaseState, {
+      matchId,
+      actor: "candidate",
+      accept,
+    });
+    setRelationshipPhaseState(result.state);
     return result.outcome;
+  }
+
+  function handleLocalDeepenResponse({ matchId, accept }) {
+    const result = respondToDeepen(relationshipPhaseState, {
+      matchId,
+      actor: "local",
+      accept,
+    });
+    setRelationshipPhaseState(result.state);
+    return result.outcome;
+  }
+
+  function handleWithdrawDeepen(payload) {
+    const result = withdrawDeepenRequest(relationshipPhaseState, payload);
+    setRelationshipPhaseState(result.state);
+    return result.outcome;
+  }
+
+  function handleReturnToCasual(payload) {
+    const result = returnToCasual(relationshipPhaseState, payload);
+    setRelationshipPhaseState(result.state);
+    return result.outcome;
+  }
+
+  function handleAnswerDeepenPrompt(payload) {
+    const result = answerDeepenPrompt(relationshipPhaseState, payload);
+    setRelationshipPhaseState(result.state);
+    return result.answer;
+  }
+
+  function handleClearDeepenAnswer(payload) {
+    const result = clearDeepenPromptAnswer(relationshipPhaseState, payload);
+    setRelationshipPhaseState(result.state);
+    return result.outcome;
+  }
+
+  function handleUnmatch(matchId) {
+    const conversationResult = unmatchConversation(conversationState, { matchId });
+    const phaseResult = terminateRelationshipPhase(relationshipPhaseState, {
+      matchId,
+      reason: "unmatched",
+    });
+    setConversationState(conversationResult.state);
+    setRelationshipPhaseState(phaseResult.state);
+    return conversationResult.outcome;
+  }
+
+  function handleBlock(matchId) {
+    const conversationResult = blockConversation(conversationState, { matchId });
+    const phaseResult = terminateRelationshipPhase(relationshipPhaseState, {
+      matchId,
+      reason: "blocked",
+    });
+    setConversationState(conversationResult.state);
+    setRelationshipPhaseState(phaseResult.state);
+    return conversationResult.outcome;
   }
 
   async function resetSavedProfile() {
@@ -227,7 +298,7 @@ export default function App() {
     setStorageStatus("Saved profile and UI settings were cleared.");
     Alert.alert(
       "Local data cleared",
-      "Only approved profile, cosmetic, and UI fields were removed. Adult, intent, questionnaire, discovery, proximity, match, message, block, and location state was never stored here.",
+      "Only approved profile, cosmetic, and UI fields were removed. Adult, intent, questionnaire, discovery, proximity, match, message, relationship-phase, block, and location state was never stored here.",
     );
   }
 
@@ -325,11 +396,20 @@ export default function App() {
         {activeTab === "Matches" && (
           <ConversationsView
             conversationState={conversationState}
+            relationshipPhaseState={relationshipPhaseState}
+            onAnswerDeepenPrompt={handleAnswerDeepenPrompt}
             onBlock={handleBlock}
+            onCandidateDeepenRequest={handleRequestDeepen}
+            onCandidateDeepenResponse={handleCandidateDeepenResponse}
+            onClearDeepenAnswer={handleClearDeepenAnswer}
+            onLocalDeepenResponse={handleLocalDeepenResponse}
+            onRequestDeepen={handleRequestDeepen}
+            onReturnToCasual={handleReturnToCasual}
             onSend={handleSend}
             onSyntheticReply={handleSyntheticReply}
             onUndo={handleUndo}
             onUnmatch={handleUnmatch}
+            onWithdrawDeepen={handleWithdrawDeepen}
           />
         )}
 
@@ -386,7 +466,7 @@ export default function App() {
 
             <Section title="Persistence boundary">
               <Text style={styles.warning}>
-                AsyncStorage is unencrypted. The store excludes adult status, intent and boundary settings, questionnaire answers, discovery history, likes, matches, messages, blocks, location, and proximity identifiers. Even the Matches tab is session-only.
+                AsyncStorage is unencrypted. The store excludes adult status, intent and boundary settings, questionnaire answers, discovery history, likes, matches, messages, relationship phases, deeper answers, blocks, location, and proximity identifiers. Even the Matches tab is session-only.
               </Text>
               <View style={styles.choiceRow}>
                 <ActionButton label="View redacted export" onPress={showExportPreview} />
@@ -483,7 +563,7 @@ export default function App() {
         {activeTab === "Matched Map" && (
           <Section title="Matched Map">
             <Text style={styles.caption}>
-              Matching never shares location automatically. No coordinates are collected or persisted in this build.
+              Matching and Deepen Connection never share location automatically. No coordinates are collected or persisted in this build.
             </Text>
             {[
               ["none", "Not now"],
