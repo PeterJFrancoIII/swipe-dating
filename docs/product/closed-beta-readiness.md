@@ -1,9 +1,9 @@
 # Closed beta readiness
 
 **Updated:** 2026-07-21  
-**Status:** **NOT READY — INTERNAL SYNTHETIC DOGFOOD ONLY**
+**Status:** **NOT READY — JAVASCRIPT SYNTHETIC R&D ONLY**
 
-The adult feature expansion is a governed staging scaffold. It is not permission to invite real users, collect real profiles or intimate preferences, activate Bluetooth proximity, transmit location, process purchases, or operate real safety cases.
+The JavaScript reset is a governed research scaffold. It is not permission to invite real users, collect real profiles or intimate preferences, activate Bluetooth proximity, transmit coordinates, process purchases, or operate real safety cases.
 
 ## Existing organizational gates
 
@@ -15,6 +15,22 @@ The adult feature expansion is a governed staging scaffold. It is not permission
 - [ ] Staging account identity verified; no production credentials in client
 - [ ] Authentic beta approvals present and bound to reviewed commit/environment
 - [ ] Store compliance matrix re-verified within 30 days of distribution
+
+## JavaScript R&D delivery baseline
+
+- [x] Root npm workspace with exact direct dependency pins
+- [ ] Reviewed dependency lockfile committed and verified
+- [x] Node.js 24 LTS CI
+- [x] Plain JavaScript/ECMAScript-module active surface; no active TypeScript source
+- [x] Node syntax and active-language checks
+- [x] Domain, crypto, API, and simulation tests
+- [x] Expo SDK 57 dependency compatibility check
+- [x] Expo web export
+- [x] High/critical dependency audit threshold passes
+- [ ] Moderate Expo native-build-tooling advisories resolved or formally time-bounded before real-user build
+- [ ] Controlled iOS development build green on physical devices
+- [ ] Controlled Android development build green on physical devices
+- [ ] Legacy native/Rust prototype archived or explicitly retained under approved scope
 
 ## Adult eligibility and identity
 
@@ -39,7 +55,8 @@ The adult feature expansion is a governed staging scaffold. It is not permission
 
 - [ ] Real-user feature flag defaults off
 - [ ] Same prompt-before-share default for every gender
-- [ ] CoreBluetooth and Android BLE implementation passes permission/background/battery review
+- [ ] Maintained React Native/Expo BLE adapter passes dependency and permission review
+- [ ] Controlled iOS and Android development builds pass permission/background/battery review
 - [ ] Advertisement contains only rotating random ID, epoch, protocol, and non-sensitive capability bits
 - [ ] Encounter ID is unlinkable to root/profile/rendezvous/push/marketplace identities
 - [ ] No server upload or analytics of raw encounters
@@ -79,7 +96,7 @@ The adult feature expansion is a governed staging scaffold. It is not permission
 
 - [ ] Marketplace services, storage, roles, keys, and telemetry isolated from private dating and safety data
 - [ ] Asset parser/renderer permits bounded declarative formats only
-- [ ] No executable code, hidden network calls, arbitrary shaders, or unbounded assets
+- [ ] No executable asset code, hidden network calls, arbitrary shaders, or unbounded assets
 - [ ] MIME sniff, decode bounds, decompression limits, animation limits, and hostile-asset fuzzing pass
 - [ ] Avatar/photo/photo-verified labels cannot be confused
 - [ ] Creator terms, moderation, IP/takedown, impersonation, refund, appeal, tax, payout, and fraud processes approved
@@ -110,9 +127,9 @@ The adult feature expansion is a governed staging scaffold. It is not permission
 
 ## Delivery and infrastructure
 
-- [ ] Rust format, clippy, unit, integration, protocol, fuzz, load, audit, deny, and SBOM checks green on exact beta commit
-- [ ] iOS Xcode build and tests green and blocking in CI
-- [ ] Android assemble/tests green and blocking in CI before Android cohort
+- [ ] JavaScript syntax, active-surface, unit/API/simulation, dependency-audit, and Expo export checks green on exact beta commit
+- [ ] Physical iOS development-build tests green and blocking for the iOS cohort
+- [ ] Physical Android development-build tests green and blocking for the Android cohort
 - [ ] Device-pair E2E test passes for profile fetch, mutual match, E2EE chat, block, report, and revocation
 - [ ] Staging infrastructure is real rather than placeholder modules; TLS, KMS, secrets, database/cache, TURN, observability, backup, and recovery tested
 - [ ] Chaos and abuse-capacity tests pass for planned cohort
@@ -121,7 +138,7 @@ The adult feature expansion is a governed staging scaffold. It is not permission
 Until every applicable item and `docs/governance/release-gates.md` passes with authentic evidence:
 
 ```text
-INTERNAL_SYNTHETIC_DOGFOOD_ALLOWED
+JAVASCRIPT_RND_SYNTHETIC_ONLY
 REAL_USER_CLOSED_BETA_BLOCKED
 PRODUCTION_BLOCKED_HUMAN_APPROVALS_REQUIRED
 ```

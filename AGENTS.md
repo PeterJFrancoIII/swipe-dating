@@ -1,61 +1,50 @@
-# Agent Operating Rules
+# Agent instructions — JavaScript rapid R&D
 
-## Prime directive
+## Read first
 
-Build the user's current objective with maximum verified progress and minimum drift.
-Current objective: staging local-first dating platform per `MISSION.md` and `.cursor/commands/deploy-decentralized-dating-app.md`.
+1. `MISSION.md`
+2. `docs/architecture/adr-0014-javascript-rnd-reset.md`
+3. `docs/specs/current-objective.md`
+4. `docs/governance/release-gates.md`
+5. `policies/community-rules.md`
 
-## Required loop
+## Active implementation rule
 
-1. Read `MISSION.md`.
-2. Read `docs/specs/current-objective.md`.
-3. Read `docs/governance/release-gates.md` (beta/production stay blocked).
-4. Read `.cursor/state/decentralized-dating-app-progress.json` when present.
-5. State allowed and forbidden files.
-6. Plan before editing.
-7. Implement one small slice.
-8. Run verification.
-9. Update handoff/memory and phase state.
+All new R&D application and service behavior belongs in JavaScript under:
 
-## Governance (must respect)
+- `apps/rnd-*`
+- `packages/rnd-*`
+- `scripts/*.mjs`
 
-- Community rules: `policies/community-rules.md`
-- Index: `docs/governance/README.md`
-- Mission readiness: `docs/audits/2026-07-20-mission-readiness-review.md`
-- Closed beta checklist: `docs/product/closed-beta-readiness.md`
-- Do **not** fabricate `approvals/` artifacts or claim legal sign-off.
+Do not add new active Rust, Swift, Kotlin, Objective-C, Java, Python, Dart, or TypeScript feature code. Existing native and Rust files are frozen historical reference until a dedicated archival/removal change is approved.
 
-## Commands
+## Required implementation loop
 
-- Install: `make bootstrap`
-- Doctor: `make doctor`
-- Dev: `make local-up`
-- Test: `make test`
-- Typecheck/lint: `make lint`
-- Build: `cargo build --workspace`
-- Staging: `make deploy-staging` (staging account only)
-- Production preflight: `make production-preflight` (validates only; never deploys)
+1. State the hypothesis and affected privacy/safety invariants.
+2. Implement the smallest pure-JavaScript domain slice first.
+3. Add deterministic tests before UI or network adapters.
+4. Run:
 
-## Risk classes
+```bash
+npm install --ignore-scripts
+npm run check
+npm run mobile:export:web
+```
 
-- **Green:** docs, tests, isolated UI, local-only scripts.
-- **Yellow:** API behavior, data shape, dependencies, shared components.
-- **Red:** auth, age assurance, payments, permissions, secrets, production infrastructure, customer data, migrations, safety evidence vault, release gates, child-safety reporting, store submission.
+5. Update the relevant ADR/spec when a trust boundary changes.
+6. Never represent a mock, simulator, schema, UI control, or JavaScript adapter as an operational hardware, encryption, billing, age-assurance, or safety capability.
 
-Red changes require explicit human approval before edits and before merge, except staging apply explicitly allowed by the deploy command after account identity verification.
+## Red-zone boundaries
 
-## Non-negotiable product constraints
+Adult assurance, BLE, location, cryptographic identity, platform attestation, payments, creator payouts, intimate/safety evidence, production infrastructure, app-store submission, legal reporting, and real users require explicit human approval.
 
-- Adults only (18+); fail closed when age eligibility cannot be established.
-- No exact location exposure; coarse regions only with jitter and privacy zones.
-- No operator access to ordinary profiles, photos, or messages.
-- No sale or behavioral advertising of sensitive dating data.
-- No paywall on safety (block, report, age, encryption, basic discovery).
-- No production deploy by autonomous agent.
-- Do not fabricate legal, security, trust-and-safety, store, or executive approvals.
-- Do not weaken encryption, age, block/report, retention, or audit controls to unblock progress.
-- Do not file CyberTipline / LE notices or handle real intimate / child-safety evidence.
+## Prohibited shortcuts
 
-## Communication
-
-Use terse, evidence-first updates. Preserve exact code, paths, commands, and errors. Never claim a test passed without command evidence.
+- real user data, secrets, identity documents, intimate media, or safety evidence;
+- minors in any dating or sexual-intent flow;
+- gender-asymmetric disclosure defaults;
+- unilateral matching;
+- hidden exact-location defaults;
+- purchase-weighted dating reach;
+- disabling tests or production blockers;
+- fabricated legal, security, privacy, Trust & Safety, financial, or executive approval.

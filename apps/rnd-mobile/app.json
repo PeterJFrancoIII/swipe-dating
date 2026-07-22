@@ -1,0 +1,26 @@
+{
+  "expo": {
+    "name": "Swipe Dating R&D",
+    "slug": "swipe-dating-rnd",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "scheme": "swipe-rnd",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "org.tempusinnovation.swipedating.rnd"
+    },
+    "android": {
+      "package": "org.tempusinnovation.swipedating.rnd"
+    },
+    "web": {
+      "bundler": "metro"
+    },
+    "extra": {
+      "releaseState": "JAVASCRIPT_RND_SYNTHETIC_ONLY",
+      "bleEnabled": false,
+      "locationEnabled": false,
+      "purchasesEnabled": false
+    }
+  }
+}

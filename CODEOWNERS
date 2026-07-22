@@ -6,7 +6,18 @@
 # Default
 * @CHANGE_ME_SECURITY_OWNER
 
-# Cryptography, identity, protocol, matching, and sensitive local ranking
+# Active JavaScript R&D surface
+/package.json @CHANGE_ME_INFRA_OWNER @CHANGE_ME_SECURITY_OWNER
+/package-lock.json @CHANGE_ME_INFRA_OWNER @CHANGE_ME_SECURITY_OWNER
+/apps/rnd-mobile/ @CHANGE_ME_MOBILE_OWNER @CHANGE_ME_SECURITY_OWNER @CHANGE_ME_PRIVACY_OWNER @CHANGE_ME_SAFETY_OWNER
+/apps/rnd-api/ @CHANGE_ME_INFRA_OWNER @CHANGE_ME_SECURITY_OWNER @CHANGE_ME_ANTI_ABUSE_OWNER
+/apps/rnd-simulator/ @CHANGE_ME_PRODUCT_OWNER @CHANGE_ME_SECURITY_OWNER
+/packages/rnd-domain/ @CHANGE_ME_SECURITY_OWNER @CHANGE_ME_PRIVACY_OWNER @CHANGE_ME_PRODUCT_OWNER @CHANGE_ME_SAFETY_OWNER
+/packages/rnd-crypto-node/ @CHANGE_ME_CRYPTO_OWNER @CHANGE_ME_SECURITY_OWNER
+/config/rnd-alignment-questionnaire-v1.json @CHANGE_ME_PRIVACY_OWNER @CHANGE_ME_LEGAL_OWNER @CHANGE_ME_PRODUCT_OWNER
+/docs/architecture/adr-0014-javascript-rnd-reset.md @CHANGE_ME_RELEASE_OWNER @CHANGE_ME_SECURITY_OWNER @CHANGE_ME_MOBILE_OWNER
+
+# Frozen legacy cryptography, identity, protocol, matching, and storage
 /core/crypto/ @CHANGE_ME_CRYPTO_OWNER @CHANGE_ME_SECURITY_OWNER
 /core/identity/ @CHANGE_ME_CRYPTO_OWNER @CHANGE_ME_SECURITY_OWNER @CHANGE_ME_ADULT_ASSURANCE_OWNER
 /core/protocol/ @CHANGE_ME_CRYPTO_OWNER @CHANGE_ME_SECURITY_OWNER
@@ -14,28 +25,21 @@
 /core/storage/ @CHANGE_ME_SECURITY_OWNER @CHANGE_ME_PRIVACY_OWNER
 /core/transport-api/ @CHANGE_ME_SECURITY_OWNER @CHANGE_ME_PROXIMITY_OWNER
 /schemas/ @CHANGE_ME_CRYPTO_OWNER @CHANGE_ME_SECURITY_OWNER
-/config/alignment-questionnaire-v1.json @CHANGE_ME_PRIVACY_OWNER @CHANGE_ME_LEGAL_OWNER @CHANGE_ME_PRODUCT_OWNER
 
-# Mobile, proximity, location, preferences, and commerce UI
+# Frozen legacy native clients and control plane
 /apps/ios/ @CHANGE_ME_MOBILE_OWNER @CHANGE_ME_SECURITY_OWNER
 /apps/android/ @CHANGE_ME_MOBILE_OWNER @CHANGE_ME_SECURITY_OWNER
-/apps/ios/Sources/FeatureFoundationModels.swift @CHANGE_ME_MOBILE_OWNER @CHANGE_ME_PRIVACY_OWNER @CHANGE_ME_PRODUCT_OWNER
-/apps/ios/Sources/FeatureFoundationViews.swift @CHANGE_ME_MOBILE_OWNER @CHANGE_ME_PRIVACY_OWNER @CHANGE_ME_SAFETY_OWNER
-/apps/ios/Sources/AppModel+AdultEligibility.swift @CHANGE_ME_ADULT_ASSURANCE_OWNER @CHANGE_ME_SECURITY_OWNER @CHANGE_ME_MOBILE_OWNER
-
-# Age, anti-abuse, location, safety, and evidence
-/core/safety/ @CHANGE_ME_SAFETY_OWNER @CHANGE_ME_SECURITY_OWNER
 /services/rendezvous/ @CHANGE_ME_INFRA_OWNER @CHANGE_ME_SECURITY_OWNER @CHANGE_ME_ANTI_ABUSE_OWNER
 /services/turn-credentials/ @CHANGE_ME_INFRA_OWNER @CHANGE_ME_SECURITY_OWNER
 /services/report-ingest/ @CHANGE_ME_SAFETY_OWNER @CHANGE_ME_SECURITY_OWNER
 /services/safety-console-api/ @CHANGE_ME_SAFETY_OWNER @CHANGE_ME_SECURITY_OWNER
 /services/push-broker/ @CHANGE_ME_SECURITY_OWNER @CHANGE_ME_PRIVACY_OWNER
+
+# Safety, privacy, product, and architecture
 /docs/security/ @CHANGE_ME_SECURITY_OWNER @CHANGE_ME_ANTI_ABUSE_OWNER
 /docs/safety/ @CHANGE_ME_SAFETY_OWNER
 /docs/privacy/ @CHANGE_ME_PRIVACY_OWNER @CHANGE_ME_LEGAL_OWNER
 /policies/ @CHANGE_ME_SAFETY_OWNER @CHANGE_ME_LEGAL_OWNER
-
-# Product and architecture decisions for high-risk features
 /docs/product/adult-feature-expansion.md @CHANGE_ME_PRODUCT_OWNER @CHANGE_ME_PRIVACY_OWNER @CHANGE_ME_SAFETY_OWNER @CHANGE_ME_LEGAL_OWNER
 /docs/product/closed-beta-readiness.md @CHANGE_ME_RELEASE_OWNER @CHANGE_ME_SECURITY_OWNER @CHANGE_ME_SAFETY_OWNER
 /docs/architecture/adr-0009-consent-based-proximity.md @CHANGE_ME_PROXIMITY_OWNER @CHANGE_ME_SECURITY_OWNER @CHANGE_ME_PRIVACY_OWNER
@@ -50,7 +54,8 @@
 /docs/legal/ @CHANGE_ME_LEGAL_OWNER
 /approvals/ @CHANGE_ME_RELEASE_OWNER @CHANGE_ME_SECURITY_OWNER
 /MISSION.md @CHANGE_ME_RELEASE_OWNER @CHANGE_ME_SAFETY_OWNER @CHANGE_ME_PRIVACY_OWNER
+/AGENTS.md @CHANGE_ME_RELEASE_OWNER @CHANGE_ME_SECURITY_OWNER
 
-# Infrastructure, marketplace backend, payments, and release automation
+# Infrastructure and release automation
 /infra/ @CHANGE_ME_INFRA_OWNER @CHANGE_ME_SECURITY_OWNER
 /.github/workflows/ @CHANGE_ME_INFRA_OWNER @CHANGE_ME_SECURITY_OWNER
