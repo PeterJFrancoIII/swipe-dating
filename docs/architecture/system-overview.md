@@ -1,33 +1,53 @@
 # System Overview
 
-**Updated:** 2026-07-21  
+**Updated:** 2026-07-22  
 **Active implementation:** JavaScript rapid R&D, synthetic users only
 
 The product target remains a hybrid **local-first** adult dating platform: an ephemeral control plane, consent-scoped encrypted peer data plane, isolated public cosmetic marketplace, and isolated safety/anti-abuse systems.
 
-The active research implementation is now one JavaScript monorepo. Product and safety logic runs in shared ECMAScript modules; Node.js runs tests, simulations, and the API adapter; Expo/React Native runs the mobile and web research UI.
+The active research implementation is one JavaScript monorepo. Product and safety logic runs in shared ECMAScript modules; Node.js runs tests, simulations, and the API adapter; Expo/React Native runs the mobile and web research UI.
 
 ## Active JavaScript components
 
 | Component | R&D role | Sensitive-data boundary |
 |---|---|---|
-| `apps/rnd-mobile` | Expo UI for age gate, Discover, Get fk'd, preferences, Skin Shop, and matched-location consent | Synthetic and device-local state only; no real profiles, coordinates, purchases, or evidence |
+| `apps/rnd-mobile` | Expo UI for age gate, local profile editing, Discover, Get fk'd, preferences, Skin Shop, and matched-location consent | Synthetic and device-local state only; no real profiles, coordinates, purchases, or evidence |
 | `apps/rnd-api` | Dependency-light Node HTTP adapter | Short-lived synthetic presence identifiers, likes, blocks, and discovery only |
 | `apps/rnd-simulator` | Deterministic synthetic multi-user scenarios | No external network and no real users |
 | `packages/rnd-domain` | Adult boundary, preferences, alignment, proximity decisions, location grants, matching, asset validation, risk decisions | Pure deterministic logic; no network or telemetry |
+| `packages/rnd-storage` | Versioned allowlist state, migration, corruption recovery, reset, and export | Persists only presentation/cosmetic/UI fields; sensitive/session fields are discarded |
 | `packages/rnd-crypto-node` | Domain-separated HMAC identifiers for Node simulations | Synthetic secrets only; not a production key-management system |
-| `config/rnd-alignment-questionnaire-v1.json` | Versioned synthetic questionnaire contract | Raw answers remain local in R&D |
+| `config/rnd-alignment-questionnaire-v1.json` | Versioned synthetic questionnaire contract | Raw answers remain session-local in R&D |
 
 ## JavaScript-authored versus native runtime
 
-“Entirely JavaScript” means all active application, service, simulation, and domain source authored by this project is JavaScript. Mobile operating systems still provide Bluetooth, location, notifications, secure hardware, attestation, billing, and camera functions through native frameworks.
+“Entirely JavaScript” means all active application, service, simulation, and domain source authored by this project is JavaScript. Mobile operating systems still provide Bluetooth, location, notifications, secure hardware, attestation, billing, storage, and camera functions through native frameworks.
 
 For a hardware experiment, the Expo app may consume a maintained React Native/Expo module inside a custom development build. Generated `ios/` and `android/` projects are disposable build artifacts, not manually maintained source. The project must not silently reintroduce Swift, Kotlin, Rust, Java, Objective-C, Dart, Python, or TypeScript as a second active implementation language without a superseding ADR and measured need.
+
+## Current local persistence flow
+
+```text
+Approved profile / cosmetic / UI fields
+                ↓
+Shared allowlist sanitizer
+                ↓
+Versioned JSON record
+                ↓
+AsyncStorage adapter
+                ↓
+Restore / migrate / clear / redacted export
+```
+
+The AsyncStorage record is intentionally unencrypted and therefore synthetic-R&D-only. It excludes birth date, adult-gate result, intent, discovery preferences, questionnaire answers, likes, matches, messages, blocks, reports, coordinates, location grants, BLE observations, encounter identifiers, device IDs, credentials, cryptographic keys, payments, and safety evidence.
+
+A real-user implementation requires an encrypted vault with reviewed key custody, backup, recovery, migration, deletion, export, and physical-device behavior. See ADR-0015.
 
 ## Target product components
 
 | Target component | Responsibility | Real-user prerequisite |
 |---|---|---|
+| Encrypted local vault | Profile, preferences, questionnaire, match/message state, and key references | External security/privacy review, OS-backed keys, migration, recovery, deletion/export tests |
 | Adult eligibility | Signed, expiring, revocable adult credential | Counsel-approved provider and network enforcement |
 | Attestation/anti-abuse | App/device integrity, signed challenges, pairwise quotas, risk containment | App Attest/Play Integrity validation, privacy review, appeal operations |
 | Rendezvous/presence | Short-lived signed leases, coarse-region discovery, capability routing | Identity binding, replay protection, trusted issuer configuration |
@@ -103,7 +123,7 @@ No coordinates in the current R&D implementation
 ```text
 Versioned optional questionnaire
             ↓
-Local answer + importance + dealbreaker
+Session-local answer + importance + dealbreaker
             ↓
 Reciprocal minimum weight
             ↓
@@ -124,11 +144,13 @@ Implemented and verified in the JavaScript R&D surface:
 - expiring/revocable location-grant metadata without coordinates;
 - bounded Skin Shop manifest validation;
 - content-blind bot-risk and pairwise-quota simulations;
+- versioned allowlist local persistence with migration, corruption recovery, reset, export, and sensitive-field redaction;
 - Expo Android/iOS/web research UI and Node API;
 - Node tests, JavaScript surface checks, dependency audit threshold, and Expo web export.
 
 Not implemented for real users:
 
+- encrypted local vault and production key custody;
 - BLE scanning/advertising, challenge-response, background reliability, or haptic cooldown enforcement;
 - production adult assurance and platform attestation;
 - reviewed E2EE profile, media, messaging, or location transport;
