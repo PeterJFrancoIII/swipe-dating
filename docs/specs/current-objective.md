@@ -39,8 +39,8 @@ node scripts/verify-production-block.mjs
 - committed Git tree independently reports zero language violations;
 - active workspace discovery includes every current and future `rnd-*` app/package without a hand-maintained list;
 - test discovery includes every `.test.js` or `.test.mjs` file in active workspaces;
-- no current architecture document points to deleted native, Rust, service, Terraform, Make, or Bash paths;
-- no stale `make production-preflight` or `scripts/production_preflight.sh` command remains;
+- no current architecture document points to deleted native, Rust, service, Terraform, Make, or shell paths;
+- no obsolete Make- or Bash-based preflight command reference remains;
 - JavaScript syntax, domain, API, storage, discovery, conversation, relationship-phase, and simulation tests pass;
 - Expo SDK 57 web export passes;
 - governance contracts pass;
