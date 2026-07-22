@@ -14,6 +14,17 @@ import {
 } from "react-native";
 
 import {
+  blockConversation,
+  createConversationState,
+  getSuppressedCandidateIds,
+  recordInterest,
+  recordPass,
+  receiveSyntheticReply,
+  sendMessage,
+  undoLastDecision,
+  unmatchConversation,
+} from "@swipe/rnd-conversations";
+import {
   GENDER_DISCOVERY_CATEGORIES,
   LOOKING_FOR_MODES,
   PROXIMITY_DISCLOSURE,
@@ -22,16 +33,18 @@ import {
 } from "@swipe/rnd-domain";
 import { createDefaultLocalState } from "@swipe/rnd-storage";
 
+import { ConversationsView } from "./ConversationsView.js";
 import { IntentDiscoveryView } from "./IntentDiscoveryView.js";
 import { createMobileLocalStateRepository } from "./local-storage.js";
 import { QUESTIONNAIRE, SKIN_ITEMS, SYNTHETIC_PROFILES } from "./mock-data.js";
 
 const TODAY = "2026-07-22";
-const TABS = ["Discover", "My Profile", "Preferences", "Skin Shop", "Matched Map"];
+const TABS = ["Discover", "Matches", "My Profile", "Preferences", "Skin Shop", "Matched Map"];
 
 export default function App() {
   const repository = useMemo(() => createMobileLocalStateRepository(), []);
   const [localState, setLocalState] = useState(createDefaultLocalState);
+  const [activeTab, setActiveTab] = useState("Discover");
   const [storageReady, setStorageReady] = useState(false);
   const [storageStatus, setStorageStatus] = useState("Loading saved profile…");
   const [exportPreview, setExportPreview] = useState("");
@@ -45,9 +58,16 @@ export default function App() {
   const [answers, setAnswers] = useState({});
   const [locationChoice, setLocationChoice] = useState("none");
 
+  const [conversationState, setConversationState] = useState(createConversationState);
+  const [restoreToken, setRestoreToken] = useState(null);
+
   const ownedSkins = useMemo(
     () => new Set(localState.cosmetics.ownedSkinIds),
     [localState.cosmetics.ownedSkinIds],
+  );
+  const suppressedCandidateIds = useMemo(
+    () => getSuppressedCandidateIds(conversationState),
+    [conversationState],
   );
 
   useEffect(() => {
@@ -58,6 +78,7 @@ export default function App() {
       .then((result) => {
         if (cancelled) return;
         setLocalState(result.state);
+        setActiveTab(result.state.ui.lastTab);
         setStorageStatus(
           result.recovered
             ? "Saved data was invalid or incompatible and was safely reset."
@@ -106,6 +127,13 @@ export default function App() {
     }));
   }
 
+  function selectTab(value) {
+    setActiveTab(value);
+    if (value !== "Matches") {
+      updateUi({ lastTab: value });
+    }
+  }
+
   function submitAdultGate() {
     if (!isAdultOn(birthDate, TODAY)) {
       Alert.alert("Adults only", "You must be at least 18 years old to continue.");
@@ -135,14 +163,71 @@ export default function App() {
     );
   }
 
+  function handlePass({ candidateId }) {
+    const result = recordPass(conversationState, { candidateId });
+    setConversationState(result.state);
+    return result.outcome;
+  }
+
+  function handleInterest({ candidate, starterTag }) {
+    const result = recordInterest(conversationState, {
+      candidate,
+      starterTag,
+      reciprocalLike: Boolean(candidate.syntheticReciprocalLike),
+    });
+    setConversationState(result.state);
+    if (result.outcome.matched) {
+      setActiveTab("Matches");
+    }
+    return result.outcome;
+  }
+
+  function handleUndo() {
+    const result = undoLastDecision(conversationState);
+    setConversationState(result.state);
+    if (result.outcome.restoredCandidateId) {
+      setRestoreToken({
+        candidateId: result.outcome.restoredCandidateId,
+        sequence: Date.now(),
+      });
+      setActiveTab("Discover");
+    }
+    return result.outcome;
+  }
+
+  function handleSend(payload) {
+    const result = sendMessage(conversationState, payload);
+    setConversationState(result.state);
+    return result.message;
+  }
+
+  function handleSyntheticReply(payload) {
+    const result = receiveSyntheticReply(conversationState, payload);
+    setConversationState(result.state);
+    return result.message;
+  }
+
+  function handleUnmatch(matchId) {
+    const result = unmatchConversation(conversationState, { matchId });
+    setConversationState(result.state);
+    return result.outcome;
+  }
+
+  function handleBlock(matchId) {
+    const result = blockConversation(conversationState, { matchId });
+    setConversationState(result.state);
+    return result.outcome;
+  }
+
   async function resetSavedProfile() {
     await repository.clear();
     setLocalState(createDefaultLocalState());
+    setActiveTab("Discover");
     setExportPreview("");
     setStorageStatus("Saved profile and UI settings were cleared.");
     Alert.alert(
       "Local data cleared",
-      "Only approved profile, cosmetic, and UI fields were removed. Adult, intent, questionnaire, discovery, proximity, match, and location state was never stored here.",
+      "Only approved profile, cosmetic, and UI fields were removed. Adult, intent, questionnaire, discovery, proximity, match, message, block, and location state was never stored here.",
     );
   }
 
@@ -187,16 +272,16 @@ export default function App() {
       </View>
       <View style={styles.tabBar}>
         {TABS.map((value) => (
-          <Pressable key={value} onPress={() => updateUi({ lastTab: value })} style={styles.tabButton}>
-            <Text style={[styles.tabText, localState.ui.lastTab === value && styles.tabTextActive]}>
-              {value === "My Profile" ? "Profile" : value}
+          <Pressable key={value} onPress={() => selectTab(value)} style={styles.tabButton}>
+            <Text style={[styles.tabText, activeTab === value && styles.tabTextActive]}>
+              {tabLabel(value)}
             </Text>
           </Pressable>
         ))}
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>
-        {localState.ui.lastTab === "Discover" && (
+        {activeTab === "Discover" && (
           <>
             <Section title="Get fk'd">
               <View style={styles.rowBetween}>
@@ -226,14 +311,29 @@ export default function App() {
             </Section>
 
             <IntentDiscoveryView
+              excludedCandidateIds={suppressedCandidateIds}
               hapticsEnabled={localState.ui.hapticsEnabled}
+              onInterest={handleInterest}
+              onPass={handlePass}
               profiles={SYNTHETIC_PROFILES}
+              restoreToken={restoreToken}
               selectedSkinId={localState.cosmetics.selectedSkinId}
             />
           </>
         )}
 
-        {localState.ui.lastTab === "My Profile" && (
+        {activeTab === "Matches" && (
+          <ConversationsView
+            conversationState={conversationState}
+            onBlock={handleBlock}
+            onSend={handleSend}
+            onSyntheticReply={handleSyntheticReply}
+            onUndo={handleUndo}
+            onUnmatch={handleUnmatch}
+          />
+        )}
+
+        {activeTab === "My Profile" && (
           <>
             <Section title="My local R&D profile">
               <Text style={styles.caption}>
@@ -286,7 +386,7 @@ export default function App() {
 
             <Section title="Persistence boundary">
               <Text style={styles.warning}>
-                AsyncStorage is unencrypted. The store excludes adult status, intent and boundary settings, questionnaire answers, discovery history, matches, messages, location, and proximity identifiers.
+                AsyncStorage is unencrypted. The store excludes adult status, intent and boundary settings, questionnaire answers, discovery history, likes, matches, messages, blocks, location, and proximity identifiers. Even the Matches tab is session-only.
               </Text>
               <View style={styles.choiceRow}>
                 <ActionButton label="View redacted export" onPress={showExportPreview} />
@@ -305,7 +405,7 @@ export default function App() {
           </>
         )}
 
-        {localState.ui.lastTab === "Preferences" && (
+        {activeTab === "Preferences" && (
           <>
             <Section title="Looking For">
               <Text style={styles.caption}>
@@ -345,7 +445,7 @@ export default function App() {
           </>
         )}
 
-        {localState.ui.lastTab === "Skin Shop" && (
+        {activeTab === "Skin Shop" && (
           <Section title="Skin Shop">
             <Text style={styles.caption}>
               Synthetic catalog only. Mock ownership is restored across restarts but never changes dating reach or safety access.
@@ -380,7 +480,7 @@ export default function App() {
           </Section>
         )}
 
-        {localState.ui.lastTab === "Matched Map" && (
+        {activeTab === "Matched Map" && (
           <Section title="Matched Map">
             <Text style={styles.caption}>
               Matching never shares location automatically. No coordinates are collected or persisted in this build.
@@ -463,6 +563,14 @@ function toggleSet(current, value) {
   return next;
 }
 
+function tabLabel(value) {
+  const labels = {
+    "My Profile": "Profile",
+    "Matched Map": "Map",
+  };
+  return labels[value] ?? value;
+}
+
 function formatSavedAt(value) {
   const date = new Date(value);
   return Number.isNaN(date.getTime())
@@ -477,8 +585,8 @@ const styles = StyleSheet.create({
   headerTitle: { color: "white", fontSize: 24, fontWeight: "800" },
   staging: { color: "#ffb45c", fontSize: 11, fontWeight: "800", letterSpacing: 1.2 },
   tabBar: { flexDirection: "row", borderBottomColor: "#292d36", borderBottomWidth: 1 },
-  tabButton: { flex: 1, paddingVertical: 12, paddingHorizontal: 3 },
-  tabText: { color: "#969eaa", fontSize: 10, textAlign: "center" },
+  tabButton: { flex: 1, paddingVertical: 12, paddingHorizontal: 2 },
+  tabText: { color: "#969eaa", fontSize: 9, textAlign: "center" },
   tabTextActive: { color: "#ff6d9e", fontWeight: "800" },
   content: { gap: 14, padding: 16, paddingBottom: 40 },
   title: { color: "white", fontSize: 28, fontWeight: "800" },
