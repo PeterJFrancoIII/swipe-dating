@@ -1,5 +1,5 @@
 import * as Haptics from "expo-haptics";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
 
 import {
@@ -15,7 +15,15 @@ import {
 
 const INITIAL_BOUNDARIES = ["condoms_required", "public_first_meet", "no_drugs"];
 
-export function IntentDiscoveryView({ profiles, hapticsEnabled, selectedSkinId }) {
+export function IntentDiscoveryView({
+  profiles,
+  hapticsEnabled,
+  selectedSkinId,
+  excludedCandidateIds = [],
+  restoreToken = null,
+  onPass,
+  onInterest,
+}) {
   const [immediateIntent, setImmediateIntent] = useState("casual_dating");
   const [relationalOpenness, setRelationalOpenness] = useState("open_to_more");
   const [requiredBoundaries, setRequiredBoundaries] = useState(new Set(INITIAL_BOUNDARIES));
@@ -23,6 +31,15 @@ export function IntentDiscoveryView({ profiles, hapticsEnabled, selectedSkinId }
   const [dismissedIds, setDismissedIds] = useState(new Set());
   const [revealStages, setRevealStages] = useState({});
   const [selectedStarter, setSelectedStarter] = useState(null);
+
+  useEffect(() => {
+    if (!restoreToken?.candidateId) return;
+    setDismissedIds((ids) => {
+      const next = new Set(ids);
+      next.delete(restoreToken.candidateId);
+      return next;
+    });
+  }, [restoreToken]);
 
   const viewer = useMemo(
     () => ({
@@ -39,12 +56,13 @@ export function IntentDiscoveryView({ profiles, hapticsEnabled, selectedSkinId }
     [immediateIntent, relationalOpenness, requiredBoundaries],
   );
 
+  const excluded = useMemo(() => new Set(excludedCandidateIds), [excludedCandidateIds]);
   const ranked = useMemo(
     () =>
       rankDiscoveryCandidates({ viewer, candidates: profiles, weights }).filter(
-        ({ candidate }) => !dismissedIds.has(candidate.id),
+        ({ candidate }) => !dismissedIds.has(candidate.id) && !excluded.has(candidate.id),
       ),
-    [dismissedIds, profiles, viewer, weights],
+    [dismissedIds, excluded, profiles, viewer, weights],
   );
 
   const current = ranked[0] ?? null;
@@ -87,10 +105,24 @@ export function IntentDiscoveryView({ profiles, hapticsEnabled, selectedSkinId }
     if (hapticsEnabled) {
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     }
+
+    const outcome = onInterest?.({
+      candidate: current.candidate,
+      starterTag: selectedStarter,
+    });
+
     Alert.alert(
-      "Interest recorded — synthetic",
-      `Starter selected: ${formatLabel(selectedStarter)}. A reciprocal authenticated like is still required.`,
+      outcome?.matched ? "It’s a match — synthetic" : "Interest recorded — synthetic",
+      outcome?.matched
+        ? `Mutual interest created a session-only match around ${formatLabel(selectedStarter)}.`
+        : "The interest is pending. A reciprocal authenticated like is still required.",
     );
+    dismissCurrent();
+  }
+
+  function passCurrent() {
+    if (!current) return;
+    onPass?.({ candidateId: current.candidate.id });
     dismissCurrent();
   }
 
@@ -212,7 +244,7 @@ export function IntentDiscoveryView({ profiles, hapticsEnabled, selectedSkinId }
           ))}
 
           <View style={styles.actionRow}>
-            <Pressable onPress={dismissCurrent} style={styles.actionButton}>
+            <Pressable onPress={passCurrent} style={styles.actionButton}>
               <Text style={styles.actionText}>Pass</Text>
             </Pressable>
             <Pressable onPress={recordInterest} style={[styles.actionButton, styles.primaryButton]}>
@@ -224,10 +256,10 @@ export function IntentDiscoveryView({ profiles, hapticsEnabled, selectedSkinId }
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>No eligible synthetic profiles</Text>
           <Text style={styles.caption}>
-            Current mutual-intent and boundary rules excluded or exhausted the local fixtures. No rule was silently relaxed.
+            Current mutual-intent, boundary, prior-decision, match, and block rules excluded or exhausted the fixtures. No rule was silently relaxed.
           </Text>
           <Pressable onPress={resetQueue} style={styles.secondaryButton}>
-            <Text style={styles.secondaryButtonText}>Reset synthetic queue</Text>
+            <Text style={styles.secondaryButtonText}>Reset local view</Text>
           </Pressable>
         </View>
       )}
