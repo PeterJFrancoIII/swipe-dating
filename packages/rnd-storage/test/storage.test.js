@@ -61,7 +61,7 @@ test("sanitization truncates strings, rejects unowned skins, and never persists 
   assert.deepEqual(sanitized.ui, { hapticsEnabled: false, lastTab: "Discover" });
 });
 
-test("serialization excludes sensitive session, discovery, match, and conversation fields", () => {
+test("serialization excludes sensitive session, discovery, match, conversation, and relationship-phase fields", () => {
   const text = serializeLocalState({
     profile: { displayName: "Riley", about: "Builder", pronouns: "they/them" },
     cosmetics: { ownedSkinIds: ["neon-orbit"], selectedSkinId: "neon-orbit" },
@@ -84,6 +84,19 @@ test("serialization excludes sensitive session, discovery, match, and conversati
       matches: { "match:p1": { messages: [{ body: "private" }] } },
       blockedCandidateIds: ["p3"],
     },
+    relationshipPhaseState: {
+      byMatchId: {
+        "match:p1": {
+          phase: "deepened",
+          localRequested: true,
+          candidateRequested: true,
+          promptAnswers: { communication_style: "private answer" },
+        },
+      },
+    },
+    deepenRequests: ["match:p1"],
+    deepenPromptAnswers: { communication_style: "private answer" },
+    relationshipPhase: "deepened",
     matches: ["match:p1"],
     messages: ["private"],
     blockedCandidateIds: ["p3"],
@@ -109,6 +122,10 @@ test("serialization excludes sensitive session, discovery, match, and conversati
     "dismissedProfileIds",
     "selectedConversationStarter",
     "conversationState",
+    "relationshipPhaseState",
+    "deepenRequests",
+    "deepenPromptAnswers",
+    "relationshipPhase",
     "matches",
     "messages",
     "blockedCandidateIds",
