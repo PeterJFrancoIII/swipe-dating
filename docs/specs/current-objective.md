@@ -1,29 +1,32 @@
-# Current objective — intent-driven discovery R&D slice
+# Current objective — reciprocal match and conversation R&D slice
 
 **Status:** ACTIVE  
-**Branch:** `agent/intent-driven-discovery`  
+**Branch:** `agent/reciprocal-match-conversations`  
 **Real users:** Prohibited
 
 ## Objective
 
-Build a synthetic JavaScript discovery experience that separates immediate intent from relational openness, enforces mutual compatibility and hard boundaries before ranking, gives users transparent control over ranking weights, and progressively reveals profile visuals only after a non-visual interaction.
+Build a complete synthetic JavaScript lifecycle from discovery decision through reciprocal match, shared-ground opening prompt, session conversation, unmatch, and block while preserving bilateral consent and the existing unencrypted-storage boundary.
 
-The product hypothesis is derived from the user-provided strategic research on casual-first, relationship-capable matchmaking. The research is treated as design input, not independently verified evidence.
+The product direction continues the user-provided casual-first, relationship-capable research, especially its recommendation for consent-driven conversation starters and an ongoing communication surface. The research remains design input rather than independently verified evidence.
 
 ## Deliverables
 
-- shared `@swipe/rnd-discovery` JavaScript package;
-- immediate-intent and relational-openness vocabularies;
-- mutual eligibility checks on both axes;
-- self-reported boundary tags and hard boundary exclusions;
-- transparent ranking dimensions for intent, boundaries, lifestyle, alignment, and distance;
-- user-adjustable weights normalized to 100;
-- deterministic candidate ordering and score explanations;
-- prohibited-input rejection for protected, inferred, popularity, purchase, spending, subscription, and creator-status fields;
-- bio-first synthetic profile reveal after reading or inspecting non-visual content;
-- profile-tag context required before synthetic interest is recorded;
-- session-only discovery state with no expansion of the AsyncStorage allowlist;
-- mobile integration, tests, ADR, privacy map, release gates, beta checklist, mission, ownership, and CI updates.
+- shared `@swipe/rnd-conversations` JavaScript package;
+- session-only pass and interest decisions;
+- unilateral interest that remains pending;
+- explicit synthetic reciprocal fixture required to create a match;
+- undo for the most recent pass or pending interest;
+- explicit unmatch rather than swipe undo for established matches;
+- selected discovery tag preserved as opening context;
+- first local message gated on the same shared-ground context;
+- active session transcript and synthetic reply simulation;
+- unmatch that disables sending;
+- block that purges visible messages/context and suppresses rediscovery;
+- Matches UI kept session-only rather than persisted as the last tab;
+- discovery suppression and undo restoration integration;
+- storage regression tests proving decisions, matches, messages, blocks, transcripts, and Matches-tab state are discarded;
+- ADR, mission, system overview, privacy map, release gates, beta checklist, ownership, agent rules, and CI updates.
 
 ## Acceptance commands
 
@@ -36,33 +39,36 @@ npm run mobile:export:web
 
 ## Required outcomes
 
-- incompatible immediate intent fails closed before ranking;
-- incompatible relational openness fails closed before ranking;
-- a missing required boundary hard-excludes the profile;
-- eligible profiles receive a 0–100 explainable score;
-- user weights always normalize to exactly 100;
-- distance-heavy and compatibility-heavy weights can deterministically change ordering;
-- a right-swipe action alone does not reveal the synthetic visual;
-- reading the bio, inspecting tags, or viewing the explanation can advance reveal;
-- an interest action requires selecting a visible shared-ground tag;
-- protected, inferred, popularity, purchase, spending, subscription, and creator-status fields cause ranking rejection;
-- another person never receives a private exclusion reason;
-- intent, boundary, ranking-weight, reveal, and discovery-history state remain absent from AsyncStorage;
+- a unilateral interest creates no match;
+- an explicit reciprocal fixture creates exactly one active synthetic match;
+- pass and pending interest can be undone and restored to discovery;
+- a created match cannot be removed through swipe undo;
+- first local message requires the selected shared-ground tag;
+- active matches accept local messages and synthetic replies;
+- unmatch immediately disables sending;
+- block purges visible content and suppresses future discovery;
+- starter suggestions are grounded in the selected visible tag;
+- no action automatically shares location, enables proximity, or sends a message;
+- decision, match, message, block, transcript, and Matches-tab state remain absent from AsyncStorage;
+- all lifecycle controls remain available without payment;
 - Expo web export remains green;
 - production preflight remains blocked.
 
 ## Explicitly deferred
 
-- encrypted persistence of real intent and boundary data;
-- real profiles, user photos, or secure progressive-media delivery;
+- real accounts, adult credentials, device identity, or authenticated reciprocity;
+- signed likes and bilateral match receipts;
+- reviewed E2EE protocol, key agreement, key verification, and multi-device semantics;
+- network message delivery, retries, offline mailbox, push, ordering, or deduplication;
+- encrypted persistence of real matches and messages;
+- read receipts, typing indicators, attachments, ephemeral media, or screenshot controls;
+- end-to-end report intake, evidence selection, moderation, appeals, and emergency operations;
+- real block propagation across discovery, proximity, messaging, groups, push, and location;
 - production candidate retrieval or server-side ranking;
-- health-status verification or medical claims;
-- real conversation delivery;
 - BLE scanning/advertising and background behavior;
 - production age assurance and app/device attestation;
-- production E2EE messaging;
 - StoreKit / Play Billing and creator operations;
-- real reports, safety cases, evidence vault, staging cloud, or production deployment.
+- staging cloud or production deployment.
 
 ## Release state
 
