@@ -1,6 +1,6 @@
 import * as Haptics from "expo-haptics";
 import { StatusBar } from "expo-status-bar";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Alert,
   Pressable,
@@ -20,27 +20,96 @@ import {
   decideProximityEvent,
   isAdultOn,
 } from "@swipe/rnd-domain";
+import { createDefaultLocalState } from "@swipe/rnd-storage";
 
+import { createMobileLocalStateRepository } from "./local-storage.js";
 import { QUESTIONNAIRE, SKIN_ITEMS, SYNTHETIC_PROFILES } from "./mock-data.js";
 
-const TODAY = "2026-07-21";
+const TODAY = "2026-07-22";
+const TABS = ["Discover", "My Profile", "Preferences", "Skin Shop", "Matched Map"];
 
 export default function App() {
+  const repository = useMemo(() => createMobileLocalStateRepository(), []);
+  const [localState, setLocalState] = useState(createDefaultLocalState);
+  const [storageReady, setStorageReady] = useState(false);
+  const [storageStatus, setStorageStatus] = useState("Loading saved profile…");
+  const [exportPreview, setExportPreview] = useState("");
+
   const [birthDate, setBirthDate] = useState("2000-01-01");
   const [adultAccepted, setAdultAccepted] = useState(false);
-  const [tab, setTab] = useState("Discover");
   const [getFkdEnabled, setGetFkdEnabled] = useState(false);
   const [disclosure, setDisclosure] = useState(PROXIMITY_DISCLOSURE.PROMPT_BEFORE_SHARING);
   const [selectedIntents, setSelectedIntents] = useState(new Set(["dating"]));
   const [selectedGenders, setSelectedGenders] = useState(new Set());
   const [answers, setAnswers] = useState({});
-  const [ownedSkins, setOwnedSkins] = useState(new Set());
-  const [selectedSkin, setSelectedSkin] = useState(null);
   const [locationChoice, setLocationChoice] = useState("none");
   const [profileIndex, setProfileIndex] = useState(0);
 
   const currentProfile = SYNTHETIC_PROFILES[profileIndex % SYNTHETIC_PROFILES.length];
-  const tabs = useMemo(() => ["Discover", "Preferences", "Skin Shop", "Matched Map"], []);
+  const ownedSkins = useMemo(
+    () => new Set(localState.cosmetics.ownedSkinIds),
+    [localState.cosmetics.ownedSkinIds],
+  );
+
+  useEffect(() => {
+    let cancelled = false;
+
+    repository
+      .load()
+      .then((result) => {
+        if (cancelled) return;
+        setLocalState(result.state);
+        setStorageStatus(
+          result.recovered
+            ? "Saved data was invalid or incompatible and was safely reset."
+            : result.savedAt
+              ? `Restored local profile saved ${formatSavedAt(result.savedAt)}.`
+              : "No saved local profile yet.",
+        );
+        setStorageReady(true);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setStorageStatus("Local storage is unavailable. Changes will remain in memory for this session.");
+        setStorageReady(true);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [repository]);
+
+  useEffect(() => {
+    if (!storageReady) return undefined;
+
+    setStorageStatus("Saving approved local fields…");
+    const timer = setTimeout(() => {
+      repository
+        .save(localState)
+        .then((result) => setStorageStatus(`Saved locally ${formatSavedAt(result.savedAt)}.`))
+        .catch(() => setStorageStatus("Save failed. Current changes remain in memory only."));
+    }, 250);
+
+    return () => clearTimeout(timer);
+  }, [localState, repository, storageReady]);
+
+  function updateProfile(patch) {
+    setLocalState((current) => ({
+      ...current,
+      profile: { ...current.profile, ...patch },
+    }));
+  }
+
+  function updateUi(patch) {
+    setLocalState((current) => ({
+      ...current,
+      ui: { ...current.ui, ...patch },
+    }));
+  }
+
+  function selectTab(lastTab) {
+    updateUi({ lastTab });
+  }
 
   function submitAdultGate() {
     if (!isAdultOn(birthDate, TODAY)) {
@@ -60,13 +129,31 @@ export default function App() {
       Alert.alert("No nearby event", "Get fk'd is off or eligibility is unavailable.");
       return;
     }
-    await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    if (localState.ui.hapticsEnabled) {
+      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    }
     Alert.alert(
       "Nearby adult detected — synthetic",
       decision === "buzz_and_prompt"
         ? "Your profile remains hidden until you approve sharing."
         : "A short-lived compatible-user profile capability would be shared in the future BLE build.",
     );
+  }
+
+  async function resetSavedProfile() {
+    await repository.clear();
+    setLocalState(createDefaultLocalState());
+    setExportPreview("");
+    setStorageStatus("Saved profile and UI settings were cleared.");
+    Alert.alert(
+      "Local data cleared",
+      "Only the approved saved profile, cosmetics, and UI settings were removed. Session-only adult, intent, questionnaire, proximity, and location state was never in this store.",
+    );
+  }
+
+  async function showExportPreview() {
+    const text = await repository.exportText();
+    setExportPreview(text);
   }
 
   if (!adultAccepted) {
@@ -87,8 +174,9 @@ export default function App() {
           />
           <ActionButton label="Continue" onPress={submitAdultGate} primary />
           <Text style={styles.caption}>
-            Synthetic research build. No real age provider, BLE, location, profiles, purchases, or messages.
+            Synthetic research build. Date of birth and adult-gate status are session-only and are not saved by the R&D profile store.
           </Text>
+          <Text style={styles.storageStatus}>{storageStatus}</Text>
         </View>
       </SafeAreaView>
     );
@@ -98,18 +186,22 @@ export default function App() {
     <SafeAreaView style={styles.safe}>
       <StatusBar style="auto" />
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Swipe R&D</Text>
+        <Text style={styles.headerTitle}>
+          {localState.profile.displayName ? `Swipe R&D · ${localState.profile.displayName}` : "Swipe R&D"}
+        </Text>
         <Text style={styles.staging}>JAVASCRIPT · SYNTHETIC ONLY</Text>
       </View>
       <View style={styles.tabBar}>
-        {tabs.map((value) => (
-          <Pressable key={value} onPress={() => setTab(value)} style={styles.tabButton}>
-            <Text style={[styles.tabText, tab === value && styles.tabTextActive]}>{value}</Text>
+        {TABS.map((value) => (
+          <Pressable key={value} onPress={() => selectTab(value)} style={styles.tabButton}>
+            <Text style={[styles.tabText, localState.ui.lastTab === value && styles.tabTextActive]}>
+              {value === "My Profile" ? "Profile" : value}
+            </Text>
           </Pressable>
         ))}
       </View>
       <ScrollView contentContainerStyle={styles.content}>
-        {tab === "Discover" && (
+        {localState.ui.lastTab === "Discover" && (
           <>
             <View style={styles.card}>
               <View style={styles.rowBetween}>
@@ -117,7 +209,7 @@ export default function App() {
                 <Switch value={getFkdEnabled} onValueChange={setGetFkdEnabled} />
               </View>
               <Text style={styles.caption}>
-                Off by default. Privacy defaults are identical for every gender. Real Bluetooth is disabled.
+                Off by default. Privacy defaults are identical for every gender. Real Bluetooth is disabled. This mode remains session-only.
               </Text>
               {getFkdEnabled && (
                 <View style={styles.choiceRow}>
@@ -136,7 +228,12 @@ export default function App() {
               <ActionButton label="Simulate nearby adult" onPress={simulateProximity} />
             </View>
 
-            <View style={[styles.profileCard, selectedSkin === "neon-orbit" && styles.neonCard]}>
+            <View
+              style={[
+                styles.profileCard,
+                localState.cosmetics.selectedSkinId === "neon-orbit" && styles.neonCard,
+              ]}
+            >
               <Text style={styles.syntheticLabel}>SYNTHETIC PROFILE</Text>
               <Text style={styles.profileName}>{currentProfile.displayName}</Text>
               <Text style={styles.profileMeta}>
@@ -145,14 +242,13 @@ export default function App() {
               <Text style={styles.profileAbout}>{currentProfile.about}</Text>
               <Text style={styles.caption}>Looking for: {currentProfile.intents.join(", ")}</Text>
               <View style={styles.choiceRow}>
-                <ActionButton
-                  label="Pass"
-                  onPress={() => setProfileIndex((value) => value + 1)}
-                />
+                <ActionButton label="Pass" onPress={() => setProfileIndex((value) => value + 1)} />
                 <ActionButton
                   label="Interested"
                   onPress={async () => {
-                    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                    if (localState.ui.hapticsEnabled) {
+                      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                    }
                     Alert.alert("Interest recorded", "A reciprocal authenticated like is still required.");
                     setProfileIndex((value) => value + 1);
                   }}
@@ -163,11 +259,83 @@ export default function App() {
           </>
         )}
 
-        {tab === "Preferences" && (
+        {localState.ui.lastTab === "My Profile" && (
+          <>
+            <Section title="My local R&D profile">
+              <Text style={styles.caption}>
+                These presentation fields are stored locally on this device. They are not uploaded by the current build.
+              </Text>
+              <FieldLabel text="Display name" />
+              <TextInput
+                accessibilityLabel="Display name"
+                maxLength={64}
+                onChangeText={(displayName) => updateProfile({ displayName })}
+                placeholder="Your display name"
+                style={styles.input}
+                value={localState.profile.displayName}
+              />
+              <FieldLabel text="Pronouns" />
+              <TextInput
+                accessibilityLabel="Pronouns"
+                maxLength={40}
+                onChangeText={(pronouns) => updateProfile({ pronouns })}
+                placeholder="Optional"
+                style={styles.input}
+                value={localState.profile.pronouns}
+              />
+              <FieldLabel text="About" />
+              <TextInput
+                accessibilityLabel="About profile"
+                maxLength={500}
+                multiline
+                onChangeText={(about) => updateProfile({ about })}
+                placeholder="Tell people about yourself"
+                style={[styles.input, styles.textArea]}
+                textAlignVertical="top"
+                value={localState.profile.about}
+              />
+            </Section>
+
+            <Section title="Local app settings">
+              <View style={styles.rowBetween}>
+                <View style={styles.flex}>
+                  <Text style={styles.itemTitle}>Haptic feedback</Text>
+                  <Text style={styles.caption}>Persisted locally. Does not enable Bluetooth scanning.</Text>
+                </View>
+                <Switch
+                  value={localState.ui.hapticsEnabled}
+                  onValueChange={(hapticsEnabled) => updateUi({ hapticsEnabled })}
+                />
+              </View>
+              <Text style={styles.storageStatus}>{storageStatus}</Text>
+            </Section>
+
+            <Section title="Persistence boundary">
+              <Text style={styles.warning}>
+                AsyncStorage is unencrypted. This R&D store intentionally excludes date of birth, adult eligibility, Looking For choices, gender-feed choices, questionnaire answers, matches, likes, messages, location choices, and proximity identifiers.
+              </Text>
+              <View style={styles.choiceRow}>
+                <ActionButton label="View redacted export" onPress={showExportPreview} />
+                <ActionButton label="Reset saved profile" onPress={resetSavedProfile} />
+              </View>
+              {exportPreview ? (
+                <TextInput
+                  accessibilityLabel="Redacted local export"
+                  editable={false}
+                  multiline
+                  style={[styles.exportBox, styles.monospace]}
+                  value={exportPreview}
+                />
+              ) : null}
+            </Section>
+          </>
+        )}
+
+        {localState.ui.lastTab === "Preferences" && (
           <>
             <Section title="Looking For">
               <Text style={styles.caption}>
-                Sexual intent is private and disclosed only to independently compatible adults.
+                Sexual intent is private and disclosed only to independently compatible adults. These selections remain session-only in the current build.
               </Text>
               <WrapChoices
                 values={LOOKING_FOR_MODES}
@@ -177,7 +345,7 @@ export default function App() {
             </Section>
             <Section title="Show me">
               <Text style={styles.caption}>
-                Private feed controls. Other people are not told why they were excluded.
+                Private feed controls. Other people are not told why they were excluded. These selections remain session-only.
               </Text>
               <WrapChoices
                 values={GENDER_DISCOVERY_CATEGORIES}
@@ -187,7 +355,7 @@ export default function App() {
             </Section>
             <Section title="Alignment questionnaire">
               <Text style={styles.caption}>
-                Answers remain local in this build. Purchases and protected traits never affect rank.
+                Answers remain in memory for this session. Purchases and protected traits never affect rank.
               </Text>
               {QUESTIONNAIRE.map((question) => (
                 <View key={question.id} style={styles.question}>
@@ -203,10 +371,10 @@ export default function App() {
           </>
         )}
 
-        {tab === "Skin Shop" && (
+        {localState.ui.lastTab === "Skin Shop" && (
           <Section title="Skin Shop">
             <Text style={styles.caption}>
-              Synthetic catalog only. Cosmetic ownership never changes dating reach or safety access.
+              Synthetic catalog only. Local mock ownership is restored across restarts but never changes dating reach or safety access.
             </Text>
             {SKIN_ITEMS.map((item) => (
               <View key={item.id} style={styles.listItem}>
@@ -215,11 +383,24 @@ export default function App() {
                   <Text style={styles.caption}>{item.type} · {item.price}</Text>
                 </View>
                 <ActionButton
-                  label={selectedSkin === item.id ? "Applied" : ownedSkins.has(item.id) ? "Apply" : "Get mock"}
-                  disabled={selectedSkin === item.id}
+                  label={
+                    localState.cosmetics.selectedSkinId === item.id
+                      ? "Applied"
+                      : ownedSkins.has(item.id)
+                        ? "Apply"
+                        : "Get mock"
+                  }
+                  disabled={localState.cosmetics.selectedSkinId === item.id}
                   onPress={() => {
-                    setOwnedSkins(new Set([...ownedSkins, item.id]));
-                    setSelectedSkin(item.id);
+                    setLocalState((current) => {
+                      const ownedSkinIds = Array.from(
+                        new Set([...current.cosmetics.ownedSkinIds, item.id]),
+                      );
+                      return {
+                        ...current,
+                        cosmetics: { ownedSkinIds, selectedSkinId: item.id },
+                      };
+                    });
                   }}
                 />
               </View>
@@ -227,10 +408,10 @@ export default function App() {
           </Section>
         )}
 
-        {tab === "Matched Map" && (
+        {localState.ui.lastTab === "Matched Map" && (
           <Section title="Matched Map">
             <Text style={styles.caption}>
-              Matching never shares location automatically. No coordinates are collected in this build.
+              Matching never shares location automatically. No coordinates are collected or persisted in this build.
             </Text>
             {[
               ["none", "Not now"],
@@ -262,6 +443,10 @@ function Section({ title, children }) {
       {children}
     </View>
   );
+}
+
+function FieldLabel({ text }) {
+  return <Text style={styles.fieldLabel}>{text}</Text>;
 }
 
 function WrapChoices({ values, selected, onToggle }) {
@@ -306,6 +491,11 @@ function toggleSet(current, value) {
   return next;
 }
 
+function formatSavedAt(value) {
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? "recently" : date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+}
+
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: "#0f1115" },
   gate: { flex: 1, justifyContent: "center", gap: 14, padding: 24 },
@@ -313,20 +503,33 @@ const styles = StyleSheet.create({
   headerTitle: { color: "white", fontSize: 24, fontWeight: "800" },
   staging: { color: "#ffb45c", fontSize: 11, fontWeight: "800", letterSpacing: 1.2 },
   tabBar: { flexDirection: "row", borderBottomColor: "#292d36", borderBottomWidth: 1 },
-  tabButton: { flex: 1, paddingVertical: 12, paddingHorizontal: 4 },
-  tabText: { color: "#969eaa", fontSize: 11, textAlign: "center" },
+  tabButton: { flex: 1, paddingVertical: 12, paddingHorizontal: 3 },
+  tabText: { color: "#969eaa", fontSize: 10, textAlign: "center" },
   tabTextActive: { color: "#ff6d9e", fontWeight: "800" },
   content: { gap: 14, padding: 16, paddingBottom: 40 },
   title: { color: "white", fontSize: 28, fontWeight: "800" },
   warning: { color: "#ffb45c", lineHeight: 20 },
   caption: { color: "#aeb5c1", lineHeight: 19 },
+  storageStatus: { color: "#69e7c3", fontSize: 12, lineHeight: 18 },
+  fieldLabel: { color: "#dfe4eb", fontSize: 13, fontWeight: "700", marginTop: 4 },
   input: {
     backgroundColor: "white",
     borderRadius: 10,
-    fontSize: 18,
+    fontSize: 16,
     paddingHorizontal: 14,
     paddingVertical: 12,
   },
+  textArea: { minHeight: 110 },
+  exportBox: {
+    backgroundColor: "#0e1014",
+    borderColor: "#383f4a",
+    borderRadius: 10,
+    borderWidth: 1,
+    color: "#cbd2dc",
+    minHeight: 150,
+    padding: 12,
+  },
+  monospace: { fontFamily: "monospace", fontSize: 11 },
   card: { backgroundColor: "#191d24", borderRadius: 16, gap: 10, padding: 16 },
   profileCard: { backgroundColor: "#242936", borderRadius: 22, gap: 10, minHeight: 330, padding: 20 },
   neonCard: { borderColor: "#b76cff", borderWidth: 3, shadowColor: "#5be7ff", shadowOpacity: 0.8, shadowRadius: 18 },
