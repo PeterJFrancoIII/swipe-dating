@@ -66,7 +66,7 @@ jobs:
           path: .javascript-only-violations.json
 
   javascript:
-    name: JavaScript-only repository, domain, API, storage, discovery, conversations, relationship phases, simulation, and active-surface checks
+    name: JavaScript repository, tests, simulation, and active-surface checks
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -88,10 +88,10 @@ jobs:
       - run: npm run mobile:export:web
         env:
           CI: '1'
-      - run: test -s apps/rnd-mobile/dist-web/index.html
+      - run: node scripts/verify-mobile-web-export.mjs
 
   governance:
-    name: JavaScript governance and consent contracts
+    name: JavaScript architecture, governance, and consent contracts
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -99,6 +99,7 @@ jobs:
         with:
           node-version: '24'
       - run: node scripts/check-governance-contracts.mjs
+      - run: node scripts/check-javascript-consolidation.mjs
       - run: node scripts/check-active-javascript-surface.mjs
 
   production-gate:
