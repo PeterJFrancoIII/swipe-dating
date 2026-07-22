@@ -1,7 +1,7 @@
 # Release gates
 
 **Status:** BINDING for agents and CI validators  
-**Updated:** 2026-07-21
+**Updated:** 2026-07-22
 
 ## Deny by default
 
@@ -39,6 +39,22 @@ The JavaScript reset authorizes **synthetic research only**. It is not a closed-
 - [ ] The ten current moderate Expo native-build-tooling advisories are resolved, accepted with expiry, or superseded by reviewed upstream releases before any real-user build
 
 Generated native files and third-party native modules may exist below Expo/React Native, but newly authored product behavior remains JavaScript unless a superseding ADR documents a measured exception.
+
+## Local persistence gates
+
+The AsyncStorage-backed implementation is approved only for synthetic R&D and only for the allowlisted fields in ADR-0015.
+
+- [x] Versioned JavaScript schema, migration, sanitization, corruption recovery, reset, and redacted export are tested
+- [x] Current store contains only profile presentation, mock cosmetic ownership, last tab, and haptic preference
+- [x] Tests prove date of birth, adult status, sexual/relationship intent, discovery preferences, questionnaire answers, likes, matches, messages, location, and BLE identifiers are discarded
+- [ ] Real-user profile/preference persistence uses an externally reviewed encrypted vault
+- [ ] Encryption keys are OS/hardware protected where available and never stored beside ciphertext
+- [ ] Backup, device transfer, recovery, logout, deletion, export, corruption, and migration behavior is documented and tested
+- [ ] Sensitive local data is excluded from unencrypted browser storage, device backups where required, logs, crash reports, and analytics
+- [ ] Physical-device security tests cover supported iOS and Android versions
+- [ ] Privacy/DPIA and external security review accept the exact persisted field list and retention behavior
+
+AsyncStorage persistence must not be described as encryption, secure storage, hardware-backed custody, or permission to collect real profiles.
 
 ## Get fk'd proximity gates
 
@@ -114,6 +130,7 @@ Generated native files and third-party native modules may exist below Expo/React
 - Agents must not author or simulate legal, privacy, security, T&S, mobile-store, finance, or executive approval.
 - Agents must not implement minors, gender-asymmetric disclosure, covert tracking, or purchase-weighted dating rank.
 - Agents must not add new active Rust, Swift, Kotlin, Java, Python, Dart, Objective-C, or TypeScript product code without a superseding ADR and explicit human architecture approval.
+- Agents must not persist non-allowlisted or sensitive fields in AsyncStorage or other unencrypted R&D storage.
 - Beta and production remain **BLOCKED** until every applicable table and checklist item is satisfied with authentic evidence.
 
 ## Validator
