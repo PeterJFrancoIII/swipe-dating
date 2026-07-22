@@ -1,14 +1,20 @@
 # Data Map
 
 **Status:** DRAFT — UNAPPROVED  
-**Updated:** 2026-07-21  
-**Related:** `docs/privacy/privacy-policy.md`, `docs/privacy/dpia-outline.md`, `docs/governance/decentralization-limits.md`, `docs/product/adult-feature-expansion.md`
+**Updated:** 2026-07-22  
+**Related:** `docs/privacy/privacy-policy.md`, `docs/privacy/dpia-outline.md`, `docs/governance/decentralization-limits.md`, `docs/product/adult-feature-expansion.md`, `docs/architecture/adr-0015-local-persistence-boundary.md`
 
 | Data class | Primary location | Server processing | Default retention | Notes |
 |---|---|---|---|---|
+| R&D display name / about / pronouns | Device AsyncStorage in synthetic build only | None | Until local reset/app deletion | Unencrypted allowlist persistence; real-user storage requires encrypted vault review |
+| R&D mock cosmetic ownership / selected skin | Device AsyncStorage | None | Until local reset/app deletion | Synthetic entitlement only; no payment or dating-rank effect |
+| R&D UI tab / haptic preference | Device AsyncStorage | None | Until local reset/app deletion | Non-secret UI convenience state |
+| R&D adult gate / birth date | Memory only | None | Current session | Explicitly excluded from AsyncStorage |
+| R&D intent / discovery / questionnaire selections | Memory only | None | Current session | Explicitly excluded from AsyncStorage because sensitive |
+| R&D location / proximity selections and identifiers | Memory only | None | Current session or shorter | Explicitly excluded from AsyncStorage |
 | Root identity secret | User device only | Never | Until local deletion | Hardware-backed wrap; key reference persisted, not raw key |
 | Device keys | User device | Public keys / revocation state may register | Until revoked | Signed by root; independent of marketplace identity |
-| Profile text | User device | Relayed encrypted only | No central persistence | Signed capsule |
+| Profile text | User device | Relayed encrypted only | No central persistence | Signed capsule; production local store must be encrypted |
 | Photos/videos | User device | Relayed encrypted only | No central persistence | Decode/re-encode metadata scrub required |
 | Public avatar / skin asset | Public asset store + creator device | Catalog, moderation, delivery | Creator lifecycle + legal/IP needs | Public cosmetic data; isolated from private dating data |
 | Skin preview / manifest | Public marketplace | Catalog and moderation | While listed + audit period | Bounded declarative format; no executable code |
@@ -50,12 +56,15 @@
 
 ## Processing boundaries
 
-1. **Dating data plane:** device-local and E2EE peer transfer for profiles, messages, private intent, questionnaire answers, and match-scoped location.
-2. **Ephemeral control plane:** presence, rendezvous, signaling, rate limits, revocations, and opaque capabilities only.
-3. **Marketplace plane:** public cosmetic assets, catalog, purchase validation, and creator accounting; no access to private dating or safety data.
-4. **Safety plane:** deliberate report metadata/evidence exception with separate keys, access policy, logging, and retention.
-5. **Anti-abuse plane:** pseudonymous integrity/risk controls; no ordinary private content or protected-trait ranking.
+1. **R&D local persistence plane:** unencrypted AsyncStorage allowlist for presentation/cosmetic/UI fields only; no real users or sensitive fields.
+2. **Dating data plane:** device-local encrypted custody and E2EE peer transfer for real profiles, messages, private intent, questionnaire answers, and match-scoped location.
+3. **Ephemeral control plane:** presence, rendezvous, signaling, rate limits, revocations, and opaque capabilities only.
+4. **Marketplace plane:** public cosmetic assets, catalog, purchase validation, and creator accounting; no access to private dating or safety data.
+5. **Safety plane:** deliberate report metadata/evidence exception with separate keys, access policy, logging, and retention.
+6. **Anti-abuse plane:** pseudonymous integrity/risk controls; no ordinary private content or protected-trait ranking.
 
 ## Prohibited joins
 
 The operator must not join marketplace purchases, creator status, bot-risk data, questionnaire answers, sexual intent, orientation, precise location, BLE encounters, or safety cases to influence dating rank, advertising, pricing, or access to safety features.
+
+The R&D AsyncStorage record must not be expanded by convenience to include adult status, identity credentials, intents, discovery preferences, questionnaire answers, likes, matches, messages, blocks, reports, location, proximity observations, device identifiers, cryptographic material, or payment data.
