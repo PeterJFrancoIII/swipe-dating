@@ -1,25 +1,29 @@
-# Current objective — durable local profile R&D slice
+# Current objective — intent-driven discovery R&D slice
 
 **Status:** ACTIVE  
-**Branch:** `agent/local-profile-persistence`  
+**Branch:** `agent/intent-driven-discovery`  
 **Real users:** Prohibited
 
 ## Objective
 
-Add durable, versioned local profile presentation and UI settings to the JavaScript Expo app without writing sensitive dating, eligibility, questionnaire, proximity, match, message, or location data to unencrypted storage.
+Build a synthetic JavaScript discovery experience that separates immediate intent from relational openness, enforces mutual compatibility and hard boundaries before ranking, gives users transparent control over ranking weights, and progressively reveals profile visuals only after a non-visual interaction.
+
+The product hypothesis is derived from the user-provided strategic research on casual-first, relationship-capable matchmaking. The research is treated as design input, not independently verified evidence.
 
 ## Deliverables
 
-- shared `@swipe/rnd-storage` JavaScript package;
-- versioned allowlist schema and migration path;
-- invalid/corrupt record recovery;
-- adapter-based load, save, clear, and redacted export operations;
-- Expo AsyncStorage adapter using the SDK-supported package;
-- persistent display name, about text, pronouns, mock cosmetics, last tab, and haptic preference;
-- session-only adult gate, intents, gender-feed selections, questionnaire answers, proximity state, and location choices;
-- mobile profile/settings UI with save state, export preview, and reset;
-- deterministic tests proving sensitive fields are discarded;
-- ADR, data map, release-gate, closed-beta, and system-overview updates.
+- shared `@swipe/rnd-discovery` JavaScript package;
+- immediate-intent and relational-openness vocabularies;
+- mutual eligibility checks on both axes;
+- self-reported boundary tags and hard boundary exclusions;
+- transparent ranking dimensions for intent, boundaries, lifestyle, alignment, and distance;
+- user-adjustable weights normalized to 100;
+- deterministic candidate ordering and score explanations;
+- prohibited-input rejection for protected, inferred, popularity, purchase, spending, subscription, and creator-status fields;
+- bio-first synthetic profile reveal after reading or inspecting non-visual content;
+- profile-tag context required before synthetic interest is recorded;
+- session-only discovery state with no expansion of the AsyncStorage allowlist;
+- mobile integration, tests, ADR, privacy map, release gates, beta checklist, mission, ownership, and CI updates.
 
 ## Acceptance commands
 
@@ -32,22 +36,29 @@ npm run mobile:export:web
 
 ## Required outcomes
 
-- a valid saved record restores across repository instances;
-- schema version 1 migrates to the current schema;
-- malformed or unsupported data fails safe to defaults;
-- selected cosmetics can only reference locally owned cosmetic IDs;
-- date of birth, adult status, intents, discovery preferences, questionnaire answers, location, and encounter IDs are absent from serialized state;
-- reset removes the local record;
+- incompatible immediate intent fails closed before ranking;
+- incompatible relational openness fails closed before ranking;
+- a missing required boundary hard-excludes the profile;
+- eligible profiles receive a 0–100 explainable score;
+- user weights always normalize to exactly 100;
+- distance-heavy and compatibility-heavy weights can deterministically change ordering;
+- a right-swipe action alone does not reveal the synthetic visual;
+- reading the bio, inspecting tags, or viewing the explanation can advance reveal;
+- an interest action requires selecting a visible shared-ground tag;
+- protected, inferred, popularity, purchase, spending, subscription, and creator-status fields cause ranking rejection;
+- another person never receives a private exclusion reason;
+- intent, boundary, ranking-weight, reveal, and discovery-history state remain absent from AsyncStorage;
 - Expo web export remains green;
 - production preflight remains blocked.
 
 ## Explicitly deferred
 
-- encrypted local vault and hardware-backed key custody;
-- backup/device transfer and production recovery;
-- real profiles or user-generated photos;
+- encrypted persistence of real intent and boundary data;
+- real profiles, user photos, or secure progressive-media delivery;
+- production candidate retrieval or server-side ranking;
+- health-status verification or medical claims;
+- real conversation delivery;
 - BLE scanning/advertising and background behavior;
-- real location collection and E2EE coordinate payloads;
 - production age assurance and app/device attestation;
 - production E2EE messaging;
 - StoreKit / Play Billing and creator operations;
