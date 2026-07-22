@@ -7,9 +7,10 @@
 3. `docs/architecture/adr-0015-local-persistence-boundary.md`
 4. `docs/architecture/adr-0016-intent-driven-discovery.md`
 5. `docs/architecture/adr-0017-reciprocal-match-conversations.md`
-6. `docs/specs/current-objective.md`
-7. `docs/governance/release-gates.md`
-8. `policies/community-rules.md`
+6. `docs/architecture/adr-0018-deepen-connection.md`
+7. `docs/specs/current-objective.md`
+8. `docs/governance/release-gates.md`
+9. `policies/community-rules.md`
 
 ## Active implementation rule
 
@@ -77,6 +78,27 @@ Agents must:
 
 Agents must not claim E2EE, network delivery, push, read receipts, screenshot blocking, ephemeral-media guarantees, moderation operations, or cross-device block propagation until the corresponding implementation and human gates exist.
 
+## Deepen Connection rule
+
+The current relationship-phase lifecycle is governed by ADR-0018 and is synthetic/session-only.
+
+Agents must:
+
+- keep every new match casual by default;
+- require two explicit participant opt-ins before setting a match to `deepened`;
+- keep a one-sided request pending and permit withdrawal before acceptance;
+- allow decline without collecting, retaining, or exposing a reason;
+- allow either participant to return a deepened match to casual;
+- unlock only the allowlisted deeper prompts after mutual acceptance;
+- bound answers to 300 characters and keep them private to the local session;
+- clear all deeper answers when returning to casual, unmatching, or blocking;
+- reject transitions after a match phase has ended;
+- keep phase state, requests, responses, timestamps, prompt answers, and transition history out of AsyncStorage;
+- keep phase state and answers out of ranking, advertising, marketplace pricing, bot profiling, creator access, and public profiles;
+- describe simulated counterpart requests and responses only as synthetic fixtures.
+
+Agents must not infer or auto-activate relationship phase from message content, reply speed, message count, elapsed time, sexual activity, a meetup, location, purchases, or behavioral/AI models. Deepen Connection must not be represented as consent to sex, exclusivity, media, location, an offline meeting, health disclosure, or public relationship status.
+
 ## Local persistence rule
 
 The current AsyncStorage-backed R&D store is unencrypted and governed by ADR-0015.
@@ -92,25 +114,25 @@ Agents may persist only:
 
 The Matches tab is not an approved persisted tab because it can reveal relationship activity.
 
-Agents must not add date of birth, adult status, adult credentials, intent, relational openness, boundaries, discovery weights/history, orientation/discovery preferences, questionnaire answers, decisions, likes, pending interests, reciprocal flags, matches, starter tags, messages, transcripts, unmatch/block history, reports, evidence, location, proximity observations, encounter/device identifiers, keys, secrets, payments, or payouts to unencrypted storage.
+Agents must not add date of birth, adult status, adult credentials, intent, relational openness, boundaries, discovery weights/history, orientation/discovery preferences, questionnaire answers, decisions, likes, pending interests, reciprocal flags, matches, starter tags, messages, transcripts, relationship phases, deepen requests/responses, deeper prompt answers, transition history, unmatch/block history, reports, evidence, location, proximity observations, encounter/device identifiers, keys, secrets, payments, or payouts to unencrypted storage.
 
 Any expansion of the persisted field allowlist requires privacy and security review, updated tests, data-map changes, release-gate changes, and a superseding or amended ADR.
 
 ## Red-zone boundaries
 
-Adult assurance, real matching, E2EE messaging, BLE, location, cryptographic identity, encrypted local custody, platform attestation, payments, creator payouts, intimate/safety evidence, production infrastructure, app-store submission, legal reporting, and real users require explicit human approval.
+Adult assurance, real matching, bilateral relationship transitions, E2EE messaging, BLE, location, cryptographic identity, encrypted local custody, platform attestation, payments, creator payouts, intimate/safety evidence, production infrastructure, app-store submission, legal reporting, and real users require explicit human approval.
 
 ## Prohibited shortcuts
 
 - real user data, secrets, identity documents, intimate media, or safety evidence;
 - minors in any dating or sexual-intent flow;
 - gender-asymmetric disclosure defaults;
-- unilateral matching;
-- automatic messages or location sharing on match;
+- unilateral matching or unilateral relationship-phase activation;
+- automatic messages, phase changes, or location sharing;
 - hidden exact-location defaults;
 - discriminatory or proxy ranking;
-- private exclusion, pass, unmatch, or block-reason disclosure;
-- purchase-weighted dating reach, matching, messaging, or safety access;
+- private exclusion, decline, pass, unmatch, or block-reason disclosure;
+- purchase-weighted dating reach, matching, messaging, phase access, or safety access;
 - sensitive fields in unencrypted local storage;
 - disabling tests or production blockers;
 - fabricated legal, security, privacy, Trust & Safety, financial, or executive approval.
