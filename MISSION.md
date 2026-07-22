@@ -8,21 +8,21 @@
 
 Build a free-to-use, adults-only, local-first dating service that helps consenting adults form genuine connections while minimizing data custody, protecting human dignity, and preserving the widest practical space for lawful adult expression.
 
-The active application and control-plane research implementation is entirely **JavaScript**. One JavaScript codebase is used to test product, privacy, safety, marketplace, proximity, location, matching, storage, discovery, and abuse hypotheses rapidly across mobile, web, and Node.js before any production architecture decision.
+The active application and control-plane research implementation is entirely **JavaScript**. One JavaScript codebase is used to test product, privacy, safety, marketplace, proximity, location, matching, messaging, storage, discovery, and abuse hypotheses rapidly across mobile, web, and Node.js before any production architecture decision.
 
 ## Current objective
 
-Deliver an intent-driven synthetic discovery engine that reduces ambiguous expectations and opaque ranking:
+Deliver a complete synthetic reciprocal-match and conversation lifecycle without weakening bilateral consent or expanding unencrypted storage:
 
-1. separate immediate intent from relational openness;
-2. require mutual compatibility on both intent axes before ranking;
-3. support self-reported hard boundary requirements;
-4. let the user control transparent ranking weights for intent, boundaries, lifestyle, alignment, and distance;
-5. progressively reveal the synthetic visual only after a non-visual profile interaction;
-6. require shared-ground context before recording synthetic interest;
-7. reject protected, inferred, popularity, purchase, and spending inputs from candidate ranking;
-8. keep intent, boundary, weight, reveal, and discovery-history state out of unencrypted persistence;
-9. enforce the behavior with deterministic JavaScript tests and governance contracts.
+1. record pass and interest decisions as session-only state;
+2. keep unilateral interest pending and require explicit simulated reciprocity for a synthetic match;
+3. support undo for pass and pending interest, but require explicit unmatch for an established match;
+4. require the selected shared-ground tag for the first local message;
+5. support active session chat and synthetic replies;
+6. terminate sending after unmatch or block;
+7. purge visible conversation content and suppress rediscovery after block;
+8. keep the Matches tab, decisions, likes, matches, messages, blocks, and transcripts out of AsyncStorage;
+9. enforce the lifecycle with deterministic JavaScript tests and governance contracts.
 
 ## Success criteria
 
@@ -43,7 +43,13 @@ Deliver an intent-driven synthetic discovery engine that reduces ambiguous expec
 - [x] User-selected discovery weights normalize to 100 and produce deterministic ordering
 - [x] Progressive profile reveal requires a non-visual micro-interaction
 - [x] Protected, inferred, popularity, and purchase ranking fields are rejected
+- [x] Unilateral interest remains pending; only an explicit reciprocal fixture creates a synthetic match
+- [x] Pass and pending interest can be undone; matched state requires explicit unmatch
+- [x] First local message requires the selected shared-ground context
+- [x] Unmatch disables sending and block purges visible session content
+- [x] Decisions, matches, messages, blocks, transcripts, and the Matches tab remain absent from AsyncStorage
 - [ ] Real-user local data uses an externally reviewed encrypted vault with approved key custody
+- [ ] Real-user matching uses signed bilateral receipts and reviewed E2EE messaging
 - [x] JavaScript CI fails closed
 
 ## Active R&D stack
@@ -55,6 +61,7 @@ Deliver an intent-driven synthetic discovery engine that reduces ambiguous expec
 | Runtime | Node.js 24 LTS |
 | API | Node HTTP adapter over pure domain services |
 | Discovery | `@swipe/rnd-discovery` mutual-intent eligibility, hard boundaries, transparent weights, and bio-first reveal |
+| Match/conversation | `@swipe/rnd-conversations` session-only reciprocal fixture, undo, opener, message, unmatch, and block lifecycle |
 | R&D persistence | Versioned allowlist JSON through AsyncStorage; unencrypted and synthetic-only |
 | Sensitive state | Session-only until an approved encrypted vault exists |
 | Tests | Node built-in test runner |
@@ -65,14 +72,17 @@ Deliver an intent-driven synthetic discovery engine that reduces ambiguous expec
 
 - no person under 18 in dating, sexual-intent, proximity, match, map, group, or messaging flows;
 - no gender-based forced profile disclosure;
+- no unilateral matching or automatic message creation;
+- no claim that a synthetic reciprocal fixture is authentication, identity proof, delivery, or encryption;
 - no covert proximity tracking, exact-distance radar, or persistent encounter graph;
 - no location sharing merely because a match occurred;
 - no race, ethnicity, skin-color, disability, height, or photo-inferred protected-trait ranking;
 - no inferred attractiveness, intelligence, hygiene, sexuality, gender, fitness, grooming, or body-hair ranking;
 - no popularity, purchase, spending, subscription, or creator-status weighting in discovery;
-- no disclosure of why another person was excluded by private preferences or boundaries;
+- no disclosure of why another person was excluded, passed, unmatched, or blocked;
 - no deceptive artificial delays, fabricated matching work, or fake scarcity;
-- no purchase-weighted candidate rank, messaging, reports, appeals, or safety access;
+- no purchase-weighted candidate rank, matching, messaging, reports, appeals, or safety access;
+- no message content used for discovery rank, advertising, marketplace pricing, or general bot profiling;
 - no sensitive dating, identity, location, proximity, message, match, safety, payment, or cryptographic data in unencrypted R&D storage;
 - no real-user claims based on simulated behavior;
 - no autonomous production deployment, store submission, legal filing, or fabricated approval.
