@@ -56,6 +56,28 @@ The AsyncStorage-backed implementation is approved only for synthetic R&D and on
 
 AsyncStorage persistence must not be described as encryption, secure storage, hardware-backed custody, or permission to collect real profiles.
 
+## Intent-driven discovery gates
+
+ADR-0016 authorizes mutual-intent, boundary, ranking, and progressive-reveal behavior for synthetic R&D only.
+
+- [x] Immediate intent and relational openness are distinct fields
+- [x] Candidate eligibility requires mutual acceptance on both intent axes
+- [x] User-required boundaries hard-exclude incompatible candidates before scoring
+- [x] Candidate score is explainable and uses only intent, boundaries, lifestyle, alignment, and distance
+- [x] User-controlled weights normalize to 100 and deterministic tests cover ordering changes
+- [x] Protected, inferred, popularity, purchase, spending, subscription, and creator-status ranking inputs are rejected
+- [x] Bio-first reveal requires a non-visual micro-interaction before the synthetic visual appears
+- [x] Synthetic interest requires selecting visible shared-ground context
+- [x] Intent, boundary, weight, reveal, and discovery-history state remains out of AsyncStorage
+- [ ] Real-user intent and boundary data uses reviewed encrypted local custody
+- [ ] Candidate retrieval and ranking are tested against modified clients, enumeration, scraping, coercive preference disclosure, and exclusion-reason leakage
+- [ ] Accessibility review confirms equivalent non-gesture reveal and interest paths
+- [ ] Privacy review accepts each discovery field, purpose, retention, and telemetry boundary
+- [ ] Fairness review covers disparate impact, proxy features, empty-queue behavior, and user recourse
+- [ ] Self-reported health or safety tags are never represented as medically verified without an approved verification process
+
+The product must not fabricate matching effort, artificial delays, scarcity, or compatibility evidence. Another person must never receive the reason they were excluded by private intent, boundary, orientation, or discovery settings.
+
 ## Get fk'd proximity gates
 
 `Get fk'd` remains unavailable to real users until all items below are evidenced.
@@ -128,7 +150,7 @@ AsyncStorage persistence must not be described as encryption, secure storage, ha
 - Autonomous agents may run and publish **synthetic JavaScript R&D** and may deploy staging only after staging account identity is verified.
 - Autonomous agents must not enable real Bluetooth scanning, location sharing, purchases, creator payouts, real-user reporting, App Store / Play submission, vendor contracts, legal processes, or production data without the corresponding human gate.
 - Agents must not author or simulate legal, privacy, security, T&S, mobile-store, finance, or executive approval.
-- Agents must not implement minors, gender-asymmetric disclosure, covert tracking, or purchase-weighted dating rank.
+- Agents must not implement minors, gender-asymmetric disclosure, covert tracking, deceptive ranking UX, exclusion-reason disclosure, or purchase-weighted dating rank.
 - Agents must not add new active Rust, Swift, Kotlin, Java, Python, Dart, Objective-C, or TypeScript product code without a superseding ADR and explicit human architecture approval.
 - Agents must not persist non-allowlisted or sensitive fields in AsyncStorage or other unencrypted R&D storage.
 - Beta and production remain **BLOCKED** until every applicable table and checklist item is satisfied with authentic evidence.
