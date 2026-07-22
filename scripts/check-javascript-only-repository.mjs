@@ -1,7 +1,8 @@
-import { existsSync, readdirSync } from "node:fs";
+import { existsSync, readdirSync, writeFileSync } from "node:fs";
 import { basename, extname, join, relative, sep } from "node:path";
 
 const repositoryRoot = process.cwd();
+const reportPath = join(repositoryRoot, ".javascript-only-violations.json");
 const ignoredDirectories = new Set([".git", "node_modules", "dist-web", ".expo", "coverage"]);
 const legacyRoots = ["apps/ios", "apps/android", "core", "services", "infra"];
 const prohibitedExtensions = new Set([
@@ -37,11 +38,12 @@ for (const file of walk(repositoryRoot)) {
   }
 }
 
+violations.sort((left, right) => left.path.localeCompare(right.path));
+writeFileSync(reportPath, `${JSON.stringify({ violationCount: violations.length, violations }, null, 2)}\n`);
+
 if (violations.length > 0) {
-  console.error("Repository is not JavaScript-only:");
-  for (const violation of violations.sort((left, right) => left.path.localeCompare(right.path))) {
-    console.error(`- ${violation.path} (${violation.reason})`);
-  }
+  console.error(`Repository is not JavaScript-only: ${violations.length} violation(s).`);
+  for (const violation of violations) console.error(`- ${violation.path} (${violation.reason})`);
   process.exit(1);
 }
 
