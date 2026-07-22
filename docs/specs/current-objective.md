@@ -1,32 +1,32 @@
-# Current objective — reciprocal match and conversation R&D slice
+# Current objective — bilateral Deepen Connection R&D slice
 
 **Status:** ACTIVE  
-**Branch:** `agent/reciprocal-match-conversations`  
+**Branch:** `agent/deepen-connection`  
 **Real users:** Prohibited
 
 ## Objective
 
-Build a complete synthetic JavaScript lifecycle from discovery decision through reciprocal match, shared-ground opening prompt, session conversation, unmatch, and block while preserving bilateral consent and the existing unencrypted-storage boundary.
+Build a complete synthetic JavaScript relationship-phase transition inside an active match: casual by default, mutually deepened only after two explicit opt-ins, reversible by either side, and automatically cleared when the match ends.
 
-The product direction continues the user-provided casual-first, relationship-capable research, especially its recommendation for consent-driven conversation starters and an ongoing communication surface. The research remains design input rather than independently verified evidence.
+The direction comes from the user-provided casual-first, relationship-capable research, which recommends a mutual “Deepen Connection” mode that unlocks deeper prompts over time. The research remains product-design input rather than independently verified evidence.
 
 ## Deliverables
 
-- shared `@swipe/rnd-conversations` JavaScript package;
-- session-only pass and interest decisions;
-- unilateral interest that remains pending;
-- explicit synthetic reciprocal fixture required to create a match;
-- undo for the most recent pass or pending interest;
-- explicit unmatch rather than swipe undo for established matches;
-- selected discovery tag preserved as opening context;
-- first local message gated on the same shared-ground context;
-- active session transcript and synthetic reply simulation;
-- unmatch that disables sending;
-- block that purges visible messages/context and suppresses rediscovery;
-- Matches UI kept session-only rather than persisted as the last tab;
-- discovery suppression and undo restoration integration;
-- storage regression tests proving decisions, matches, messages, blocks, transcripts, and Matches-tab state are discarded;
-- ADR, mission, system overview, privacy map, release gates, beta checklist, ownership, agent rules, and CI updates.
+- shared `@swipe/rnd-relationship-phases` package;
+- casual/deepened/ended phase model per match;
+- local and synthetic counterpart request paths;
+- explicit accept/decline behavior in either request order;
+- pending-request withdrawal;
+- one-party return to casual;
+- bounded allowlist of communication, goals, availability, values, and boundary prompts;
+- session-only prompt answers with save and clear controls;
+- automatic prompt clearing on return to casual, unmatch, or block;
+- ended-phase rejection of future transition attempts;
+- no automatic phase inference from messages, time, sexual activity, location, meetings, purchases, or models;
+- no public-profile or discovery-intent mutation;
+- storage regression tests for requests, phase state, and answers;
+- mobile Deepen Connection panel integrated into Matches;
+- ADR, mission, architecture, privacy, release, beta, ownership, agent, and CI updates.
 
 ## Acceptance commands
 
@@ -39,36 +39,33 @@ npm run mobile:export:web
 
 ## Required outcomes
 
-- a unilateral interest creates no match;
-- an explicit reciprocal fixture creates exactly one active synthetic match;
-- pass and pending interest can be undone and restored to discovery;
-- a created match cannot be removed through swipe undo;
-- first local message requires the selected shared-ground tag;
-- active matches accept local messages and synthetic replies;
-- unmatch immediately disables sending;
-- block purges visible content and suppresses future discovery;
-- starter suggestions are grounded in the selected visible tag;
-- no action automatically shares location, enables proximity, or sends a message;
-- decision, match, message, block, transcript, and Matches-tab state remain absent from AsyncStorage;
-- all lifecycle controls remain available without payment;
+- one-sided request remains casual;
+- two explicit requests/acceptances enter deepened;
+- candidate-first and local-first ordering both work;
+- decline resets requests without retaining a reason;
+- pending request can be withdrawn;
+- deeper prompts are unavailable before mutual acceptance;
+- only allowlisted prompts accept answers up to 300 characters;
+- answers can be cleared individually;
+- either participant can return to casual and clear all deeper answers;
+- unmatch or block ends the phase and clears answers;
+- ended phases reject further requests;
+- Deepen Connection never implies consent to sex, exclusivity, media, location, health disclosure, or meeting;
+- phase state does not affect rank, reach, monetization, safety access, or public profiles;
+- phase requests, answers, and timestamps remain absent from AsyncStorage;
 - Expo web export remains green;
 - production preflight remains blocked.
 
 ## Explicitly deferred
 
-- real accounts, adult credentials, device identity, or authenticated reciprocity;
-- signed likes and bilateral match receipts;
-- reviewed E2EE protocol, key agreement, key verification, and multi-device semantics;
-- network message delivery, retries, offline mailbox, push, ordering, or deduplication;
-- encrypted persistence of real matches and messages;
-- read receipts, typing indicators, attachments, ephemeral media, or screenshot controls;
-- end-to-end report intake, evidence selection, moderation, appeals, and emergency operations;
-- real block propagation across discovery, proximity, messaging, groups, push, and location;
-- production candidate retrieval or server-side ranking;
-- BLE scanning/advertising and background behavior;
-- production age assurance and app/device attestation;
-- StoreKit / Play Billing and creator operations;
-- staging cloud or production deployment.
+- real counterpart consent or signed transition requests;
+- encrypted local custody or E2EE sharing of prompt answers;
+- push notifications and multi-device synchronization;
+- relationship counseling, mental-health assessment, or compatibility prediction;
+- health, trauma, finance, fertility, immigration, identity-document, or precise-location prompts;
+- automatic relationship inference from behavior or content;
+- real analytics, retention experiments, or engagement nudges;
+- real accounts, authenticated matching, E2EE messaging, reports, moderation, or production deployment.
 
 ## Release state
 
