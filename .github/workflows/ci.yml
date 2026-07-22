@@ -61,7 +61,7 @@ jobs:
           grep -Fq 'R&D message transcript' docs/privacy/data-map.md
           grep -Fq 'The Matches tab is not an approved persisted tab' AGENTS.md
           grep -Fq 'Deepen Connection gates' docs/governance/release-gates.md
-          grep -Fq 'Two explicit participant opt-ins' docs/architecture/adr-0018-deepen-connection.md
+          grep -Fq 'both sides explicitly opt in' docs/architecture/adr-0018-deepen-connection.md
           grep -Fq 'R&D deeper prompt answers' docs/privacy/data-map.md
           grep -Fq 'must not infer or auto-activate relationship phase' AGENTS.md
           test -f apps/rnd-mobile/src/App.js
