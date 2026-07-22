@@ -3,15 +3,15 @@
 **Updated:** 2026-07-22  
 **Status:** **NOT READY — JAVASCRIPT SYNTHETIC R&D ONLY**
 
-The JavaScript implementation is a governed research scaffold. It is not permission to invite real users, collect real profiles or intimate preferences, activate real matching or messaging, activate Bluetooth proximity, transmit coordinates, process purchases, or operate real safety cases.
+The JavaScript implementation is a governed research scaffold. It is not permission to invite real users, collect real profiles or intimate preferences, activate real matching, messaging, or relationship-phase delivery, activate Bluetooth proximity, transmit coordinates, process purchases, or operate real safety cases.
 
 ## Existing organizational gates
 
 - [ ] Legal + privacy drafts counsel-approved for each beta jurisdiction
 - [ ] Named owners replace every `CHANGE_ME` in `docs/governance/roles-and-owners.md`
 - [ ] T&S staffing and P0 coverage plan funded for cohort size
-- [ ] Child-safety, NCII, support, privacy, security, message-abuse, proximity-abuse, location-abuse, ranking-fairness, and creator/IP contacts operational
-- [ ] Match/messaging protocol and conversation-safety owners assigned
+- [ ] Child-safety, NCII, support, privacy, security, message-abuse, relationship-transition, proximity-abuse, location-abuse, ranking-fairness, and creator/IP contacts operational
+- [ ] Match/messaging protocol, relationship-transition consent, and conversation-safety owners assigned
 - [ ] External security review scope approved and scheduled
 - [ ] Staging account identity verified; no production credentials in client
 - [ ] Authentic beta approvals present and bound to reviewed commit/environment
@@ -24,7 +24,7 @@ The JavaScript implementation is a governed research scaffold. It is not permiss
 - [x] Node.js 24 LTS CI
 - [x] Plain JavaScript/ECMAScript-module active surface; no active TypeScript source
 - [x] Node syntax and active-language checks
-- [x] Domain, crypto, API, storage, discovery, conversation, and simulation tests
+- [x] Domain, crypto, API, storage, discovery, conversation, relationship-phase, and simulation tests
 - [x] Expo SDK 57 dependency compatibility check
 - [x] Expo web export
 - [x] High/critical dependency audit threshold passes
@@ -37,10 +37,10 @@ The JavaScript implementation is a governed research scaffold. It is not permiss
 
 - [x] Synthetic R&D state uses a versioned allowlist schema with migration and corruption recovery
 - [x] Current AsyncStorage adapter saves only display profile fields, mock cosmetics, an approved last tab, and haptic preference
-- [x] Automated tests prove sensitive/session/discovery/conversation fields are omitted from serialized state
+- [x] Automated tests prove sensitive/session/discovery/conversation/relationship-phase fields are omitted from serialized state
 - [x] Matches is rejected as persisted last-tab state
 - [x] User can view the redacted local record and clear it from the app
-- [ ] Real-user profile, preference, match, and message data uses an externally reviewed encrypted vault
+- [ ] Real-user profile, preference, match, message, phase, and deeper-answer data uses an externally reviewed encrypted vault
 - [ ] Keys are hardware/OS protected where available and not co-located with ciphertext
 - [ ] Device backup, restore, transfer, logout, deletion, export, recovery, and schema migration are documented and tested
 - [ ] Web storage behavior is reviewed separately; sensitive fields are never written to unencrypted browser storage
@@ -52,7 +52,7 @@ The JavaScript implementation is a governed research scaffold. It is not permiss
 
 - [ ] Production design uses full-date/provider evaluation, not birth-year subtraction
 - [ ] Signed, expiring, revocable adult credential issued through counsel-approved process
-- [ ] Presence, proximity, sexual-intent, match, map, group, and messaging services reject missing/invalid adult credentials
+- [ ] Presence, proximity, sexual-intent, match, map, group, messaging, and relationship-phase services reject missing/invalid adult credentials
 - [ ] Direct API/modified-client tests prove UI bypass cannot admit minors
 - [ ] Adult assurance retains no identity document or face image in ordinary application services
 - [ ] Appeal, provider outage, ambiguous result, expiry, revocation, and recovery flows tested
@@ -60,12 +60,13 @@ The JavaScript implementation is a governed research scaffold. It is not permiss
 
 ## Mutual consent and protocol integrity
 
-- [ ] Every profile, like, block, match, message, and location object is cryptographically bound to an authorized root or device key
+- [ ] Every profile, like, block, match, message, phase request/receipt, and location object is cryptographically bound to an authorized root or device key
 - [ ] All security-relevant fields are unambiguously framed and signed
 - [ ] Client verifies server ticket issuer against configured trusted keys
 - [ ] One-sided like or live discovery ticket cannot create a match
 - [ ] Bilateral match receipt and reciprocal interest flow tested across two devices
-- [ ] Block/unmatch suppresses discovery, proximity, messaging, groups, push, and location grants
+- [ ] One-sided phase request cannot activate Deepen Connection
+- [ ] Block/unmatch suppresses discovery, proximity, messaging, phases, groups, push, and location grants
 
 ## Reciprocal match and conversation lifecycle
 
@@ -83,7 +84,7 @@ The JavaScript implementation is a governed research scaffold. It is not permiss
 - [ ] Both devices verify a bilateral match receipt before conversation creation
 - [ ] Reviewed E2EE protocol and threat model cover authentication, forward secrecy where claimed, key verification, device changes, compromise, recovery, and multi-device behavior
 - [ ] Relay stores ciphertext only and implements ordering, deduplication, retry, expiry, quotas, offline behavior, and deletion semantics
-- [ ] Push notifications reveal no message body, sexual intent, exact location, starter context, or sensitive match identity by default
+- [ ] Push notifications reveal no message body, sexual intent, exact location, starter context, phase status, or sensitive match identity by default
 - [ ] Block/unmatch/account deletion revokes across every service and survives stale, offline, replayed, and modified-client attempts
 - [ ] Spam, harassment, unsolicited sexual content, automated messaging, scam, coercion, and brigading tests pass
 - [ ] In-app report flow displays selected evidence before send, creates a durable case ID, and supports appeal/status communication
@@ -91,6 +92,36 @@ The JavaScript implementation is a governed research scaffold. It is not permiss
 - [ ] Accessibility review covers conversation order, keyboard/non-gesture controls, screen reader labels, contrast, and reduced motion
 - [ ] Physical two-device E2E tests cover match, opener, send/receive, offline retry, duplicate delivery, unmatch, block, account recovery, and device replacement
 - [ ] Privacy/DPIA, legal, external security, conversation safety, mobile-store, and T&S approvals are bound to the exact beta commit
+
+## Deepen Connection lifecycle
+
+- [x] Every synthetic match begins casual
+- [x] One-sided deepen request remains pending and leaves the phase casual
+- [x] Two explicit opt-ins are required to enter the deepened phase
+- [x] Local-first and synthetic-counterpart-first request ordering both work
+- [x] Pending request can be withdrawn before acceptance
+- [x] Decline resets both requests without collecting or retaining a reason
+- [x] Either participant can return a deepened match to casual
+- [x] Deeper prompts remain unavailable before mutual acceptance
+- [x] Prompt catalog is allowlisted to communication, relationship direction, availability, values, and future boundaries
+- [x] Prompt answers are bounded, editable, clearable, match-scoped, and session-only
+- [x] Return to casual, unmatch, and block clear deeper answers
+- [x] Unmatch/block end the relationship phase and ended phases reject further transitions
+- [x] Phase state, requests, responses, timestamps, and deeper answers remain absent from AsyncStorage
+- [x] No behavior, content, time, sexual activity, meetup, location, purchase, or model automatically changes phase
+- [x] Phase state does not change public profile, discovery intent, ranking, reach, marketplace status, or safety access
+- [x] UI states that Deepen Connection is not consent to sex, exclusivity, media, location, a meeting, health disclosure, or public relationship status
+- [ ] Real requests/responses are authenticated, signed, replay-resistant, expiry-aware, and match-scoped
+- [ ] Both devices verify a bilateral phase receipt before unlocking deeper prompts
+- [ ] Return-to-casual, unmatch, and block send authenticated phase revocation across devices and services
+- [ ] Real phase state and prompt answers use reviewed encrypted custody; any answer sharing is separately consented and E2EE
+- [ ] Multi-device conflict rules cover simultaneous request/withdraw/accept/revert, offline devices, stale receipts, device replacement, and account recovery
+- [ ] Notification and push copy hide phase request, answer, and relationship-status details by default
+- [ ] Decline, withdrawal, and return to casual cannot reduce rank/reach, trigger retaliation signals, or create monetized pressure
+- [ ] Prompt catalog excludes diagnosis, coercion, manipulation, protected-trait interrogation, health verification, finance, fertility, immigration, identity documents, and precise location
+- [ ] Accessibility review covers phase labels, pending/decline states, non-gesture controls, screen reader order, contrast, and cognitive load
+- [ ] Modified-client and two-device tests cover unilateral activation, spoofed acceptance, replay, stale state, concurrent transitions, block/unmatch races, and unauthorized prompt access
+- [ ] Privacy/DPIA, legal, external security, relationship-transition consent, conversation safety, accessibility, and store approvals are bound to the exact beta commit
 
 ## Intent-driven discovery and profile reveal
 
@@ -129,28 +160,28 @@ The JavaScript implementation is a governed research scaffold. It is not permiss
 
 ## Match-scoped location
 
-- [ ] Matching alone transmits no location
+- [ ] Matching or relationship-phase change alone transmits no location
 - [ ] Approximate snapshot, meeting pin, and temporary live location have separate consent
 - [ ] Precise sharing requires second confirmation
 - [ ] Grants are pairwise, signed, E2EE, purpose/precision labeled, sequenced, expiring, and revocable
 - [ ] Active-share indicator and dashboard are always visible while sharing
 - [ ] Block/unmatch/emergency privacy/stop sends authenticated revocation and purges display
-- [ ] No exact location in logs, push text, analytics, bot scoring, marketplace, alignment rank, or message metadata
+- [ ] No exact location in logs, push text, analytics, bot scoring, marketplace, alignment rank, phase prompts, or message metadata
 - [ ] Background permission and battery behavior reviewed
 - [ ] Replay, stale cache, lost network, compromised relay, and coercion tests pass
 
 ## Looking For, identity, filters, and alignment
 
 - [ ] Sexual and relationship intent is private by default and disclosed only to independently compatible adults
-- [ ] Group encounters require complete roster and renewed consent after membership change
+- [ ] Group encounters require complete roster and renewed consent when membership changes
 - [ ] Gender identity, pronouns, orientation, who-I-see, and who-may-see-me are separate optional fields
 - [ ] No negative public label or exclusion reason disclosure
 - [ ] No race, ethnicity, skin color, disability, height, or protected-trait filter/rank
 - [ ] No photograph-derived intelligence, hygiene, sexuality, gender, fitness, grooming, or body-hair inference
 - [ ] Questionnaire is versioned, skippable, exportable, deletable, and category-consented
-- [ ] Political, orientation, sex-life, and intimacy answers are encrypted locally and absent from logs/ads
+- [ ] Political, orientation, sex-life, intimacy, and deeper-phase answers are encrypted locally and absent from logs/ads
+- [ ] Alignment score is local, reciprocal, explainable, and excludes popularity, purchases, spending, protected traits, messages, and phase state
 - [ ] Score-only raw answers are not transmitted in plaintext
-- [ ] Alignment score is local, reciprocal, explainable, and excludes popularity, purchases, spending, and protected traits
 - [ ] Counsel-reviewed DPIA and rights/retention process accepted
 
 ## Skin Shop
@@ -162,8 +193,8 @@ The JavaScript implementation is a governed research scaffold. It is not permiss
 - [ ] Avatar/photo/photo-verified labels cannot be confused
 - [ ] Creator terms, moderation, IP/takedown, impersonation, refund, appeal, tax, payout, and fraud processes approved
 - [ ] StoreKit/Play Billing receipt validation and entitlement restoration tested
-- [ ] Purchases never affect dating reach, rank, matching, messaging, reporting, appeals, or safety access
-- [ ] Creator and sponsor roles cannot access profiles, matches, messages, questionnaire, location, proximity, or safety cases
+- [ ] Purchases never affect dating reach, rank, matching, messaging, phase access, reporting, appeals, or safety access
+- [ ] Creator and sponsor roles cannot access profiles, matches, messages, phases, deeper answers, questionnaire, location, proximity, or safety cases
 
 ## Bot, spam, scraping, and Sybil resistance
 
@@ -171,8 +202,8 @@ The JavaScript implementation is a governed research scaffold. It is not permiss
 - [ ] Unsupported-device lower-trust path explicit and reviewed
 - [ ] Signed requests and persistent replay cache implemented
 - [ ] Pairwise/anonymous quotas and adaptive rate limits deployed
-- [ ] Mass registration, automated likes/messages, profile scraping, BLE harvesting, fake matches, report brigading, and marketplace fraud red-teamed
-- [ ] General bot scoring excludes private messages and sensitive/protected attributes
+- [ ] Mass registration, automated likes/messages/phase requests, profile scraping, BLE harvesting, fake matches, report brigading, and marketplace fraud red-teamed
+- [ ] General bot scoring excludes private messages, deeper answers, and sensitive/protected attributes
 - [ ] Ordinary human use is not paywalled to prove legitimacy
 - [ ] Temporary containment, reason categories, human review, correction, and appeal tested
 - [ ] Risk-data retention and deletion verified
@@ -182,16 +213,16 @@ The JavaScript implementation is a governed research scaffold. It is not permiss
 - [ ] In-app report/block/delete paths tested end to end, not local-only
 - [ ] Report intake authenticates source, creates a durable case ID, and shows selected evidence before send
 - [ ] Evidence vault has separate keys, RBAC, purpose logging, immutable access audit, retention, and legal hold
-- [ ] Message harassment, unsolicited sexual content, proximity stalking, location coercion, group-consent abuse, bot/scam, marketplace, NCII, child-safety, and credible-threat queues have playbooks and owners
+- [ ] Message harassment, relationship-transition coercion/retaliation, unsolicited sexual content, proximity stalking, location coercion, group-consent abuse, bot/scam, marketplace, NCII, child-safety, and credible-threat queues have playbooks and owners
 - [ ] Appeals and emergency escalation tested with synthetic cases
-- [ ] Crash and observability systems exclude messages, match graph, block reasons, location, BLE IDs, sexual intent, relational openness, boundaries, discovery weights, questionnaire answers, local-vault plaintext, and secrets
+- [ ] Crash and observability systems exclude messages, deeper answers, match/phase graph, decline/block reasons, location, BLE IDs, sexual intent, relational openness, boundaries, discovery weights, questionnaire answers, local-vault plaintext, and secrets
 
 ## Delivery and infrastructure
 
-- [ ] JavaScript syntax, active-surface, unit/API/storage/discovery/conversation/simulation, dependency-audit, and Expo export checks green on exact beta commit
+- [ ] JavaScript syntax, active-surface, unit/API/storage/discovery/conversation/relationship-phase/simulation, dependency-audit, and Expo export checks green on exact beta commit
 - [ ] Physical iOS development-build tests green and blocking for the iOS cohort
 - [ ] Physical Android development-build tests green and blocking for the Android cohort
-- [ ] Device-pair E2E test passes for profile fetch, mutual match, E2EE chat, block, report, and revocation
+- [ ] Device-pair E2E test passes for profile fetch, mutual match, E2EE chat, bilateral phase transition/revocation, block, report, and location revocation
 - [ ] Staging infrastructure is real rather than placeholder modules; TLS, KMS, secrets, database/cache, ciphertext relay, push, TURN, observability, backup, and recovery tested
 - [ ] Chaos and abuse-capacity tests pass for planned cohort
 - [ ] Production preflight authenticates approval signatures, freshness, hashes, commit, and environment binding
