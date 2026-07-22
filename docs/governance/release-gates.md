@@ -14,31 +14,38 @@
 | Executive launch approval | required | required |
 | App-store compliance matrix (dated ≤30 days) | required | required |
 | Market row allowed in launch matrix | required | required |
-| Infra account attestation (staging/prod) | staging verified | prod verified |
+| Infrastructure account attestation | staging verified | production verified |
 | Adult-assurance design counsel-reviewed | required | required |
-| Network rejects presence/proximity/matching/messaging/phases without valid adult credential | required | required |
+| Network rejects protected operations without valid adult credential | required | required |
 | Child-safety contact + public CSAE standards | required | required |
 | NCII request channel operational | required | required |
-| In-app report/block/delete paths are end-to-end, not local stubs | required | required |
+| In-app report/block/delete paths are end-to-end | required | required |
 | Authentic approvals bound to reviewed commit and environment | required | required |
-| `make production-preflight` | must fail without approvals | must pass only with authentic approvals |
+| `npm run production:preflight` | must fail without approvals | must pass only with authentic approvals |
 
-## JavaScript R&D architecture gate
+## JavaScript-only architecture gate
 
-The JavaScript reset authorizes **synthetic research only**. It is not a closed-beta or production approval.
+ADR-0014 and ADR-0019 authorize **synthetic research only**. They are not closed-beta or production approvals.
 
-- [x] Active app, service, domain, simulation, and test source is JavaScript under `apps/rnd-*` and `packages/rnd-*`
+- [x] Project-authored application, service, domain, simulation, test, validation, and release-tooling code is JavaScript
+- [x] Former Rust, Swift, Kotlin, UniFFI, Terraform, Cargo, Make, shell, and legacy integration-test trees are removed from the current Git tree
+- [x] Historical implementations remain available through Git history rather than an active archive directory
+- [x] Every `apps/rnd-*` and `packages/rnd-*` workspace is discovered dynamically
+- [x] Every active `.test.js` and `.test.mjs` file is discovered dynamically
+- [x] Checkout-wide repository-language audit is blocking
+- [x] Independent committed Git-tree language audit is blocking
+- [x] JavaScript consolidation/stale-reference validation is blocking
 - [x] Node.js 24 LTS is pinned for CI and local `.nvmrc`
-- [ ] A reviewed dependency lockfile is committed before any real-user build
+- [x] JavaScript syntax, active-surface, test, simulation, governance, and production-block checks are implemented in Node.js
 - [x] Expo SDK 57 web export is blocking in CI
-- [x] Node syntax, active-surface, unit/API/storage/discovery/conversation/relationship-phase/simulation, and high/critical dependency-audit thresholds are blocking
-- [ ] Legacy Rust/Swift/Kotlin code is archived or removed after parity review
-- [ ] Custom Expo development builds are verified on controlled iOS and Android devices
-- [ ] No manually maintained generated native project becomes a second source of truth
-- [ ] High-risk native adapters have named owners, dependency review, permission review, and feature flags
-- [ ] Current moderate Expo native-build-tooling advisories are resolved, accepted with expiry, or superseded by reviewed upstream releases before any real-user build
+- [x] High/critical dependency-audit threshold is blocking
+- [ ] A reviewed dependency lockfile is committed and approved before any real-user build
+- [ ] Controlled iOS development build passes on supported physical devices
+- [ ] Controlled Android development build passes on supported physical devices
+- [ ] Current moderate Expo native-build-tooling advisories are resolved, accepted with an expiry, or superseded before any real-user build
+- [ ] Every high-risk JavaScript-facing native dependency has a named owner, dependency review, permission review, and feature flag
 
-Generated native files and third-party native modules may exist below Expo/React Native, but newly authored product behavior remains JavaScript unless a superseding ADR documents a measured exception.
+Generated native projects and third-party native code may exist beneath Expo/React Native dependencies. Generated `ios/` and `android/` projects are disposable and uncommitted. Project-authored non-JavaScript code requires a superseding exception ADR, named owners, measured necessity, narrow scope, and explicit human architecture approval.
 
 ## Local persistence gates
 
@@ -48,12 +55,12 @@ The AsyncStorage-backed implementation is approved only for synthetic R&D and on
 - [x] Current store contains only profile presentation, mock cosmetic ownership, an approved non-sensitive last tab, and haptic preference
 - [x] Tests prove adult, intent, discovery, questionnaire, decision, match, message, relationship-phase, deeper-answer, block, location, and BLE fields are discarded
 - [x] The Matches tab is rejected as persisted last-tab state
-- [ ] Real-user profile/preference/match/message/phase persistence uses an externally reviewed encrypted vault
-- [ ] Encryption keys are OS/hardware protected where available and never stored beside ciphertext
-- [ ] Backup, device transfer, recovery, logout, deletion, export, corruption, and migration behavior is documented and tested
-- [ ] Sensitive local data is excluded from unencrypted browser storage, device backups where required, logs, crash reports, and analytics
+- [ ] Real-user profile, preference, match, message, phase, and answer persistence uses an externally reviewed encrypted vault
+- [ ] Encryption keys are OS/hardware protected and never stored beside ciphertext
+- [ ] Backup, transfer, recovery, logout, deletion, export, corruption, and migration behavior is documented and tested
+- [ ] Sensitive local data is excluded from unencrypted browser storage, backups where required, logs, crash reports, and analytics
 - [ ] Physical-device security tests cover supported iOS and Android versions
-- [ ] Privacy/DPIA and external security review accept the exact persisted field list and retention behavior
+- [ ] Privacy/DPIA and external security review accept the exact field list and retention behavior
 
 AsyncStorage persistence must not be described as encryption, secure storage, hardware-backed custody, or permission to collect real profiles, matches, messages, relationship phases, or deeper answers.
 
@@ -61,23 +68,23 @@ AsyncStorage persistence must not be described as encryption, secure storage, ha
 
 ADR-0016 authorizes mutual-intent, boundary, ranking, and progressive-reveal behavior for synthetic R&D only.
 
-- [x] Immediate intent and relational openness are distinct fields
+- [x] Immediate intent and relational openness are distinct
 - [x] Candidate eligibility requires mutual acceptance on both intent axes
 - [x] User-required boundaries hard-exclude incompatible candidates before scoring
-- [x] Candidate score is explainable and uses only intent, boundaries, lifestyle, alignment, and distance
-- [x] User-controlled weights normalize to 100 and deterministic tests cover ordering changes
-- [x] Protected, inferred, popularity, purchase, spending, subscription, and creator-status ranking inputs are rejected
-- [x] Bio-first reveal requires a non-visual micro-interaction before the synthetic visual appears
-- [x] Synthetic interest requires selecting visible shared-ground context
+- [x] Score is explainable and uses only intent, boundaries, lifestyle, alignment, and distance
+- [x] User-controlled weights normalize to 100 and deterministic tests cover ordering
+- [x] Protected, inferred, popularity, purchase, spending, subscription, and creator-status inputs are rejected
+- [x] Bio-first reveal requires a non-visual micro-interaction
+- [x] Synthetic interest requires visible shared-ground context
 - [x] Intent, boundary, weight, reveal, and discovery-history state remains out of AsyncStorage
 - [ ] Real-user intent and boundary data uses reviewed encrypted local custody
-- [ ] Candidate retrieval and ranking are tested against modified clients, enumeration, scraping, coercive preference disclosure, and exclusion-reason leakage
-- [ ] Accessibility review confirms equivalent non-gesture reveal and interest paths
-- [ ] Privacy review accepts each discovery field, purpose, retention, and telemetry boundary
-- [ ] Fairness review covers disparate impact, proxy features, empty-queue behavior, and user recourse
-- [ ] Self-reported health or safety tags are never represented as medically verified without an approved verification process
+- [ ] Retrieval and ranking resist modified clients, enumeration, scraping, coercive disclosure, and exclusion-reason leakage
+- [ ] Accessibility review confirms equivalent non-gesture paths
+- [ ] Privacy review accepts each field, purpose, retention period, and telemetry boundary
+- [ ] Fairness review covers proxy discrimination, disparate impact, empty queues, and recourse
+- [ ] Self-reported health or safety tags are never represented as verified medical facts without an approved process
 
-The product must not fabricate matching effort, artificial delays, scarcity, or compatibility evidence. Another person must never receive the reason they were excluded by private intent, boundary, orientation, or discovery settings.
+The product must not fabricate matching effort, artificial delays, scarcity, or compatibility evidence. Another person must never receive the reason they were excluded by private settings.
 
 ## Reciprocal match and conversation gates
 
@@ -85,134 +92,133 @@ ADR-0017 authorizes session-only synthetic lifecycle research. It does not autho
 
 - [x] Unilateral interest remains pending and creates no match
 - [x] Synthetic match creation requires an explicit reciprocal fixture
-- [x] Fixture reciprocity is labeled as synthetic and never claimed as authentication or another person's real action
-- [x] Pass and pending interest can be undone; an established match requires explicit unmatch
-- [x] First local message requires the same visible shared-ground tag selected during discovery
-- [x] Matching does not automatically send a message, enable proximity, or share location
+- [x] Fixture reciprocity is labeled synthetic, never authentication or another person's action
+- [x] Pass and pending interest can be undone; an established match requires unmatch
+- [x] First local message requires the visible shared-ground tag selected during discovery
+- [x] Matching sends no automatic message and enables no proximity or location sharing
 - [x] Unmatch disables sending; block purges visible content/context and suppresses rediscovery
 - [x] Match, message, block, transcript, and Matches-tab state remains out of AsyncStorage
-- [x] Matching, messaging, unmatch, and block controls are unaffected by purchases or subscription status
-- [ ] Real likes are signed by authorized device/root identities and protected from replay
+- [x] Purchases and subscriptions do not affect matching, messaging, unmatch, or block
+- [ ] Real likes are signed by authorized identities and protected from replay
 - [ ] Both devices verify a bilateral match receipt before messaging
-- [ ] Reviewed E2EE protocol covers key agreement, authentication, verification, rotation, device changes, compromise, recovery, and multi-device behavior
-- [ ] Message transport covers ordering, deduplication, retry, expiry, offline mailbox, deletion, and failure states without exposing plaintext
-- [ ] Block/unmatch/account deletion propagates across discovery, proximity, messaging, groups, push, phases, and location and is tested against stale/modified clients
-- [ ] Push and lock-screen content reveals no sexual intent, message body, match identity, exact location, phase status, or sensitive context without explicit user choice
-- [ ] Spam, harassment, rate limits, reporting, user-selected evidence, moderation, appeals, and emergency escalation are operational
-- [ ] Attachment/media support remains disabled until hostile-media processing, NCII, screenshot limitations, retention, and evidence handling are approved
-- [ ] Two-device and modified-client tests cover unilateral match creation, impersonation, replay, duplicate delivery, blocked delivery, stale revocation, device replacement, and account recovery
+- [ ] Reviewed E2EE covers authentication, verification, rotation, device changes, compromise, recovery, and multi-device behavior
+- [ ] Transport covers ordering, deduplication, retry, expiry, offline mailbox, deletion, and failure states without plaintext exposure
+- [ ] Block/unmatch/account deletion propagates across discovery, proximity, messaging, groups, push, phases, and location
+- [ ] Push and lock-screen content reveals no sensitive match, intent, message, phase, or location data by default
+- [ ] Spam, harassment, rate limits, reporting, evidence selection, moderation, appeals, and escalation are operational
+- [ ] Attachments remain disabled until hostile-media, NCII, child-safety, screenshot-limitation, retention, and evidence review passes
+- [ ] Two-device and modified-client tests cover impersonation, replay, duplicate/blocked delivery, stale revocation, device replacement, and recovery
 - [ ] Privacy/DPIA, external security, conversation safety, accessibility, and store review approve the exact implementation
 
-A synthetic state machine, fixture flag, local transcript, or UI label must never be described as authenticated reciprocity, E2EE, message delivery, screenshot protection, moderation, or cross-device block propagation.
+A fixture, local transcript, or UI label must never be described as authenticated reciprocity, E2EE, delivered messaging, screenshot protection, moderation, or cross-device revocation.
 
 ## Deepen Connection gates
 
-ADR-0018 authorizes bilateral, reversible relationship-phase research for synthetic session state only. It does not authorize real participant consent, relationship inference, or sharing of deeper answers.
+ADR-0018 authorizes bilateral, reversible relationship-phase research for synthetic session state only.
 
-- [x] Every synthetic match begins in the casual phase
-- [x] A one-sided request remains pending and does not change phase
-- [x] Two explicit participant requests/acceptances are required before the phase becomes deepened
+- [x] Every synthetic match begins casual
+- [x] One-sided request remains pending and does not change phase
+- [x] Two explicit participant opt-ins are required before `deepened`
 - [x] Request ordering works in either direction
 - [x] Pending request may be withdrawn
-- [x] Decline resets requests without collecting or retaining a reason
+- [x] Decline stores no reason
 - [x] Either participant may return a deepened match to casual
 - [x] Deeper prompts remain locked until mutual acceptance
-- [x] Prompt catalog is allowlisted and limited to communication, relationship direction, sustainable availability, values, and future boundaries
+- [x] Prompt catalog is allowlisted to communication, relationship direction, availability, values, and boundaries
 - [x] Answers are bounded, editable, clearable, match-scoped, and session-only
-- [x] Return to casual, unmatch, and block clear deeper answers; unmatch/block end the phase
+- [x] Return to casual, unmatch, and block clear answers; unmatch/block end the phase
 - [x] Ended phases reject further requests
 - [x] Phase state, requests, responses, timestamps, and answers remain out of AsyncStorage
-- [x] Phase state does not change public profiles, discovery intent, candidate rank, reach, marketplace status, or safety access
-- [x] No automatic phase inference exists from message content, reply speed, message count, elapsed time, sexual activity, meetings, location, purchases, or models
-- [ ] Real requests/responses are signed, replay-resistant, match-scoped, expiry-aware, and bound to authorized participant devices
+- [x] Phase state changes no public profile, discovery intent, rank, reach, marketplace status, or safety access
+- [x] No automatic phase inference exists from content, reply speed, time, sexual activity, meetings, location, purchases, or models
+- [ ] Real requests are signed, replay-resistant, match-scoped, expiry-aware, and device-authorized
 - [ ] Both devices verify a bilateral phase receipt before deeper prompts unlock
-- [ ] Return-to-casual and match termination use authenticated revocation with deterministic multi-device conflict handling
-- [ ] Real phase state and prompt answers use reviewed encrypted local custody; any sharing is separate, explicit, and E2EE
-- [ ] Notification and push copy reveal no relationship-phase request or answer content by default
-- [ ] Decline, withdrawal, and return-to-casual produce no ranking/reach penalty, retaliation signal, or monetized pressure
-- [ ] Prompt catalog receives legal, privacy, safety, accessibility, and relationship-transition review; no diagnostic, coercive, manipulative, protected-trait, health-verification, finance, fertility, immigration, or precise-location prompts
-- [ ] Modified-client and two-device tests cover unilateral activation, spoofed acceptance, replay, stale state, concurrent requests, revocation, offline devices, account/device replacement, and block/unmatch races
-- [ ] Privacy/DPIA, external security, relationship-transition consent, conversation safety, accessibility, and store review approve exact copy and behavior
+- [ ] Return-to-casual and termination use authenticated revocation with deterministic multi-device conflict handling
+- [ ] Real phase state and answers use reviewed encrypted custody; sharing is separately consented and E2EE
+- [ ] Notifications reveal no phase request or answer content by default
+- [ ] Decline, withdrawal, and return to casual create no penalty, retaliation signal, or monetized pressure
+- [ ] Prompt catalog receives legal, privacy, safety, accessibility, and consent review
+- [ ] Modified-client and two-device tests cover unilateral activation, spoofed acceptance, replay, stale state, concurrent transitions, and termination races
+- [ ] Required human reviews approve exact copy and behavior
 
-Deepen Connection must never be treated as consent to sex, exclusivity, a committed relationship, media, location, an offline meeting, health disclosure, public relationship status, or AI analysis. Synthetic counterpart actions must never be described as real participant consent or signed bilateral receipts.
+Deepen Connection is not consent to sex, exclusivity, commitment, media, location, a meeting, health disclosure, public relationship status, or AI analysis.
 
 ## Get fk'd proximity gates
 
-`Get fk'd` remains unavailable to real users until all items below are evidenced.
-
 - [ ] Adults 18+ only; 18–25 is a design audience, never a minor access path
-- [ ] Feature is off by default and can be disabled from the main Discover page
-- [ ] Identical privacy defaults for every gender; no gender-based automatic disclosure
+- [ ] Real-user flag defaults off and can be disabled from Discover
+- [ ] Privacy defaults are identical for every gender
 - [ ] Default disclosure is **prompt before sharing**
-- [ ] Bluetooth advertisements contain only random rotating encounter identifiers and protocol version
-- [ ] Encounter identifiers are unlinkable to root/profile/rendezvous/push/marketplace identities
-- [ ] Replay, relay, long-range scanning, venue harvesting, enumeration, and stalking tests pass
-- [ ] Block, unmatch, emergency privacy, and account deletion suppress future encounters
-- [ ] Haptic and notification cooldown prevents repeated buzzing and lock-screen sexual disclosure
-- [ ] Background behavior, permissions, battery impact, and best-effort limitations are accurately disclosed
-- [ ] No encounter graph, raw BLE history, or proximity analytics retained by the operator
-- [ ] Store-review naming/metadata decision is approved; internal codename does not evade review
+- [ ] Bluetooth advertisement contains only rotating random identifier, epoch, protocol, and non-sensitive capabilities
+- [ ] Encounter identifier is unlinkable to profile, root, rendezvous, push, marketplace, message, or phase identities
+- [ ] No server upload or analytics of raw encounters
+- [ ] Haptic cooldown and generic notification behavior are verified
+- [ ] Replay, relay/wormhole, long-range scanning, venue sweep, enumeration, and stalking tests pass
+- [ ] Block, emergency privacy, mode-off, and account deletion terminate participation
+- [ ] Public naming and store metadata are approved
 
 ## Matched-location gates
 
 - [ ] Matching or relationship-phase change alone never shares location
-- [ ] Separate consent for approximate match-area snapshot, meeting pin, and temporary live location
-- [ ] Default is off; precise location requires a second explicit confirmation
-- [ ] Match-scoped E2EE grant includes purpose, precision, issue time, expiry, sequence, and revocation
-- [ ] Active grants are visible in one dashboard and can be revoked immediately
-- [ ] Block/unmatch/emergency privacy terminates active grants and hides cached display
-- [ ] No location appears in push text, telemetry, advertising, marketplace, questionnaire ranking, phase prompts, or message metadata
-- [ ] No indefinite background tracking or historical movement trail
-- [ ] Location coercion, replay, stale-cache, and compromised-relay tests pass
+- [ ] Approximate snapshot, meeting pin, and temporary live location have separate consent
+- [ ] Precise sharing requires second confirmation
+- [ ] Grants are pairwise, signed, E2EE, purpose/precision labeled, sequenced, expiring, and revocable
+- [ ] Active-share indicator and dashboard remain visible while sharing
+- [ ] Block/unmatch/emergency privacy sends authenticated revocation and purges display
+- [ ] No exact location appears in logs, push, analytics, bot scoring, marketplace, ranking, phase prompts, or message metadata
+- [ ] Background permission and battery behavior are reviewed
+- [ ] Replay, stale cache, lost network, compromised relay, and coercion tests pass
 
-## Looking For, gender, filters, and questionnaire gates
+## Identity, preferences, filters, and alignment gates
 
-- [ ] `Looking For` modes are adult-only, private by default, and disclosed only to independently compatible users
-- [ ] Group encounters require complete-participant consent and renewed consent when membership changes
+- [ ] Sexual and relationship intent is private by default and disclosed only to independently compatible adults
+- [ ] Group encounters require complete roster and renewed consent after membership change
 - [ ] Gender identity, pronouns, orientation, who-I-see, and who-may-see-me are separate optional fields
-- [ ] Candidate preferences use neutral language and never reveal why another person was excluded
-- [ ] No filter/rank by race, ethnicity, skin color, disability, height, or inferred protected traits
-- [ ] No photo-derived inference of intelligence, hygiene, sexuality, gender, fitness, grooming, or body hair
-- [ ] Questionnaire is versioned, skippable, exportable, deletable, and separately consented by sensitive category
-- [ ] Political, sex-life, orientation, relationship, and deeper-phase answers remain encrypted locally and absent from logs/ads
-- [ ] Alignment score is local, explainable, reciprocal, and excludes popularity, purchases, spending, protected traits, messages, and phase state
-- [ ] Modified-client review confirms “score only” answers are not sent in plaintext
-- [ ] Counsel-reviewed DPIA and rights/retention process cover sensitive questionnaire and phase processing
+- [ ] No negative public label or exclusion reason disclosure
+- [ ] No race, ethnicity, skin color, disability, height, or protected-trait filter/rank
+- [ ] No photograph-derived intelligence, hygiene, sexuality, gender, fitness, grooming, or body-hair inference
+- [ ] Questionnaire is versioned, skippable, exportable, deletable, and category-consented
+- [ ] Political, orientation, sex-life, relationship, and deeper-phase answers are encrypted locally and absent from logs/ads
+- [ ] Alignment is local, reciprocal, explainable, and excludes popularity, purchases, protected traits, messages, and phase state
+- [ ] Modified-client review confirms raw private answers are not transmitted in plaintext
+- [ ] Counsel-reviewed DPIA and rights/retention process covers sensitive processing
+
+Candidate ranking must not use race, ethnicity, skin color, disability, height, inferred attractiveness, intelligence, hygiene, sexuality, gender, fitness, grooming, body hair, popularity, purchases, spending, subscription status, creator status, message content, reply speed, block history, report history, or relationship phase.
 
 ## Skin Shop gates
 
-- [ ] Marketplace data plane is isolated from private dating, safety, location, questionnaire, message, and phase data
-- [ ] Only bounded declarative assets; no executable JavaScript inside assets, arbitrary shaders, executable plugins, or hidden network calls
-- [ ] MIME/type/size/decompression/animation limits and hostile-asset fuzzing pass
-- [ ] Avatars clearly distinguish avatar, photo, and photo-verified profiles
-- [ ] Creator terms, content rules, copyright process, moderation, refunds, tax/payout, and fraud controls approved
-- [ ] Apple/Google billing and entitlement restoration validated where required
-- [ ] Purchases never affect dating rank, profile reach, matching, messaging, phase access, reporting, appeals, or safety access
-- [ ] Creator and sponsor access to dating data is technically prevented
+- [ ] Marketplace services, storage, roles, keys, and telemetry are isolated from private dating and safety data
+- [ ] Asset formats are bounded and declarative; no executable asset code, hidden calls, arbitrary shaders, or unbounded assets
+- [ ] MIME sniffing, decode bounds, decompression limits, animation limits, and hostile-asset fuzzing pass
+- [ ] Avatar/photo/photo-verified labels cannot be confused
+- [ ] Creator terms, moderation, IP/takedown, impersonation, refund, appeal, tax, payout, and fraud processes are approved
+- [ ] StoreKit/Play Billing validation and entitlement restoration are tested
+- [ ] Purchases never affect reach, rank, matching, messaging, phase access, reporting, appeals, or safety
+- [ ] Creator and sponsor roles cannot access private dating, location, message, phase, answer, or safety data
 
 ## Bot, spam, scraping, and Sybil gates
 
-- [ ] Passkey or equivalent phishing-resistant account authentication
-- [ ] Device key authorized by root identity; rotation and device removal tested
-- [ ] App Attest and Play Integrity (or approved equivalents) verified server-side with nonce/request binding
-- [ ] Unsupported devices receive an explicit lower-trust path, not silent full trust
-- [ ] Adult credential, attestation, and request signatures are independent controls
-- [ ] Adaptive rate limits, anonymous/pairwise quotas, replay caches, and risk challenges implemented
-- [ ] Mass registration, automated likes/messages/phase requests, profile scraping, BLE harvesting, fake matches, and report brigading red-teamed
+- [ ] Passkey or equivalent phishing-resistant authentication
+- [ ] Device key authorized by root identity; rotation and removal tested
+- [ ] App Attest and Play Integrity assertions verified server-side with fresh challenge/request binding
+- [ ] Unsupported-device lower-trust path is explicit
+- [ ] Adult credential, attestation, and request signatures remain independent controls
+- [ ] Adaptive limits, pairwise/anonymous quotas, replay caches, and risk challenges are deployed
+- [ ] Registration, automated likes/messages/phase requests, scraping, BLE harvesting, fake matches, and brigading are red-teamed
 - [ ] Ordinary human use is not paywalled as an anti-bot mechanism
-- [ ] Temporary containment is explained; consequential action has human review and appeal
-- [ ] Risk data is pseudonymous, purpose-limited, retention-limited, and excludes private message/deeper-answer plaintext
+- [ ] Consequential containment has explanation, human review, correction, and appeal
+- [ ] Risk data is pseudonymous, purpose-limited, retention-limited, and excludes private plaintext
 
 ## Agent rules
 
-- Autonomous agents may run and publish **synthetic JavaScript R&D** and may deploy staging only after staging account identity is verified.
-- Autonomous agents must not enable real matching, message/phase delivery, Bluetooth scanning, location sharing, purchases, creator payouts, real-user reporting, App Store / Play submission, vendor contracts, legal processes, or production data without the corresponding human gate.
-- Agents must not author or simulate legal, privacy, security, T&S, mobile-store, finance, or executive approval.
-- Agents must not implement minors, gender-asymmetric disclosure, unilateral matching/deepening, automatic message/phase/location behavior, deceptive ranking UX, exclusion/decline-reason disclosure, or purchase-weighted dating behavior.
-- Agents must not add new active Rust, Swift, Kotlin, Java, Python, Dart, Objective-C, or TypeScript product code without a superseding ADR and explicit human architecture approval.
-- Agents must not persist non-allowlisted or sensitive fields in AsyncStorage or other unencrypted R&D storage.
-- Beta and production remain **BLOCKED** until every applicable table and checklist item is satisfied with authentic evidence.
+- Autonomous agents may run and publish **synthetic JavaScript R&D** only.
+- Agents must not enable real matching, delivery, Bluetooth, location, purchases, payouts, reporting, store submission, vendor contracts, legal processes, or production data without corresponding human gates.
+- Agents must not fabricate legal, privacy, security, Trust & Safety, store, finance, or executive approval.
+- Agents must not implement minors, asymmetric defaults, unilateral matching/deepening, automatic message/phase/location behavior, deceptive ranking, private-reason disclosure, or purchase-weighted dating behavior.
+- Agents must not add project-authored non-JavaScript implementation or build automation without the ADR-0019 exception process.
+- Agents must not persist non-allowlisted sensitive fields in unencrypted storage.
+- Beta and production remain **BLOCKED** until all applicable evidence is authentic and complete.
 
 ## Validator
 
-`make production-preflight` and `scripts/production_preflight.sh` must exit non-zero when approvals are missing. Before production, the validator must also authenticate artifact signatures, freshness, commit binding, environment binding, and required feature evidence; filename prefixes alone are insufficient.
+`npm run production:preflight` and `node scripts/production-preflight.mjs` must exit non-zero when approvals are missing. Before production, the validator must authenticate approval signatures, freshness, hashes, commit binding, environment binding, and required feature evidence; filename prefixes alone are insufficient.
