@@ -22,6 +22,7 @@ import {
 } from "@swipe/rnd-domain";
 import { createDefaultLocalState } from "@swipe/rnd-storage";
 
+import { IntentDiscoveryView } from "./IntentDiscoveryView.js";
 import { createMobileLocalStateRepository } from "./local-storage.js";
 import { QUESTIONNAIRE, SKIN_ITEMS, SYNTHETIC_PROFILES } from "./mock-data.js";
 
@@ -43,9 +44,7 @@ export default function App() {
   const [selectedGenders, setSelectedGenders] = useState(new Set());
   const [answers, setAnswers] = useState({});
   const [locationChoice, setLocationChoice] = useState("none");
-  const [profileIndex, setProfileIndex] = useState(0);
 
-  const currentProfile = SYNTHETIC_PROFILES[profileIndex % SYNTHETIC_PROFILES.length];
   const ownedSkins = useMemo(
     () => new Set(localState.cosmetics.ownedSkinIds),
     [localState.cosmetics.ownedSkinIds],
@@ -107,10 +106,6 @@ export default function App() {
     }));
   }
 
-  function selectTab(lastTab) {
-    updateUi({ lastTab });
-  }
-
   function submitAdultGate() {
     if (!isAdultOn(birthDate, TODAY)) {
       Alert.alert("Adults only", "You must be at least 18 years old to continue.");
@@ -147,13 +142,12 @@ export default function App() {
     setStorageStatus("Saved profile and UI settings were cleared.");
     Alert.alert(
       "Local data cleared",
-      "Only the approved saved profile, cosmetics, and UI settings were removed. Session-only adult, intent, questionnaire, proximity, and location state was never in this store.",
+      "Only approved profile, cosmetic, and UI fields were removed. Adult, intent, questionnaire, discovery, proximity, match, and location state was never stored here.",
     );
   }
 
   async function showExportPreview() {
-    const text = await repository.exportText();
-    setExportPreview(text);
+    setExportPreview(await repository.exportText());
   }
 
   if (!adultAccepted) {
@@ -193,24 +187,27 @@ export default function App() {
       </View>
       <View style={styles.tabBar}>
         {TABS.map((value) => (
-          <Pressable key={value} onPress={() => selectTab(value)} style={styles.tabButton}>
+          <Pressable key={value} onPress={() => updateUi({ lastTab: value })} style={styles.tabButton}>
             <Text style={[styles.tabText, localState.ui.lastTab === value && styles.tabTextActive]}>
               {value === "My Profile" ? "Profile" : value}
             </Text>
           </Pressable>
         ))}
       </View>
+
       <ScrollView contentContainerStyle={styles.content}>
         {localState.ui.lastTab === "Discover" && (
           <>
-            <View style={styles.card}>
+            <Section title="Get fk'd">
               <View style={styles.rowBetween}>
-                <Text style={styles.sectionTitle}>Get fk'd</Text>
+                <View style={styles.flex}>
+                  <Text style={styles.itemTitle}>Nearby compatibility</Text>
+                  <Text style={styles.caption}>
+                    Off by default. Identical privacy defaults for every gender. Real Bluetooth remains disabled.
+                  </Text>
+                </View>
                 <Switch value={getFkdEnabled} onValueChange={setGetFkdEnabled} />
               </View>
-              <Text style={styles.caption}>
-                Off by default. Privacy defaults are identical for every gender. Real Bluetooth is disabled. This mode remains session-only.
-              </Text>
               {getFkdEnabled && (
                 <View style={styles.choiceRow}>
                   <Choice
@@ -226,36 +223,13 @@ export default function App() {
                 </View>
               )}
               <ActionButton label="Simulate nearby adult" onPress={simulateProximity} />
-            </View>
+            </Section>
 
-            <View
-              style={[
-                styles.profileCard,
-                localState.cosmetics.selectedSkinId === "neon-orbit" && styles.neonCard,
-              ]}
-            >
-              <Text style={styles.syntheticLabel}>SYNTHETIC PROFILE</Text>
-              <Text style={styles.profileName}>{currentProfile.displayName}</Text>
-              <Text style={styles.profileMeta}>
-                {currentProfile.ageBand} · {currentProfile.alignment}% aligned
-              </Text>
-              <Text style={styles.profileAbout}>{currentProfile.about}</Text>
-              <Text style={styles.caption}>Looking for: {currentProfile.intents.join(", ")}</Text>
-              <View style={styles.choiceRow}>
-                <ActionButton label="Pass" onPress={() => setProfileIndex((value) => value + 1)} />
-                <ActionButton
-                  label="Interested"
-                  onPress={async () => {
-                    if (localState.ui.hapticsEnabled) {
-                      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-                    }
-                    Alert.alert("Interest recorded", "A reciprocal authenticated like is still required.");
-                    setProfileIndex((value) => value + 1);
-                  }}
-                  primary
-                />
-              </View>
-            </View>
+            <IntentDiscoveryView
+              hapticsEnabled={localState.ui.hapticsEnabled}
+              profiles={SYNTHETIC_PROFILES}
+              selectedSkinId={localState.cosmetics.selectedSkinId}
+            />
           </>
         )}
 
@@ -312,7 +286,7 @@ export default function App() {
 
             <Section title="Persistence boundary">
               <Text style={styles.warning}>
-                AsyncStorage is unencrypted. This R&D store intentionally excludes date of birth, adult eligibility, Looking For choices, gender-feed choices, questionnaire answers, matches, likes, messages, location choices, and proximity identifiers.
+                AsyncStorage is unencrypted. The store excludes adult status, intent and boundary settings, questionnaire answers, discovery history, matches, messages, location, and proximity identifiers.
               </Text>
               <View style={styles.choiceRow}>
                 <ActionButton label="View redacted export" onPress={showExportPreview} />
@@ -335,7 +309,7 @@ export default function App() {
           <>
             <Section title="Looking For">
               <Text style={styles.caption}>
-                Sexual intent is private and disclosed only to independently compatible adults. These selections remain session-only in the current build.
+                Sexual intent is private and disclosed only to independently compatible adults. These selections remain session-only.
               </Text>
               <WrapChoices
                 values={LOOKING_FOR_MODES}
@@ -374,7 +348,7 @@ export default function App() {
         {localState.ui.lastTab === "Skin Shop" && (
           <Section title="Skin Shop">
             <Text style={styles.caption}>
-              Synthetic catalog only. Local mock ownership is restored across restarts but never changes dating reach or safety access.
+              Synthetic catalog only. Mock ownership is restored across restarts but never changes dating reach or safety access.
             </Text>
             {SKIN_ITEMS.map((item) => (
               <View key={item.id} style={styles.listItem}>
@@ -393,9 +367,7 @@ export default function App() {
                   disabled={localState.cosmetics.selectedSkinId === item.id}
                   onPress={() => {
                     setLocalState((current) => {
-                      const ownedSkinIds = Array.from(
-                        new Set([...current.cosmetics.ownedSkinIds, item.id]),
-                      );
+                      const ownedSkinIds = Array.from(new Set([...current.cosmetics.ownedSkinIds, item.id]));
                       return {
                         ...current,
                         cosmetics: { ownedSkinIds, selectedSkinId: item.id },
@@ -427,7 +399,7 @@ export default function App() {
               />
             ))}
             <Text style={styles.warning}>
-              Precise modes require a second confirmation, E2EE, expiry, visible active-share state, and immediate revocation before real use.
+              Precise modes require second confirmation, E2EE, expiry, a visible active-share state, and immediate revocation before real use.
             </Text>
           </Section>
         )}
@@ -493,7 +465,9 @@ function toggleSet(current, value) {
 
 function formatSavedAt(value) {
   const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? "recently" : date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  return Number.isNaN(date.getTime())
+    ? "recently"
+    : date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 }
 
 const styles = StyleSheet.create({
@@ -531,12 +505,6 @@ const styles = StyleSheet.create({
   },
   monospace: { fontFamily: "monospace", fontSize: 11 },
   card: { backgroundColor: "#191d24", borderRadius: 16, gap: 10, padding: 16 },
-  profileCard: { backgroundColor: "#242936", borderRadius: 22, gap: 10, minHeight: 330, padding: 20 },
-  neonCard: { borderColor: "#b76cff", borderWidth: 3, shadowColor: "#5be7ff", shadowOpacity: 0.8, shadowRadius: 18 },
-  syntheticLabel: { color: "#69e7c3", fontSize: 11, fontWeight: "800", letterSpacing: 1.1 },
-  profileName: { color: "white", fontSize: 34, fontWeight: "900", marginTop: 110 },
-  profileMeta: { color: "#ff9fc0", fontSize: 16, fontWeight: "700" },
-  profileAbout: { color: "white", fontSize: 17, lineHeight: 24 },
   sectionTitle: { color: "white", fontSize: 20, fontWeight: "800" },
   rowBetween: { alignItems: "center", flexDirection: "row", justifyContent: "space-between" },
   choiceRow: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
