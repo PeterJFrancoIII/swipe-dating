@@ -18,6 +18,25 @@ import {
 
 const MATCH_ID = "match:p1";
 
+function createDeepenedState() {
+  const local = requestDeepen(createRelationshipPhaseState(), {
+    matchId: MATCH_ID,
+    actor: "local",
+  });
+  return requestDeepen(local.state, {
+    matchId: MATCH_ID,
+    actor: "candidate",
+  }).state;
+}
+
+function createAnsweredState(promptId = "communication_style") {
+  return answerDeepenPrompt(createDeepenedState(), {
+    matchId: MATCH_ID,
+    promptId,
+    answer: "A private answer for this synthetic session.",
+  }).state;
+}
+
 test("one-sided deepen request remains pending", () => {
   const result = requestDeepen(createRelationshipPhaseState(), {
     matchId: MATCH_ID,
@@ -32,18 +51,10 @@ test("one-sided deepen request remains pending", () => {
 });
 
 test("mutual explicit requests unlock the deepened phase", () => {
-  const local = requestDeepen(createRelationshipPhaseState(), {
-    matchId: MATCH_ID,
-    actor: "local",
-  });
-  const mutual = requestDeepen(local.state, {
-    matchId: MATCH_ID,
-    actor: "candidate",
-  });
+  const state = createDeepenedState();
 
-  assert.equal(mutual.outcome.kind, "deepened");
-  assert.equal(getRelationshipPhase(mutual.state, MATCH_ID).phase, RELATIONSHIP_PHASE.DEEPENED);
-  assert.equal(listAvailableDeepenPrompts(mutual.state, MATCH_ID).length, DEEPEN_PROMPTS.length);
+  assert.equal(getRelationshipPhase(state, MATCH_ID).phase, RELATIONSHIP_PHASE.DEEPENED);
+  assert.equal(listAvailableDeepenPrompts(state, MATCH_ID).length, DEEPEN_PROMPTS.length);
 });
 
 test("candidate request can be accepted by the local user", () => {
@@ -104,15 +115,7 @@ test("deep prompts cannot be answered before mutual acceptance", () => {
 });
 
 test("deepened matches can answer and clear allowlisted prompts", () => {
-  const local = requestDeepen(createRelationshipPhaseState(), {
-    matchId: MATCH_ID,
-    actor: "local",
-  });
-  const mutual = requestDeepen(local.state, {
-    matchId: MATCH_ID,
-    actor: "candidate",
-  });
-  const answered = answerDeepenPrompt(mutual.state, {
+  const answered = answerDeepenPrompt(createDeepenedState(), {
     matchId: MATCH_ID,
     promptId: "communication_style",
     answer: "  I need a pause before resolving conflict.  ",
@@ -133,46 +136,34 @@ test("deepened matches can answer and clear allowlisted prompts", () => {
   );
 });
 
-test("either participant can return the match to casual and clear prompt answers", () => {
-  const local = requestDeepen(createRelationshipPhaseState(), {
-    matchId: MATCH_ID,
-    actor: "local",
-  });
-  const mutual = requestDeepen(local.state, {
-    matchId: MATCH_ID,
-    actor: "candidate",
-  });
-  const answered = answerDeepenPrompt(mutual.state, {
-    matchId: MATCH_ID,
-    promptId: "relationship_direction",
-    answer: "I am open to a committed relationship.",
-  });
-  const casual = returnToCasual(answered.state, {
+test("local participant can return the match to casual and clear prompt answers", () => {
+  const casual = returnToCasual(createAnsweredState("relationship_direction"), {
     matchId: MATCH_ID,
     actor: "local",
   });
   const phase = getRelationshipPhase(casual.state, MATCH_ID);
 
   assert.equal(casual.outcome.kind, "returned_to_casual");
+  assert.equal(casual.outcome.actor, "local");
   assert.equal(phase.phase, RELATIONSHIP_PHASE.CASUAL);
   assert.deepEqual(phase.promptAnswers, {});
 });
 
-test("unmatch or block ends the phase and clears sensitive answers", () => {
-  const local = requestDeepen(createRelationshipPhaseState(), {
-    matchId: MATCH_ID,
-    actor: "local",
-  });
-  const mutual = requestDeepen(local.state, {
+test("candidate participant can independently return the match to casual", () => {
+  const casual = returnToCasual(createAnsweredState("values_in_practice"), {
     matchId: MATCH_ID,
     actor: "candidate",
   });
-  const answered = answerDeepenPrompt(mutual.state, {
-    matchId: MATCH_ID,
-    promptId: "future_boundaries",
-    answer: "Keep separate homes for now.",
-  });
-  const ended = terminateRelationshipPhase(answered.state, {
+  const phase = getRelationshipPhase(casual.state, MATCH_ID);
+
+  assert.equal(casual.outcome.kind, "returned_to_casual");
+  assert.equal(casual.outcome.actor, "candidate");
+  assert.equal(phase.phase, RELATIONSHIP_PHASE.CASUAL);
+  assert.deepEqual(phase.promptAnswers, {});
+});
+
+test("unmatch ends the phase, clears answers, and rejects future requests", () => {
+  const ended = terminateRelationshipPhase(createAnsweredState("future_boundaries"), {
     matchId: MATCH_ID,
     reason: "unmatched",
   });
@@ -187,18 +178,23 @@ test("unmatch or block ends the phase and clears sensitive answers", () => {
   );
 });
 
+test("block ends the phase and clears sensitive answers", () => {
+  const ended = terminateRelationshipPhase(createAnsweredState("time_and_energy"), {
+    matchId: MATCH_ID,
+    reason: "blocked",
+  });
+  const phase = getRelationshipPhase(ended.state, MATCH_ID);
+
+  assert.equal(phase.phase, RELATIONSHIP_PHASE.ENDED);
+  assert.equal(phase.endedReason, "blocked");
+  assert.deepEqual(phase.promptAnswers, {});
+});
+
 test("unknown prompts and overlong answers fail closed", () => {
-  const local = requestDeepen(createRelationshipPhaseState(), {
-    matchId: MATCH_ID,
-    actor: "local",
-  });
-  const mutual = requestDeepen(local.state, {
-    matchId: MATCH_ID,
-    actor: "candidate",
-  });
+  const state = createDeepenedState();
 
   assert.throws(
-    () => answerDeepenPrompt(mutual.state, {
+    () => answerDeepenPrompt(state, {
       matchId: MATCH_ID,
       promptId: "secret_prompt",
       answer: "No",
@@ -206,7 +202,7 @@ test("unknown prompts and overlong answers fail closed", () => {
     /unknown_deepen_prompt/,
   );
   assert.throws(
-    () => answerDeepenPrompt(mutual.state, {
+    () => answerDeepenPrompt(state, {
       matchId: MATCH_ID,
       promptId: "communication_style",
       answer: "x".repeat(301),
