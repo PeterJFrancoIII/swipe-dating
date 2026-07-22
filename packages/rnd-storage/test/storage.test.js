@@ -36,7 +36,7 @@ test("default state contains only approved non-sensitive R&D fields", () => {
   });
 });
 
-test("sanitization truncates strings and rejects unowned selected skins", () => {
+test("sanitization truncates strings, rejects unowned skins, and never persists Matches as the last tab", () => {
   const sanitized = sanitizeLocalState({
     profile: {
       displayName: `  ${"x".repeat(100)}  `,
@@ -49,7 +49,7 @@ test("sanitization truncates strings and rejects unowned selected skins", () => 
     },
     ui: {
       hapticsEnabled: false,
-      lastTab: "Unknown",
+      lastTab: "Matches",
     },
   });
 
@@ -61,11 +61,12 @@ test("sanitization truncates strings and rejects unowned selected skins", () => 
   assert.deepEqual(sanitized.ui, { hapticsEnabled: false, lastTab: "Discover" });
 });
 
-test("serialization excludes sensitive session and discovery fields", () => {
+test("serialization excludes sensitive session, discovery, match, and conversation fields", () => {
   const text = serializeLocalState({
     profile: { displayName: "Riley", about: "Builder", pronouns: "they/them" },
     cosmetics: { ownedSkinIds: ["neon-orbit"], selectedSkinId: "neon-orbit" },
     ui: { hapticsEnabled: true, lastTab: "My Profile" },
+    activeTab: "Matches",
     birthDate: "2000-01-01",
     adultAccepted: true,
     answers: { politics: "private" },
@@ -78,6 +79,14 @@ test("serialization excludes sensitive session and discovery fields", () => {
     revealStages: { p1: "photo_revealed" },
     dismissedProfileIds: ["p2"],
     selectedConversationStarter: "hiking",
+    conversationState: {
+      decisions: [{ candidateId: "p1", kind: "interest" }],
+      matches: { "match:p1": { messages: [{ body: "private" }] } },
+      blockedCandidateIds: ["p3"],
+    },
+    matches: ["match:p1"],
+    messages: ["private"],
+    blockedCandidateIds: ["p3"],
     locationChoice: "live_15_minutes",
     encounterIds: ["secret"],
   }, Date.UTC(2026, 6, 22));
@@ -86,6 +95,7 @@ test("serialization excludes sensitive session and discovery fields", () => {
   assert.equal(raw.schemaVersion, LOCAL_STATE_SCHEMA_VERSION);
   assert.equal(raw.profile.displayName, "Riley");
   for (const forbidden of [
+    "activeTab",
     "birthDate",
     "adultAccepted",
     "answers",
@@ -98,6 +108,10 @@ test("serialization excludes sensitive session and discovery fields", () => {
     "revealStages",
     "dismissedProfileIds",
     "selectedConversationStarter",
+    "conversationState",
+    "matches",
+    "messages",
+    "blockedCandidateIds",
     "locationChoice",
     "encounterIds",
   ]) {
