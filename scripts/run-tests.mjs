@@ -2,6 +2,9 @@ import { spawnSync } from "node:child_process";
 import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 
+const options = new Set(process.argv.slice(2));
+const coverageEnabled = options.has("--coverage");
+
 const testFiles = discoverWorkspaceRoots()
   .flatMap((root) => walk(root))
   .filter((path) => path.endsWith(".test.js") || path.endsWith(".test.mjs"))
@@ -12,8 +15,19 @@ if (testFiles.length === 0) {
   process.exit(1);
 }
 
-console.log(`Running ${testFiles.length} JavaScript test file(s).`);
-const result = spawnSync(process.execPath, ["--test", ...testFiles], { stdio: "inherit" });
+const nodeArguments = [];
+if (coverageEnabled) {
+  nodeArguments.push(
+    "--experimental-test-coverage",
+    "--test-coverage-include=packages/rnd-*/src/**/*.js",
+    "--test-coverage-include=apps/rnd-api/src/**/*.js",
+    "--test-coverage-exclude=**/index.js",
+  );
+}
+nodeArguments.push("--test", "--test-isolation=process", ...testFiles);
+
+console.log(`Running ${testFiles.length} JavaScript test file(s)${coverageEnabled ? " with coverage" : ""}.`);
+const result = spawnSync(process.execPath, nodeArguments, { stdio: "inherit" });
 
 if (result.error) {
   console.error(result.error);
