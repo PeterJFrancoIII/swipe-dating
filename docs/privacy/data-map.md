@@ -2,7 +2,7 @@
 
 **Status:** DRAFT — UNAPPROVED  
 **Updated:** 2026-07-22  
-**Related:** `docs/privacy/privacy-policy.md`, `docs/privacy/dpia-outline.md`, `docs/governance/decentralization-limits.md`, `docs/product/adult-feature-expansion.md`, `docs/architecture/adr-0015-local-persistence-boundary.md`
+**Related:** `docs/privacy/privacy-policy.md`, `docs/privacy/dpia-outline.md`, `docs/governance/decentralization-limits.md`, `docs/product/adult-feature-expansion.md`, `docs/architecture/adr-0015-local-persistence-boundary.md`, `docs/architecture/adr-0016-intent-driven-discovery.md`
 
 | Data class | Primary location | Server processing | Default retention | Notes |
 |---|---|---|---|---|
@@ -10,7 +10,11 @@
 | R&D mock cosmetic ownership / selected skin | Device AsyncStorage | None | Until local reset/app deletion | Synthetic entitlement only; no payment or dating-rank effect |
 | R&D UI tab / haptic preference | Device AsyncStorage | None | Until local reset/app deletion | Non-secret UI convenience state |
 | R&D adult gate / birth date | Memory only | None | Current session | Explicitly excluded from AsyncStorage |
-| R&D intent / discovery / questionnaire selections | Memory only | None | Current session | Explicitly excluded from AsyncStorage because sensitive |
+| R&D immediate intent / relational openness | Memory only | None | Current session | Sensitive discovery state; explicitly excluded from AsyncStorage |
+| R&D required boundaries | Memory only | None | Current session | Self-reported hard exclusions; never disclosed as rejection reasons |
+| R&D discovery weights | Memory only | None | Current session | User-controlled weights for intent, boundaries, lifestyle, alignment, and distance |
+| R&D reveal stage / dismissed queue / starter tag | Memory only | None | Current session | No centralized profile-view or exclusion history |
+| R&D questionnaire selections | Memory only | None | Current session | Explicitly excluded from AsyncStorage because sensitive |
 | R&D location / proximity selections and identifiers | Memory only | None | Current session or shorter | Explicitly excluded from AsyncStorage |
 | Root identity secret | User device only | Never | Until local deletion | Hardware-backed wrap; key reference persisted, not raw key |
 | Device keys | User device | Public keys / revocation state may register | Until revoked | Signed by root; independent of marketplace identity |
@@ -21,6 +25,12 @@
 | Purchase entitlement | Device + platform validation service | Minimal receipt/entitlement state | Accounting/legal period | Must not affect dating rank or safety access |
 | Creator payout / tax record | Finance systems | Payment and compliance | Legal/accounting period | No access to profiles, messages, proximity, location, or reports |
 | Looking For modes | User device | Coarse compatibility capability only | User-controlled | Sexual intent private by default; never in public BLE payload |
+| Immediate-intent compatibility | User device | At most privacy-preserving compatibility capability | Short-lived / recomputed | Mutual eligibility control; raw value not needed by marketplace or ads |
+| Relational-openness compatibility | User device | At most privacy-preserving compatibility capability | Short-lived / recomputed | Separate from immediate intent; no public negative label |
+| Required boundary set | User device | Prefer local comparison; otherwise privacy-reviewed capability only | User-controlled | Hard exclusion; self-reported; not a safety guarantee |
+| Discovery weight vector | User device | None by default | User-controlled | Explainable local ordering; no protected, inferred, popularity, or purchase inputs |
+| Candidate score explanation | User device | None | Recomputed | Shows component and user weight; never exposes another person's private exclusions |
+| Progressive reveal state | User device | None | Short session | Reveals media after non-visual interaction; no operator view-history graph |
 | Gender identity / pronouns | User device | Only when user chooses profile disclosure | User-controlled | Separate from orientation and discovery preferences |
 | Sexual orientation | User device | Local compatibility by default | User-controlled | Sensitive; no ads or general analytics |
 | Who-I-see preferences | User device | At most privacy-preserving constraints | User-controlled | Never shown as a negative public label |
@@ -52,19 +62,22 @@
 | Report metadata | Safety system | Triage | Policy/law-defined | Segregated |
 | Report evidence | Safety vault | Human review | Case-specific | Deliberate exception; separate keys/RBAC/audit |
 | Marketplace report | Marketplace moderation | Asset/creator review | Policy/legal period | Separated from dating safety evidence where possible |
-| Telemetry | Device + observability | Aggregate/technical | 7–30 days | No content, exact location, questionnaire answers, BLE IDs, or sexual intent |
+| Telemetry | Device + observability | Aggregate/technical | 7–30 days | No content, exact location, questionnaire answers, BLE IDs, sexual intent, boundaries, or discovery weights |
 
 ## Processing boundaries
 
 1. **R&D local persistence plane:** unencrypted AsyncStorage allowlist for presentation/cosmetic/UI fields only; no real users or sensitive fields.
-2. **Dating data plane:** device-local encrypted custody and E2EE peer transfer for real profiles, messages, private intent, questionnaire answers, and match-scoped location.
-3. **Ephemeral control plane:** presence, rendezvous, signaling, rate limits, revocations, and opaque capabilities only.
-4. **Marketplace plane:** public cosmetic assets, catalog, purchase validation, and creator accounting; no access to private dating or safety data.
-5. **Safety plane:** deliberate report metadata/evidence exception with separate keys, access policy, logging, and retention.
-6. **Anti-abuse plane:** pseudonymous integrity/risk controls; no ordinary private content or protected-trait ranking.
+2. **R&D discovery memory plane:** immediate intent, relational openness, boundaries, weights, reveal, and queue state remain session-only.
+3. **Dating data plane:** device-local encrypted custody and E2EE peer transfer for real profiles, messages, private intent, questionnaire answers, and match-scoped location.
+4. **Ephemeral control plane:** presence, rendezvous, signaling, rate limits, revocations, and opaque capabilities only.
+5. **Marketplace plane:** public cosmetic assets, catalog, purchase validation, and creator accounting; no access to private dating or safety data.
+6. **Safety plane:** deliberate report metadata/evidence exception with separate keys, access policy, logging, and retention.
+7. **Anti-abuse plane:** pseudonymous integrity/risk controls; no ordinary private content or protected-trait ranking.
 
 ## Prohibited joins
 
-The operator must not join marketplace purchases, creator status, bot-risk data, questionnaire answers, sexual intent, orientation, precise location, BLE encounters, or safety cases to influence dating rank, advertising, pricing, or access to safety features.
+The operator must not join marketplace purchases, creator status, bot-risk data, questionnaire answers, sexual intent, relational openness, boundaries, orientation, precise location, BLE encounters, or safety cases to influence advertising, pricing, or access to safety features.
 
-The R&D AsyncStorage record must not be expanded by convenience to include adult status, identity credentials, intents, discovery preferences, questionnaire answers, likes, matches, messages, blocks, reports, location, proximity observations, device identifiers, cryptographic material, or payment data.
+Candidate ranking must not use race, ethnicity, skin color, disability, height, inferred attractiveness, intelligence, hygiene, sexuality, gender, fitness, grooming, body hair, popularity, purchases, spending, subscription status, or creator status.
+
+The R&D AsyncStorage record must not be expanded by convenience to include adult status, identity credentials, intents, relational openness, boundaries, discovery weights/history, questionnaire answers, likes, matches, messages, blocks, reports, location, proximity observations, device identifiers, cryptographic material, or payment data.
