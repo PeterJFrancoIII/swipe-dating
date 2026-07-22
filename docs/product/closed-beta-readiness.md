@@ -1,9 +1,9 @@
 # Closed beta readiness
 
-**Updated:** 2026-07-21  
+**Updated:** 2026-07-22  
 **Status:** **NOT READY — JAVASCRIPT SYNTHETIC R&D ONLY**
 
-The JavaScript reset is a governed research scaffold. It is not permission to invite real users, collect real profiles or intimate preferences, activate Bluetooth proximity, transmit coordinates, process purchases, or operate real safety cases.
+The JavaScript implementation is a governed research scaffold. It is not permission to invite real users, collect real profiles or intimate preferences, activate Bluetooth proximity, transmit coordinates, process purchases, or operate real safety cases.
 
 ## Existing organizational gates
 
@@ -23,7 +23,7 @@ The JavaScript reset is a governed research scaffold. It is not permission to in
 - [x] Node.js 24 LTS CI
 - [x] Plain JavaScript/ECMAScript-module active surface; no active TypeScript source
 - [x] Node syntax and active-language checks
-- [x] Domain, crypto, API, and simulation tests
+- [x] Domain, crypto, API, storage, and simulation tests
 - [x] Expo SDK 57 dependency compatibility check
 - [x] Expo web export
 - [x] High/critical dependency audit threshold passes
@@ -31,6 +31,20 @@ The JavaScript reset is a governed research scaffold. It is not permission to in
 - [ ] Controlled iOS development build green on physical devices
 - [ ] Controlled Android development build green on physical devices
 - [ ] Legacy native/Rust prototype archived or explicitly retained under approved scope
+
+## Local persistence and device custody
+
+- [x] Synthetic R&D state uses a versioned allowlist schema with migration and corruption recovery
+- [x] Current AsyncStorage adapter saves only display profile fields, mock cosmetics, last tab, and haptic preference
+- [x] Automated tests prove sensitive/session fields are omitted from serialized state
+- [x] User can view the redacted local record and clear it from the app
+- [ ] Real-user profile and preference data uses an externally reviewed encrypted vault
+- [ ] Keys are hardware/OS protected where available and not co-located with ciphertext
+- [ ] Device backup, restore, transfer, logout, deletion, export, recovery, and schema migration are documented and tested
+- [ ] Web storage behavior is reviewed separately; sensitive fields are never written to unencrypted browser storage
+- [ ] Crash, telemetry, debug, and support paths cannot expose local vault plaintext or keys
+- [ ] Physical-device testing covers corruption, low storage, app reinstall, OS upgrade, biometric changes, and key loss
+- [ ] Privacy/DPIA and security review approve the exact persisted fields and retention behavior
 
 ## Adult eligibility and identity
 
@@ -123,11 +137,11 @@ The JavaScript reset is a governed research scaffold. It is not permission to in
 - [ ] Evidence vault has separate keys, RBAC, purpose logging, immutable access audit, retention, and legal hold
 - [ ] Proximity stalking, location coercion, group-consent abuse, bot/scam, marketplace, NCII, child-safety, and credible-threat queues have playbooks and owners
 - [ ] Appeals and emergency escalation tested with synthetic cases
-- [ ] Crash and observability systems exclude messages, location, BLE IDs, sexual intent, questionnaire answers, and secrets
+- [ ] Crash and observability systems exclude messages, location, BLE IDs, sexual intent, questionnaire answers, local-vault plaintext, and secrets
 
 ## Delivery and infrastructure
 
-- [ ] JavaScript syntax, active-surface, unit/API/simulation, dependency-audit, and Expo export checks green on exact beta commit
+- [ ] JavaScript syntax, active-surface, unit/API/storage/simulation, dependency-audit, and Expo export checks green on exact beta commit
 - [ ] Physical iOS development-build tests green and blocking for the iOS cohort
 - [ ] Physical Android development-build tests green and blocking for the Android cohort
 - [ ] Device-pair E2E test passes for profile fetch, mutual match, E2EE chat, block, report, and revocation
