@@ -1,4 +1,0 @@
-module dating_uniffi_bindingsFFI {
-    header "dating_uniffi_bindingsFFI.h"
-    export *
-}
