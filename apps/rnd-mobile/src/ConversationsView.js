@@ -38,11 +38,15 @@ export function ConversationsView({
 
   function sendOpeningSuggestion(text) {
     if (!selectedMatch) return;
-    onSend?.({
-      matchId: selectedMatch.id,
-      text,
-      sharedGroundTag: selectedMatch.starterTag,
-    });
+    try {
+      onSend?.({
+        matchId: selectedMatch.id,
+        text,
+        sharedGroundTag: selectedMatch.starterTag,
+      });
+    } catch (error) {
+      Alert.alert("Message not sent", humanizeError(error));
+    }
   }
 
   function sendDraft() {
@@ -184,20 +188,25 @@ function ConversationCard({
             {match.messages.length === 0 ? (
               <Text style={styles.caption}>No messages yet.</Text>
             ) : (
-              match.messages.map((message) => (
-                <View
-                  key={message.id}
-                  style={[
-                    styles.message,
-                    message.sender === "local" ? styles.localMessage : styles.candidateMessage,
-                  ]}
-                >
-                  <Text style={styles.messageSender}>
-                    {message.sender === "local" ? "You" : match.candidate.displayName}
-                  </Text>
-                  <Text style={styles.messageBody}>{message.body}</Text>
-                </View>
-              ))
+              match.messages.map((message) => {
+                const candidateMessage = message.sender === "candidate";
+                return (
+                  <View
+                    key={message.id}
+                    style={[
+                      styles.message,
+                      candidateMessage ? styles.candidateMessage : styles.localMessage,
+                    ]}
+                  >
+                    <Text style={[styles.messageSender, candidateMessage && styles.candidateMessageText]}>
+                      {candidateMessage ? match.candidate.displayName : "You"}
+                    </Text>
+                    <Text style={[styles.messageBody, candidateMessage && styles.candidateMessageText]}>
+                      {message.body}
+                    </Text>
+                  </View>
+                );
+              })
             )}
           </View>
 
@@ -293,6 +302,7 @@ const styles = StyleSheet.create({
   candidateMessage: { alignSelf: "flex-start", backgroundColor: "#343b47" },
   messageSender: { color: "#17191e", fontSize: 11, fontWeight: "900" },
   messageBody: { color: "#17191e", lineHeight: 19 },
+  candidateMessageText: { color: "white" },
   openerBox: { gap: 8 },
   label: { color: "#dfe4eb", fontSize: 13, fontWeight: "800" },
   suggestionButton: { borderColor: "#6c7482", borderRadius: 10, borderWidth: 1, padding: 12 },
