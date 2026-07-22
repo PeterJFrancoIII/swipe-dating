@@ -2,7 +2,7 @@
 
 **Status:** DRAFT — UNAPPROVED  
 **Updated:** 2026-07-22  
-**Related:** `docs/privacy/privacy-policy.md`, `docs/privacy/dpia-outline.md`, `docs/governance/decentralization-limits.md`, `docs/product/adult-feature-expansion.md`, `docs/architecture/adr-0015-local-persistence-boundary.md`, `docs/architecture/adr-0016-intent-driven-discovery.md`, `docs/architecture/adr-0017-reciprocal-match-conversations.md`
+**Related:** `docs/privacy/privacy-policy.md`, `docs/privacy/dpia-outline.md`, `docs/governance/decentralization-limits.md`, `docs/product/adult-feature-expansion.md`, `docs/architecture/adr-0015-local-persistence-boundary.md`, `docs/architecture/adr-0016-intent-driven-discovery.md`, `docs/architecture/adr-0017-reciprocal-match-conversations.md`, `docs/architecture/adr-0018-deepen-connection.md`
 
 | Data class | Primary location | Server processing | Default retention | Notes |
 |---|---|---|---|---|
@@ -21,16 +21,19 @@
 | R&D message transcript | Memory only | None | Current session; purged on block | No encryption, network delivery, push, read receipts, or attachments |
 | R&D unmatch / block state | Memory only | None | Current session | Stops sending; block purges content and suppresses rediscovery |
 | R&D Matches tab | Memory only | None | Current session | Not written as last tab because it can reveal relationship activity |
+| R&D deepen request / response | Memory only | None | Current session or until match ends | Synthetic bilateral-consent fixture; decline reason is never collected |
+| R&D relationship phase / timestamps | Memory only | None | Current session; ended on unmatch/block | Casual/deepened/ended state; never inferred from behavior and never changes public profile |
+| R&D deeper prompt answers | Memory only | None | Current session; cleared on return to casual, unmatch, or block | Allowlisted prompts, 300-character maximum; not transmitted to counterpart |
 | R&D questionnaire selections | Memory only | None | Current session | Explicitly excluded from AsyncStorage because sensitive |
 | R&D location / proximity selections and identifiers | Memory only | None | Current session or shorter | Explicitly excluded from AsyncStorage |
 | Root identity secret | User device only | Never | Until local deletion | Hardware-backed wrap; key reference persisted, not raw key |
 | Device keys | User device | Public keys / revocation state may register | Until revoked | Signed by root; independent of marketplace identity |
-| Profile text | User device | Relayed encrypted only | No central persistence | Signed capsule; production local store must be encrypted |
-| Photos/videos | User device | Relayed encrypted only | No central persistence | Decode/re-encode metadata scrub required |
+| Profile text | User device only | Relayed encrypted only | User-controlled | Signed capsule; production local store must be encrypted |
+| Photos/videos | User device only | Relayed encrypted only | User-controlled | Decode/re-encode metadata scrub required |
 | Public avatar / skin asset | Public asset store + creator device | Catalog, moderation, delivery | Creator lifecycle + legal/IP needs | Public cosmetic data; isolated from private dating data |
 | Skin preview / manifest | Public marketplace | Catalog and moderation | While listed + audit period | Bounded declarative format; no executable code |
 | Purchase entitlement | Device + platform validation service | Minimal receipt/entitlement state | Accounting/legal period | Must not affect dating rank or safety access |
-| Creator payout / tax record | Finance systems | Payment and compliance | Legal/accounting period | No access to profiles, messages, proximity, location, or reports |
+| Creator payout / tax record | Finance systems | Payment and compliance | Legal/accounting period | No access to profiles, messages, phases, prompts, proximity, location, or reports |
 | Looking For modes | User device | Coarse compatibility capability only | User-controlled | Sexual intent private by default; never in public BLE payload |
 | Immediate-intent compatibility | User device | At most privacy-preserving compatibility capability | Short-lived / recomputed | Mutual eligibility control; raw value not needed by marketplace or ads |
 | Relational-openness compatibility | User device | At most privacy-preserving compatibility capability | Short-lived / recomputed | Separate from immediate intent; no public negative label |
@@ -61,33 +64,38 @@
 | Opening shared-ground context | Matched devices | E2EE message metadata or body only | Conversation policy | Not consent to sex, media, location, or an offline meeting |
 | Message | Matched devices | Relayed ciphertext only | User/policy-controlled | E2EE; ordinary services must not receive plaintext |
 | Message delivery metadata | Device + relay | Minimal routing, retry, sequence, expiry | Short reviewed TTL | No message body, sexual intent, or exact location in push/telemetry |
-| Unmatch / block revocation | Devices + relevant services | Pairwise deny / revocation | Until unblock/deletion or reviewed safety window | Suppresses discovery, proximity, messaging, groups, push, and location |
+| Relationship-phase request / response | Matched devices | Opaque signed routing or ciphertext only | Pending until response/withdrawal/expiry | Bilateral, replay-resistant, match-scoped; decline reason not collected |
+| Relationship-phase receipt | Matched devices | Optional opaque revocation/status metadata | Minimal reviewed retention | Signed by both authorized participants; required before deeper prompts unlock |
+| Deeper prompt answer | User device by default | E2EE only if explicitly shared | User-controlled; clear on phase exit where promised | Separate per-answer disclosure; not ranking, ad, marketplace, or bot-profile input |
+| Return-to-casual / phase revocation | Matched devices + relevant services | Minimal authenticated revocation | Short safety/reliability window | Either participant may revoke; must clear/hide phase-only data according to policy |
+| Unmatch / block revocation | Devices + relevant services | Pairwise deny / revocation | Until unblock/deletion or reviewed safety window | Suppresses discovery, proximity, messaging, groups, push, phases, and location |
 | Group encounter membership | Participant devices | Opaque capability routing | Session TTL | Complete participant list + renewed consent on changes |
-| Push token | Push broker | Opaque wake routing | Rotated; deleted on sign-out | No dating, sexual, location, questionnaire, or message content |
-| Adult eligibility | Device + eligibility service | Adult boolean / age band / revocation | Expiry-bound | No ID/face retention in app; required before presence/proximity/matching/messaging |
+| Push token | Push broker | Opaque wake routing | Rotated; deleted on sign-out | No dating, sexual, phase, location, questionnaire, or message content |
+| Adult eligibility | Device + eligibility service | Adult boolean / age band / revocation | Expiry-bound | No ID/face retention in app; required before presence/proximity/matching/messaging/phases |
 | Device/app attestation | Device + anti-abuse | Integrity verdict / bound assertion | Short/medium TTL | Not proof of unique human or adult status |
-| Bot-risk state | Anti-abuse service | Pseudonymous signals / quotas | Purpose-limited, reviewed TTL | No private message plaintext or protected-trait profiling |
+| Bot-risk state | Anti-abuse service | Pseudonymous signals / quotas | Purpose-limited, reviewed TTL | No private message or deeper-answer plaintext; no protected-trait profiling |
 | Replay nonce / quota token | Device + relevant service | Dedup / rate enforcement | Short TTL | Pairwise/anonymous where possible |
 | Report metadata | Safety system | Triage | Policy/law-defined | Segregated from ordinary messaging and discovery |
 | Report evidence | Safety vault | Human review | Case-specific | Deliberate exception; separate keys/RBAC/audit and user-selected evidence |
 | Marketplace report | Marketplace moderation | Asset/creator review | Policy/legal period | Separated from dating safety evidence where possible |
-| Telemetry | Device + observability | Aggregate/technical | 7–30 days | No message content, exact location, questionnaire answers, BLE IDs, sexual intent, boundaries, discovery weights, starter tags, match graph, or block reasons |
+| Telemetry | Device + observability | Aggregate/technical | 7–30 days | No message or deeper-answer content, exact location, questionnaire answers, BLE IDs, sexual intent, boundaries, discovery weights, starter tags, match graph, phase graph, or decline/block reasons |
 
 ## Processing boundaries
 
 1. **R&D local persistence plane:** unencrypted AsyncStorage allowlist for presentation/cosmetic/approved-UI fields only; no real users or sensitive fields.
 2. **R&D discovery memory plane:** immediate intent, relational openness, boundaries, weights, reveal, and queue state remain session-only.
 3. **R&D conversation memory plane:** decisions, pending interests, reciprocal fixtures, matches, starter context, messages, unmatch, block, and Matches-tab state remain session-only.
-4. **Dating data plane:** device-local encrypted custody and E2EE peer transfer for real profiles, messages, private intent, questionnaire answers, match state, and match-scoped location.
-5. **Ephemeral control plane:** presence, rendezvous, signaling, rate limits, revocations, opaque match capabilities, and ciphertext routing only.
-6. **Marketplace plane:** public cosmetic assets, catalog, purchase validation, and creator accounting; no access to private dating or safety data.
-7. **Safety plane:** deliberate report metadata/evidence exception with separate keys, access policy, logging, and retention.
-8. **Anti-abuse plane:** pseudonymous integrity/risk controls; no ordinary private content or protected-trait ranking.
+4. **R&D relationship-phase memory plane:** requests, responses, phase state, timestamps, and deeper answers remain match-scoped and session-only.
+5. **Dating data plane:** device-local encrypted custody and E2EE peer transfer for real profiles, messages, private intent, questionnaire answers, phase state, deeper answers, match state, and match-scoped location.
+6. **Ephemeral control plane:** presence, rendezvous, signaling, rate limits, revocations, opaque match/phase capabilities, and ciphertext routing only.
+7. **Marketplace plane:** public cosmetic assets, catalog, purchase validation, and creator accounting; no access to private dating or safety data.
+8. **Safety plane:** deliberate report metadata/evidence exception with separate keys, access policy, logging, and retention.
+9. **Anti-abuse plane:** pseudonymous integrity/risk controls; no ordinary private content or protected-trait ranking.
 
 ## Prohibited joins
 
-The operator must not join marketplace purchases, creator status, bot-risk data, questionnaire answers, sexual intent, relational openness, boundaries, orientation, messages, match graph, precise location, BLE encounters, or safety cases to influence advertising, pricing, or access to safety features.
+The operator must not join marketplace purchases, creator status, bot-risk data, questionnaire answers, sexual intent, relational openness, boundaries, orientation, messages, deeper answers, match/phase graph, precise location, BLE encounters, or safety cases to influence advertising, pricing, candidate ranking, relationship-phase prompts, or access to safety features.
 
-Candidate ranking must not use race, ethnicity, skin color, disability, height, inferred attractiveness, intelligence, hygiene, sexuality, gender, fitness, grooming, body hair, popularity, purchases, spending, subscription status, creator status, message content, reply speed, block history, or report history.
+Candidate ranking must not use race, ethnicity, skin color, disability, height, inferred attractiveness, intelligence, hygiene, sexuality, gender, fitness, grooming, body hair, popularity, purchases, spending, subscription status, creator status, message content, reply speed, relationship phase, deeper answers, block history, or report history.
 
-The R&D AsyncStorage record must not be expanded by convenience to include adult status, identity credentials, intents, relational openness, boundaries, discovery weights/history, questionnaire answers, decisions, likes, pending interests, reciprocal flags, matches, starter tags, messages, transcripts, unmatch/block history, the Matches tab, reports, location, proximity observations, device identifiers, cryptographic material, or payment data.
+The R&D AsyncStorage record must not be expanded by convenience to include adult status, identity credentials, intents, relational openness, boundaries, discovery weights/history, questionnaire answers, decisions, likes, pending interests, reciprocal flags, matches, starter tags, messages, transcripts, relationship-phase requests/responses/status/timestamps, deeper prompt answers, transition history, unmatch/block history, the Matches tab, reports, location, proximity observations, device identifiers, cryptographic material, or payment data.

@@ -7,13 +7,24 @@ import {
   listMatches,
 } from "@swipe/rnd-conversations";
 
+import { DeepenConnectionPanel } from "./DeepenConnectionPanel.js";
+
 export function ConversationsView({
   conversationState,
+  relationshipPhaseState,
   onUndo,
   onSend,
   onSyntheticReply,
   onUnmatch,
   onBlock,
+  onRequestDeepen,
+  onCandidateDeepenRequest,
+  onCandidateDeepenResponse,
+  onLocalDeepenResponse,
+  onWithdrawDeepen,
+  onReturnToCasual,
+  onAnswerDeepenPrompt,
+  onClearDeepenAnswer,
 }) {
   const matches = useMemo(() => listMatches(conversationState), [conversationState]);
   const [selectedMatchId, setSelectedMatchId] = useState(matches[0]?.id ?? null);
@@ -63,7 +74,7 @@ export function ConversationsView({
     if (!selectedMatch) return;
     Alert.alert(
       "Unmatch synthetic profile?",
-      "Messaging will stop. The session transcript remains visible until this R&D session ends.",
+      "Messaging and any deeper phase will stop. Session-only deeper prompt answers will be cleared.",
       [
         { text: "Cancel", style: "cancel" },
         { text: "Unmatch", style: "destructive", onPress: () => onUnmatch?.(selectedMatch.id) },
@@ -75,7 +86,7 @@ export function ConversationsView({
     if (!selectedMatch) return;
     Alert.alert(
       "Block synthetic profile?",
-      "The visible session transcript and shared-ground context will be purged, and this profile will remain suppressed for the session.",
+      "The visible transcript, shared-ground context, relationship phase, and deeper prompt answers will be purged. The profile remains suppressed for the session.",
       [
         { text: "Cancel", style: "cancel" },
         { text: "Block and purge", style: "destructive", onPress: () => onBlock?.(selectedMatch.id) },
@@ -88,7 +99,7 @@ export function ConversationsView({
       <View style={styles.card}>
         <Text style={styles.sectionTitle}>Match lifecycle</Text>
         <Text style={styles.caption}>
-          Likes, matches, messages, unmatches, and blocks are session-only synthetic state. They are not written to AsyncStorage.
+          Likes, matches, messages, relationship phases, unmatches, and blocks are session-only synthetic state. They are not written to AsyncStorage.
         </Text>
         <Pressable onPress={undoDecision} style={styles.secondaryButton}>
           <Text style={styles.secondaryButtonText}>Undo last pass or pending interest</Text>
@@ -124,21 +135,35 @@ export function ConversationsView({
           </View>
 
           {selectedMatch ? (
-            <ConversationCard
-              match={selectedMatch}
-              draft={draft}
-              setDraft={setDraft}
-              onSendDraft={sendDraft}
-              onSendOpening={sendOpeningSuggestion}
-              onSyntheticReply={() =>
-                onSyntheticReply?.({
-                  matchId: selectedMatch.id,
-                  text: "Thanks for starting with shared ground. What boundaries or expectations would you like to clarify?",
-                })
-              }
-              onUnmatch={confirmUnmatch}
-              onBlock={confirmBlock}
-            />
+            <>
+              <ConversationCard
+                match={selectedMatch}
+                draft={draft}
+                setDraft={setDraft}
+                onSendDraft={sendDraft}
+                onSendOpening={sendOpeningSuggestion}
+                onSyntheticReply={() =>
+                  onSyntheticReply?.({
+                    matchId: selectedMatch.id,
+                    text: "Thanks for starting with shared ground. What boundaries or expectations would you like to clarify?",
+                  })
+                }
+                onUnmatch={confirmUnmatch}
+                onBlock={confirmBlock}
+              />
+              <DeepenConnectionPanel
+                match={selectedMatch}
+                relationshipPhaseState={relationshipPhaseState}
+                onRequest={onRequestDeepen}
+                onCandidateRequest={onCandidateDeepenRequest}
+                onCandidateResponse={onCandidateDeepenResponse}
+                onLocalResponse={onLocalDeepenResponse}
+                onWithdraw={onWithdrawDeepen}
+                onReturnToCasual={onReturnToCasual}
+                onAnswer={onAnswerDeepenPrompt}
+                onClearAnswer={onClearDeepenAnswer}
+              />
+            </>
           ) : null}
         </>
       )}

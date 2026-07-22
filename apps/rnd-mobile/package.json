@@ -16,6 +16,7 @@
     "@swipe/rnd-conversations": "0.1.0",
     "@swipe/rnd-discovery": "0.1.0",
     "@swipe/rnd-domain": "0.1.0",
+    "@swipe/rnd-relationship-phases": "0.1.0",
     "@swipe/rnd-storage": "0.1.0",
     "expo": "57.0.7",
     "expo-dev-client": "57.0.7",
