@@ -48,7 +48,7 @@ Self-reported gender discovery preferences remain a separate private eligibility
 
 ## Ethical UX constraints
 
-The product may use progressive disclosure to reduce cognitive load, but it must not fabricate matching work, artificial delays, fake scarcity, or misleading compatibility analysis. Accessibility alternatives must allow non-gesture interaction and must not make essential profile information permanently inaccessible.
+The product may use progressive disclosure to reduce cognitive load, but it must not fabricate matching effort, artificial delays, fake scarcity, or misleading compatibility analysis. Accessibility alternatives must allow non-gesture interaction and must not make essential profile information permanently inaccessible.
 
 ## Consequences
 
