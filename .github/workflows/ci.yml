@@ -14,7 +14,7 @@ concurrency:
 
 jobs:
   javascript:
-    name: JavaScript domain, API, storage, discovery, conversations, simulation, and active-surface checks
+    name: JavaScript domain, API, storage, discovery, conversations, relationship phases, simulation, and active-surface checks
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -39,7 +39,7 @@ jobs:
       - run: test -s apps/rnd-mobile/dist-web/index.html
 
   governance:
-    name: Mission, JavaScript, persistence, discovery, and conversation contracts
+    name: Mission, JavaScript, persistence, discovery, conversation, and relationship-phase contracts
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -60,22 +60,32 @@ jobs:
           grep -Fq 'One-sided interest never creates a match' docs/architecture/adr-0017-reciprocal-match-conversations.md
           grep -Fq 'R&D message transcript' docs/privacy/data-map.md
           grep -Fq 'The Matches tab is not an approved persisted tab' AGENTS.md
+          grep -Fq 'Deepen Connection gates' docs/governance/release-gates.md
+          grep -Fq 'Two explicit participant opt-ins' docs/architecture/adr-0018-deepen-connection.md
+          grep -Fq 'R&D deeper prompt answers' docs/privacy/data-map.md
+          grep -Fq 'must not infer or auto-activate relationship phase' AGENTS.md
           test -f apps/rnd-mobile/src/App.js
           test -f apps/rnd-mobile/src/IntentDiscoveryView.js
           test -f apps/rnd-mobile/src/ConversationsView.js
+          test -f apps/rnd-mobile/src/DeepenConnectionPanel.js
           test -f apps/rnd-mobile/src/local-storage.js
           test -f packages/rnd-domain/src/index.js
           test -f packages/rnd-discovery/src/index.js
           test -f packages/rnd-discovery/test/discovery.test.js
           test -f packages/rnd-conversations/src/index.js
           test -f packages/rnd-conversations/test/conversations.test.js
+          test -f packages/rnd-relationship-phases/src/index.js
+          test -f packages/rnd-relationship-phases/test/relationship-phases.test.js
           test -f packages/rnd-storage/src/index.js
           test -f packages/rnd-storage/test/storage.test.js
           test -f docs/architecture/adr-0014-javascript-rnd-reset.md
           test -f docs/architecture/adr-0015-local-persistence-boundary.md
           test -f docs/architecture/adr-0016-intent-driven-discovery.md
           test -f docs/architecture/adr-0017-reciprocal-match-conversations.md
+          test -f docs/architecture/adr-0018-deepen-connection.md
           test -f docs/product/intent-driven-discovery.md
+          test -f docs/product/reciprocal-match-conversations.md
+          test -f docs/product/deepen-connection.md
           node scripts/check-active-javascript-surface.mjs
 
   production-gate:
