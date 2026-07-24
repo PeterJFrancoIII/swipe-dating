@@ -18,6 +18,16 @@ secrets/
 **/google-services.json
 **/AuthKey_*.p8
 
+# Python local artifacts
+**/__pycache__/
+**/.venv/
+**/.mypy_cache/
+**/.pytest_cache/
+**/.ruff_cache/
+**/.hypothesis/
+*.py[cod]
+.coverage
+
 # Build
 /target/
 **/build/
@@ -26,6 +36,7 @@ secrets/
 **/Pods/
 **/.swiftpm/
 **/node_modules/
+.netlify/
 dist/
 out/
 coverage/

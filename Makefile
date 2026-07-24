@@ -7,11 +7,14 @@ SHELL := /bin/bash
 	local-up local-down local-reset-test-data smoke-local local-services-up infra-fmt infra-validate infra-plan-staging \
 	deploy-staging smoke-staging release-readiness production-preflight ios-build ios-open ios-gen ios-uniffi \
 	sync sync-pull sync-push sync-status \
-	ramdisk-status ramdisk-up ramdisk-sync-back ramdisk-down
+	ramdisk-status ramdisk-up ramdisk-sync-back ramdisk-down \
+	live-introductions-build live-introductions-test live-introductions-browser \
+	live-introductions-netlify-validate live-introductions-deploy-preflight
 
 COMPOSE_FILE := infra/local/compose.yaml
 STAGING_IDENTITY := infra/terraform/environments/staging/ACCOUNT_IDENTITY.md
 SCRIPTS := scripts
+NETLIFY_CLI := npx --yes netlify-cli@23.13.0
 
 ## --- Toolchain & quality ---
 
@@ -62,6 +65,72 @@ test-integration:
 
 test-protocol-vectors:
 	@source "$$HOME/.cargo/env" && cargo test -p dating-protocol --test golden_vectors -- --nocapture
+
+## --- Live Introductions static prototype ---
+
+live-introductions-build:
+	python3 scripts/generate_live_introductions_prototype.py --output dist/live-introductions
+
+live-introductions-test:
+	python3 -m unittest tests.test_live_introductions_prototype
+
+live-introductions-browser:
+	@command -v uv >/dev/null 2>&1 || { echo "ERROR: uv is required. Install it from https://docs.astral.sh/uv/getting-started/installation/"; exit 1; }
+	@uv run --project tools/live-introductions-browser --frozen python scripts/browser_acceptance_live_introductions.py $(if $(LIVE_INTRODUCTIONS_SCREENSHOT_DIR),--screenshot-dir "$(LIVE_INTRODUCTIONS_SCREENSHOT_DIR)")
+
+live-introductions-netlify-validate:
+	@version="$$( $(NETLIFY_CLI) --version )"; \
+		printf '%s\n' "$$version"; \
+		grep -Fq 'netlify-cli/23.13.0' <<<"$$version"
+	@set -euo pipefail; \
+		default_dry="/tmp/live-introductions-netlify-default-dry.log"; \
+		$(NETLIFY_CLI) build --dry --offline | tee "$$default_dry"; \
+		grep -Fq 'Context' "$$default_dry"; \
+		grep -Fq 'production' "$$default_dry"; \
+		for context in production dev quality-review-custom deploy-preview branch-deploy; do \
+			log="/tmp/live-introductions-netlify-$${context}-dry.log"; \
+			$(NETLIFY_CLI) build --dry --offline --context "$$context" | tee "$$log"; \
+			grep -Fq 'Config file' "$$log"; \
+			grep -Fq "$$context" "$$log"; \
+		done; \
+		assert_blocked() { \
+			local context="$$1"; \
+			local marker="$$2"; \
+			local resolution_only="$${3:-false}"; \
+			set +e; \
+			if [[ "$$resolution_only" == "true" ]]; then \
+				output="$$( LIVE_INTRODUCTIONS_CONFIG_RESOLUTION_ONLY=1 $(NETLIFY_CLI) build --context "$$context" --offline 2>&1 )"; \
+			else \
+				output="$$( $(NETLIFY_CLI) build --context "$$context" --offline 2>&1 )"; \
+			fi; \
+			result=$$?; \
+			set -e; \
+			printf '%s\n' "$$output"; \
+			test $$result -ne 0; \
+			grep -Fq "$$marker" <<<"$$output"; \
+			grep -Fq 'Resolved config' <<<"$$output"; \
+			grep -Fq 'Content-Security-Policy' <<<"$$output"; \
+			grep -Fq 'X-Frame-Options: DENY' <<<"$$output"; \
+		}; \
+		set +e; \
+		default_output="$$( $(NETLIFY_CLI) build --offline 2>&1 )"; \
+		default_result=$$?; \
+		set -e; \
+		printf '%s\n' "$$default_output"; \
+		test $$default_result -ne 0; \
+		grep -Fq 'PRODUCTION_BLOCKED' <<<"$$default_output"; \
+		grep -Fq 'Resolved config' <<<"$$default_output"; \
+		grep -Fq 'Content-Security-Policy' <<<"$$default_output"; \
+		grep -Fq 'X-Frame-Options: DENY' <<<"$$default_output"; \
+		assert_blocked production PRODUCTION_BLOCKED; \
+		assert_blocked dev DEV_CONTEXT_BLOCKED; \
+		assert_blocked quality-review-custom UNAPPROVED_CONTEXT_BLOCKED; \
+		assert_blocked deploy-preview CONFIG_RESOLUTION_ONLY_BLOCKED true; \
+		assert_blocked branch-deploy CONFIG_RESOLUTION_ONLY_BLOCKED true; \
+		echo "Netlify configuration resolution: PASS (no generation executed)."
+
+live-introductions-deploy-preflight:
+	python3 scripts/verify_live_introductions_deploy_context.py --deployment-preflight
 
 test-mobile: ios-build
 	@echo "=== Android (optional; deferred while iPhone-first) ==="

@@ -1,0 +1,25 @@
+[build]
+  publish = "dist/live-introductions"
+  command = 'python3 scripts/verify_live_introductions_deploy_context.py --context "${CONTEXT:-missing}"'
+
+[context.deploy-preview]
+  command = "python3 scripts/verify_live_introductions_deploy_context.py --deployment-preflight && python3 scripts/verify_live_introductions_deploy_context.py --context deploy-preview && python3 scripts/generate_live_introductions_prototype.py --output dist/live-introductions"
+
+[context.branch-deploy]
+  command = "python3 scripts/verify_live_introductions_deploy_context.py --deployment-preflight && python3 scripts/verify_live_introductions_deploy_context.py --context branch-deploy && python3 scripts/generate_live_introductions_prototype.py --output dist/live-introductions"
+
+[context.production]
+  command = "python3 scripts/verify_live_introductions_deploy_context.py --context production"
+
+[context.dev]
+  command = "python3 scripts/verify_live_introductions_deploy_context.py --context dev"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Content-Security-Policy = "default-src 'none'; base-uri 'none'; child-src 'none'; connect-src 'none'; font-src 'none'; frame-ancestors 'none'; frame-src 'none'; form-action 'none'; img-src 'self'; manifest-src 'none'; media-src 'none'; object-src 'none'; script-src 'none'; style-src 'self'; worker-src 'none'"
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "no-referrer"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=(), payment=(), usb=(), browsing-topics=()"
+    Cache-Control = "no-store, max-age=0"

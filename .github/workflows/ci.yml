@@ -177,6 +177,104 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
+  live-introductions-prototype:
+    name: Live Introductions prototype acceptance
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify pinned Netlify CLI
+        shell: bash
+        run: |
+          set -euo pipefail
+          version="$(npx --yes netlify-cli@23.13.0 --version)"
+          printf '%s\n' "$version"
+          grep -Fq 'netlify-cli/23.13.0' <<<"$version"
+      - name: Resolve and validate every Netlify build context
+        run: make live-introductions-netlify-validate
+      - name: Check canonical hosted Netlify contexts
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          set +e
+          preflight_output="$(
+            python3 scripts/verify_live_introductions_deploy_context.py \
+              --deployment-preflight 2>&1
+          )"
+          preflight_status=$?
+          set -e
+          printf '%s\n' "$preflight_output"
+
+          blocker_codes=(
+            AWS_IDENTITY_MISSING
+            AWS_IDENTITY_MALFORMED
+            AWS_IDENTITY_UNVERIFIED
+            NETLIFY_IDENTITY_MISSING
+            NETLIFY_IDENTITY_MALFORMED
+            NETLIFY_IDENTITY_UNVERIFIED
+          )
+          matched_blockers=0
+
+          for context in deploy-preview branch-deploy; do
+            if [[ $preflight_status -eq 0 ]]; then
+              npx --yes netlify-cli@23.13.0 build --context "$context" --offline
+              continue
+            fi
+
+            set +e
+            hosted_output="$(
+              npx --yes netlify-cli@23.13.0 build --context "$context" --offline 2>&1
+            )"
+            hosted_status=$?
+            set -e
+            printf '%s\n' "$hosted_output"
+            if [[ $hosted_status -eq 0 ]]; then
+              echo "ERROR: hosted context ignored canonical preflight: $context"
+              exit 1
+            fi
+
+            context_matched=0
+            for code in "${blocker_codes[@]}"; do
+              if grep -Fq "$code" <<<"$preflight_output"; then
+                grep -Fq "$code" <<<"$hosted_output"
+                context_matched=$((context_matched + 1))
+                matched_blockers=$((matched_blockers + 1))
+              fi
+            done
+            if [[ $context_matched -eq 0 ]]; then
+              echo "ERROR: preflight failed without a parsed identity blocker"
+              exit 1
+            fi
+          done
+
+          if [[ $preflight_status -ne 0 && $matched_blockers -eq 0 ]]; then
+            echo "ERROR: no canonical blocker was exercised"
+            exit 1
+          fi
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v8
+        with:
+          version: '0.11.31'
+          enable-cache: true
+          cache-dependency-glob: tools/live-introductions-browser/uv.lock
+      - name: Prototype unit and structural tests
+        run: make live-introductions-test
+      - name: Prototype static build
+        run: make live-introductions-build
+      - name: Install isolated Chromium
+        run: uv run --project tools/live-introductions-browser --frozen playwright install --with-deps chromium
+      - name: Prototype browser acceptance
+        run: make live-introductions-browser
+
   production-gate:
     name: Production preflight (must fail without approvals)
     runs-on: ubuntu-latest

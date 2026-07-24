@@ -1,0 +1,11 @@
+[project]
+name = "live-introductions-browser"
+version = "0.0.0"
+description = "Isolated browser acceptance dependencies for the static Live Introductions prototype"
+requires-python = ">=3.12"
+dependencies = [
+    "playwright==1.61.0",
+]
+
+[tool.uv]
+package = false

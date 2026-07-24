@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Live Introductions — frame atlas</title>
+  <link rel="stylesheet" href="app.css">
+</head>
+<body class="atlas-page">
+  <a class="skip-link" href="#main-content">Skip to frame atlas</a>
+  <header class="site-header">
+    <p class="brand">Live Introductions</p>
+    <div class="study-markers" aria-label="Prototype status">
+      <strong>SYNTHETIC / FICTIONAL</strong>
+      <span>WIREFRAME ONLY</span>
+    </div>
+  </header>
+  <nav class="atlas-nav" aria-label="Atlas sections">
+    {{ATLAS_NAVIGATION}}
+  </nav>
+  <main id="main-content" tabindex="-1">
+    <header id="atlas-start" class="atlas-intro">
+      <p class="eyebrow">Static prototype atlas</p>
+      <h1>Thirty-nine views of one bounded conversation</h1>
+      <p>{{ATLAS_INTRODUCTION}}</p>
+    </header>
+    {{FRAME_GROUPS}}
+  </main>
+  <footer>
+    <p>{{PROTOTYPE_LIMITATION}}</p>
+  </footer>
+</body>
+</html>
