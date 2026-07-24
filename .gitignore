@@ -78,3 +78,7 @@ apps/ios/.build
 
 .tmp.drivedownload/
 .tmp.driveupload/
+
+# Local GPT / R&D workspace scratch (kept under 00_Developer_Documents)
+00_Developer_Documents/GPT_Workspace_Documents/
+GPT_Workspace_Documents

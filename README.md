@@ -56,6 +56,8 @@ Decentralization limits: `docs/governance/decentralization-limits.md`.
 
 ## Safety and governance
 
+Canonical copies live under [`00_Developer_Documents/`](00_Developer_Documents/README.md). Root `MISSION.md`, `docs/`, `policies/`, `Research/`, and related names are symlinks into that folder.
+
 Blocking, reporting, emergency privacy, deletion, and appeals entry points remain free and non-paywalled. Safety tools reduce risk; they cannot guarantee identity, Bluetooth detection, prevent screenshots, erase peer-held copies, or make in-person meetings safe.
 
 | Document | Role |
