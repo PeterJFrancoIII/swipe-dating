@@ -1,0 +1,131 @@
+import { Pressable, StyleSheet, Text, View } from "react-native";
+
+import { GetFkdLogo } from "@/components/GetFkdLogo";
+import { Screen, Toast } from "@/components/Screen";
+import { useSession } from "@/lib/session";
+import { theme } from "@/lib/theme";
+
+export function SignInScreen() {
+  const { signInWithApple, error, setError } = useSession();
+
+  async function continueWithApple() {
+    try {
+      const AppleAuthentication = await import("expo-apple-authentication");
+      const credential = await AppleAuthentication.signInAsync({
+        requestedScopes: [],
+      });
+      if (!credential.identityToken) {
+        setError("Apple did not return an identity token. Get fk'd cannot open without Sign in with Apple.");
+        return;
+      }
+      await signInWithApple(credential.identityToken);
+    } catch (cause) {
+      const code = cause && typeof cause === "object" && "code" in cause ? String(cause.code) : "";
+      if (code === "ERR_REQUEST_CANCELED") {
+        setError("Sign in with Apple was canceled. Get fk'd cannot open without it on this build.");
+        return;
+      }
+      setError("Sign in with Apple is unavailable on this device.");
+    }
+  }
+
+  return (
+    <Screen>
+      <View style={styles.layout}>
+        <View style={styles.copy}>
+          <GetFkdLogo size={168} style={styles.logo} />
+          <Text style={styles.kicker}>SIGN IN</Text>
+          <Text style={styles.title}>Sign in with Apple.</Text>
+          <Text style={styles.lede}>
+            Your Apple ID is the account. There is no email or password. Sign out keeps the account. Delete
+            account wipes it.
+          </Text>
+        </View>
+        <View style={styles.card}>
+          <Text style={styles.step}>APPLE ACCOUNT</Text>
+          <Text style={styles.cardTitle}>Continue with Apple</Text>
+          <Toast error={error} />
+          <Pressable accessibilityRole="button" onPress={() => void continueWithApple()} style={styles.button}>
+            <Text style={styles.buttonLabel}>Sign in with Apple</Text>
+          </Pressable>
+          <Text style={styles.fine}>
+            Store builds require this step. Development builds can skip it so Metro still works.
+          </Text>
+        </View>
+      </View>
+    </Screen>
+  );
+}
+
+const styles = StyleSheet.create({
+  layout: {
+    flex: 1,
+    gap: 28,
+    justifyContent: "center",
+    paddingVertical: 20,
+  },
+  copy: {
+    gap: 8,
+  },
+  logo: {
+    alignSelf: "center",
+    marginBottom: 8,
+  },
+  kicker: {
+    color: theme.mute,
+    fontSize: 10,
+    fontWeight: "800",
+    letterSpacing: 1.4,
+  },
+  title: {
+    color: theme.ink,
+    fontSize: 44,
+    fontWeight: "800",
+    letterSpacing: -2,
+    lineHeight: 42,
+  },
+  lede: {
+    color: theme.mute,
+    fontSize: 14,
+    lineHeight: 21,
+    maxWidth: 480,
+  },
+  card: {
+    backgroundColor: theme.paper,
+    borderColor: theme.lineStrong,
+    borderRadius: 24,
+    borderWidth: 1,
+    padding: 20,
+  },
+  step: {
+    color: "#ff6687",
+    fontSize: 9,
+    fontWeight: "800",
+    letterSpacing: 1.3,
+  },
+  cardTitle: {
+    color: theme.ink,
+    fontSize: 20,
+    fontWeight: "800",
+    marginTop: 2,
+  },
+  button: {
+    alignItems: "center",
+    backgroundColor: theme.rose,
+    borderRadius: 15,
+    justifyContent: "center",
+    marginTop: 12,
+    minHeight: 48,
+  },
+  buttonLabel: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "800",
+  },
+  fine: {
+    color: theme.navIdle,
+    fontSize: 9,
+    lineHeight: 13,
+    marginTop: 10,
+  },
+});
