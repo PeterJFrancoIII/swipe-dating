@@ -23,8 +23,8 @@
 
 ## Review branches
 
-- Expo / product repo: `review/photo-upload` on `PeterJFrancoIII/swipe-dating`
-- Live API sibling: `review/photo-upload-session` on `PeterJFrancoIII/swipe-dating-web`
+- Expo / product repo: https://github.com/PeterJFrancoIII/swipe-dating/pull/11 (`review/photo-upload`)
+- Live API sibling: https://github.com/PeterJFrancoIII/swipe-dating-web/pull/2 (`review/photo-upload-session`)
 - Live API path on disk: `/Users/computer/App Development/swipe-dating-web-repo` (not the frozen golden master)
 
 ## Ask of GPT Main

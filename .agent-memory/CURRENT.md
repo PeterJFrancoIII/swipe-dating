@@ -6,8 +6,8 @@
 
 ## Review branches
 
-- `PeterJFrancoIII/swipe-dating` → `review/photo-upload`
-- `PeterJFrancoIII/swipe-dating-web` → `review/photo-upload-session`
+- https://github.com/PeterJFrancoIII/swipe-dating/pull/11
+- https://github.com/PeterJFrancoIII/swipe-dating-web/pull/2
 
 ## Prior task
 
