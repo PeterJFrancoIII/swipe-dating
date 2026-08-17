@@ -1,7 +1,7 @@
 # Photo upload system — GPT Main review handoff
 
 - **ID:** 2026-08-16-photo-upload-handoff
-- **Status:** in_progress
+- **Status:** ready_for_review
 - **Architect:** Codex / GPT Main
 - **Implementer:** Cursor IDE Agent
 - **Handoff requested by:** product owner, 2026-08-17 17:22 ET
@@ -38,13 +38,66 @@ Ask of GPT: pick the next **one** slice. The 18:16 note said if no NAS POST, rea
 - `cd apps/swipe && npx tsc --noEmit && npm test` → **32 passed**, 0 failed.
 - Metro: `EXPO_PUBLIC_USE_RN_FETCH=1 npx expo start --port 8082 --go -c`
 
-## 2026-08-17 18:58 ET slice (in progress)
+## 2026-08-17 19:22 ET — development-client RN-fetch slice (ready_for_review)
 
-- RN-fetch Expo Go evidence **accepted**. Photo-upload task still **REQUEST CHANGES**.
-- Acceptance runtime is now the **local Getfkd iOS development client**, not Expo Go.
-- Transport stays: `request()` → `reactNativeFetch()` + FormData `{uri,name,type}` + `X-Swipe-Session` + form `session`. No `Content-Type`.
-- Build: `EXPO_PUBLIC_USE_RN_FETCH=1 npx expo run:ios`. Metro: `EXPO_PUBLIC_USE_RN_FETCH=1 npx expo start --dev-client --port 8082 -c`.
-- Do not commit `apps/swipe/ios/`. No TestFlight. No `eas submit`. No transport change.
+Expo Go is **not** the runtime. Transport was **not** changed (`4258b40` `request()` → `reactNativeFetch()`).
+
+### Runtime
+
+- Built **Getfkd** development client (`app.getfkd.ios`, display name Getfkd).
+- Installed on iPhone 17 Pro Simulator `7758A320-E896-4BAF-8C5F-3321620F4F97`.
+- Metro: `EXPO_PUBLIC_USE_RN_FETCH=1 npx expo start --dev-client --port 8082 -c` from `apps/swipe`.
+- Launcher UI: **Getfkd / Development Build**, server `http://172.20.20.20:8082`. Not Expo Go (`host.exp.Exponent` remains installed but was not the foreground app).
+- `apps/swipe/ios/` from a failed in-repo build is local CNG; **not committed**. Successful native build used `/tmp/getfkd-swipe` (see build note).
+
+### One real upload
+
+Metro (Getfkd client, not Expo Go):
+
+```
+WARN  getfkd photo part file://…/ImagePicker/8327475D-….heic photo-1.heic image/heic
+WARN  getfkd photo part file://…/ImagePicker/F07315E7-….jpeg IMG_0005.jpeg image/jpeg
+```
+
+NAS `docker logs --timestamps` same window (`172.30.81.3`):
+
+| UTC | Request | Status |
+|---|---|---|
+| 23:21:16 | `GET /api/bootstrap` | 200 |
+| 23:21:20 | `POST /api/age-gate` | 200 |
+| 23:21:20 | `GET /api/onboarding` | 200 |
+| 23:21:22–23:21:34 | `POST /api/onboarding` ×7 | 200 |
+| **23:22:16** | **`POST /api/profile/photos`** | **200** |
+
+Follow-up authenticated reads (same session, token not stored here):
+
+- `GET /api/onboarding` → **200**, `photo_count: 2`, `photos: [{slot:0},{slot:1}]`, `missing_fields: []`
+- `GET /api/profile/photos/0` → **200** `image/avif` 898615 bytes
+- `GET /api/profile/photos/1` → **200** `image/avif` 605655 bytes
+
+### Client UI vs server
+
+- During the POST the wizard showed **Uploading photos…**, then **Photo upload timed out. Try again.** and **Add at least 2 photos. 0 added.**
+- Cause: current 25s `Promise.race` on form posts. NAS logged the 200 at 23:22:16Z, ~25s after the multipart left the device. Server finished; client abandoned the response.
+- One multipart with 2 parts satisfied the 2-photo requirement **on the server**. Wizard did not apply `setPhotos` because it timed out first.
+- After relaunch, `missing_fields` is empty so the wizard stays on Sex (step 2 of 9) even though `payload.photos` is length 2. Thumbnails were not re-shown in this session.
+
+### Build note (path spaces — not a transport change)
+
+`npx expo run:ios` from `/Users/computer/App Development/Swipe Dating/apps/swipe` failed twice:
+
+1. `Pods/EXConstants` `[CP-User] Generate app.config` → `No such file or directory: /Users/computer/App` (`bash -l -c` splits on the space).
+2. After quoting that phase: `Bundle React Native code and images` → same `/Users/computer/App` split.
+
+Successful build: rsync `apps/swipe` (no `ios/`) to `/tmp/getfkd-swipe`, then `CI=1 EXPO_PUBLIC_USE_RN_FETCH=1 npx expo run:ios --device 7758A320-… --no-bundler`. **Build Succeeded.** Installed `Getfkd.app`. Do not commit `/tmp/getfkd-swipe` or `apps/swipe/ios/`.
+
+### Stop conditions
+
+- A (401): **did not fire**
+- B (other non-200): **did not fire**
+- C (zero POSTs): **did not fire** — POST reached NAS
+
+Cursor did not switch to Expo Go, XHR, expo/fetch, `File.upload()`, Blob/ArrayBuffer, query-token, or API changes.
 
 ## Owner instruction (binding)
 
@@ -52,11 +105,11 @@ Ask of GPT: pick the next **one** slice. The 18:16 note said if no NAS POST, rea
 
 ## Result
 
-**Not resolved until live 200 on the development client.** Expo Go produced zero photo POSTs. First-run wizard still requires ≥2 photos.
+**NAS 200 on the Getfkd development client. `photo_count` is 2.** Wizard still showed a 25s client timeout and “0 added.” Transport unchanged. Ready for GPT review — not self-accepted.
 
 ## Ask of GPT Main
 
-Pending live evidence from this development-client slice. Stop conditions: NAS 401, other non-200, or still zero POSTs. If zero POSTs, GPT will assign a native URLSession uploader in `getfkd-photo`. Do not raise `SESSIONS_PER_IP_HOUR`. Do not JPEG-transcode library picks (AM-017). Do not mint sessions on photo POST (AM-019).
+RN-fetch multipart **does** leave the development client and returns **200**. Remaining product gap is the 25s client timeout vs HEIC convert latency, plus the wizard not jumping to Photos when `missing_fields` is empty. Cursor did not change timeout or onboarding. If GPT wants a next slice, assign it. Do not raise `SESSIONS_PER_IP_HOUR`. Do not JPEG-transcode library picks (AM-017). Do not mint sessions on photo POST (AM-019).
 
 ## Environment
 
@@ -81,6 +134,8 @@ Pending live evidence from this development-client slice. Stop conditions: NAS 4
 | 2026-08-17 | **Creating blobs from 'ArrayBuffer' and 'ArrayBufferView' are not supported** | RN `BlobManager` rejects ArrayBuffer parts. | Append `expo-file-system` `File` to FormData for `expo/fetch` (`.bytes()`). |
 | 2026-08-17 17:12 ET | **Uploading photos…** forever again | `expo/fetch` `convertFormDataAsync` calls `File.bytes()` and buffers the body **before** `request.start()`, so `AbortSignal.timeout(90s)` never fires. No Metro error. No NAS POST. | XHR + `{uri,name,type}` + 45s timeout (on disk now). |
 | 2026-08-17 17:22 ET | Owner: hand to GPT. Not resolved. | Latest XHR path has **no owner confirmation** and **no live 200**. XHR already failed once (2026-08-16). | **Stop.** |
+| 2026-08-17 18:50 ET | still not uploading (Expo Go) | Real `file://` parts; NAS onboarding **200**; **zero** photo POSTs | Architect: leave Expo Go; build Getfkd dev client |
+| 2026-08-17 19:22 ET | **Photo upload timed out. Try again.** / **0 added** | Getfkd dev client. NAS `POST /api/profile/photos` **200** at 23:22:16Z. `photo_count` **2**. Client 25s `Promise.race` lost the race. | **Stop.** No transport change. GPT reviews. |
 
 ## What is proven
 
@@ -92,11 +147,12 @@ Pending live evidence from this development-client slice. Stop conditions: NAS 4
 - Device/Simulator photo POSTs on NAS (72h snapshot 2026-08-17): **5 total, 0× 200, 5× 401**
 - Expo Go does not load `getfkd-photo`. Server converts HEIC. Native rebuild required for on-device encode (AM-016 / module note).
 - `cd apps/swipe && npx tsc --noEmit && npm test` → **32 passed**, 0 failed (2026-08-17 17:15 ET)
+- **2026-08-17 19:22 ET Getfkd development client:** `POST /api/profile/photos` **200**; `GET /api/onboarding` `photo_count: 2`; `GET /api/profile/photos/0` and `/1` **200** `image/avif`
 
 ## What is not proven
 
-- Any Simulator/device photo add that returned **200** and showed photos in the wizard
-- That RN fetch multipart reaches NAS from a **development client** (Expo Go: zero POSTs)
+- That the wizard **displayed** the uploaded images after this POST (client 25s timeout showed “0 added”; relaunch stayed on Sex because `missing_fields` is empty)
+- That Expo Go RN-fetch can reach NAS (still zero POSTs from Expo Go)
 
 ## Current on-disk client path (`apps/swipe/lib/api.ts`, commit `4258b40`)
 
@@ -131,16 +187,12 @@ Handoff packet in-repo: `.agent-memory/tasks/2026-08-16-photo-upload-handoff.md`
 
 ## Files changed (this publish)
 
-- `apps/swipe/lib/api.ts` (modified)
-- `apps/swipe/lib/formSession.ts` (untracked)
-- `apps/swipe/lib/formSession.test.ts` (untracked)
-- `apps/swipe/lib/photoForm.ts` (untracked)
-- `apps/swipe/lib/photoForm.test.ts` (untracked)
-- `apps/swipe/package.json` (modified; added direct `expo-file-system` — no longer imported by `api.ts`)
 - `.agent-memory/CURRENT.md`
 - this task file
 
-Last published client commit on this branch: `25501f0` *Publish the Expo photo-upload client for GPT Main review.*
+No client/API code change. Transport remains commit `4258b40`. Generated `apps/swipe/ios/` and `/tmp/getfkd-swipe` are local only.
+
+Last published client commit on this branch: `4258b40` *Publish the RN-fetch photo-upload failure packet to shared memory.* Packet-only follow-up: `29b1d8b`.
 
 ## Stale shared memory (do not follow)
 
@@ -169,4 +221,5 @@ Last published client commit on this branch: `25501f0` *Publish the Expo photo-u
 
 ## Architect review
 
+- Cursor: `ready_for_review` (2026-08-17 19:25 ET). Do not self-accept.
 - Pending GPT Main.
