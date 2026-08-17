@@ -1,12 +1,12 @@
 # Photo upload system — GPT Main review handoff
 
 - **ID:** 2026-08-16-photo-upload-handoff
-- **Status:** ready_for_review
+- **Status:** in_progress
 - **Architect:** Codex / GPT Main
 - **Implementer:** Cursor IDE Agent
 - **Handoff requested by:** product owner, 2026-08-17 17:22 ET
-- **Architect decision:** 2026-08-17 18:16 ET — REQUEST CHANGES. One slice: Expo Go + `EXPO_PUBLIC_USE_RN_FETCH=1` + RN `fetch`.
-- **Objective:** That slice was implemented and live-tested. It did **not** produce a NAS POST. Cursor stopped. No fourth transport.
+- **Architect decision:** 2026-08-17 18:58 ET — REQUEST CHANGES. Expo Go is no longer the photo-upload acceptance runtime. Next slice: local iOS development client; **RN-fetch transport unchanged**.
+- **Objective:** Build/run `Getfkd` via `expo run:ios` + `--dev-client`. Retest current `request()` → `reactNativeFetch()` multipart once. Do not change transport.
 - **GitHub packet:** https://github.com/PeterJFrancoIII/swipe-dating/blob/review/photo-upload/.agent-memory/tasks/2026-08-16-photo-upload-handoff.md
 
 ## 2026-08-17 18:50 ET — RN fetch slice FAILED (no NAS POST)
@@ -38,29 +38,25 @@ Ask of GPT: pick the next **one** slice. The 18:16 note said if no NAS POST, rea
 - `cd apps/swipe && npx tsc --noEmit && npm test` → **32 passed**, 0 failed.
 - Metro: `EXPO_PUBLIC_USE_RN_FETCH=1 npx expo start --port 8082 --go -c`
 
+## 2026-08-17 18:58 ET slice (in progress)
+
+- RN-fetch Expo Go evidence **accepted**. Photo-upload task still **REQUEST CHANGES**.
+- Acceptance runtime is now the **local Getfkd iOS development client**, not Expo Go.
+- Transport stays: `request()` → `reactNativeFetch()` + FormData `{uri,name,type}` + `X-Swipe-Session` + form `session`. No `Content-Type`.
+- Build: `EXPO_PUBLIC_USE_RN_FETCH=1 npx expo run:ios`. Metro: `EXPO_PUBLIC_USE_RN_FETCH=1 npx expo start --dev-client --port 8082 -c`.
+- Do not commit `apps/swipe/ios/`. No TestFlight. No `eas submit`. No transport change.
+
 ## Owner instruction (binding)
 
-Architect assignment above replaces the 17:22 ET stop. Cursor does not self-approve and does not pick another transport.
+18:58 ET architect assignment. Cursor does not self-approve and does not pick another transport.
 
 ## Result
 
-**Not resolved until live 200.** No Simulator/device photo add has returned **200** yet. First-run wizard still requires ≥2 photos.
+**Not resolved until live 200 on the development client.** Expo Go produced zero photo POSTs. First-run wizard still requires ≥2 photos.
 
 ## Ask of GPT Main
 
-1. Review the failure chain and the files on PR #11 (`review/photo-upload`). Do not treat unit tests as E2E proof.
-2. Decide the next **one** bounded slice. Cursor must not pick another transport.
-3. Decide whether Expo Go is a valid photo-upload target, or whether a native `expo-dev-client` / TestFlight build is required (`getfkd-photo` is not in Expo Go).
-4. Accept, request changes, or reassign. Cursor does not mark `accepted`.
-
-Candidate slices for GPT to choose (Cursor must not start these):
-
-- `EXPO_PUBLIC_USE_RN_FETCH=1` + Metro `-c` + `{uri,name,type}` on global RN fetch (official Expo 57 opt-out of `expo/fetch`)
-- Native dev client so `getfkd-photo` and app ATS / URLSession behave like a real install
-- Query-token on photo POST if the next live failure is still `401` after a request actually reaches NAS
-- Declare Expo Go photo upload out of scope and change the owner test path
-
-Do **not** raise `SESSIONS_PER_IP_HOUR`. Do **not** JPEG-transcode library picks (AM-017). Do **not** mint sessions on photo POST (AM-019).
+Pending live evidence from this development-client slice. Stop conditions: NAS 401, other non-200, or still zero POSTs. If zero POSTs, GPT will assign a native URLSession uploader in `getfkd-photo`. Do not raise `SESSIONS_PER_IP_HOUR`. Do not JPEG-transcode library picks (AM-017). Do not mint sessions on photo POST (AM-019).
 
 ## Environment
 
@@ -68,9 +64,9 @@ Do **not** raise `SESSIONS_PER_IP_HOUR`. Do **not** JPEG-transcode library picks
 - Branch: `review/photo-upload`
 - PRs: https://github.com/PeterJFrancoIII/swipe-dating/pull/11 · https://github.com/PeterJFrancoIII/swipe-dating-web/pull/2
 - Live API: `https://getfkd.sentineldefensetechnologies.co.za` (sibling repo `/Users/computer/App Development/swipe-dating-web-repo`, not the golden master)
-- Test target: iPhone Simulator + **Expo Go 57** (`npx expo start --port 8082 --go`)
-- Metro was aborted 2026-08-17 17:19 ET and restarted on 8082. Latest XHR change may not have been reloaded in Expo Go.
-- Store IPA 7 is stale. No `eas submit`. No `apps/swipe/ios/` tree.
+- Test target: iPhone Simulator + **Getfkd development client** (`npx expo run:ios`, then `npx expo start --dev-client --port 8082 -c`)
+- Expo Go is **not** the acceptance runtime for photo upload (architect 2026-08-17 18:58 ET).
+- Store IPA 7 is stale. No `eas submit`. Generated `apps/swipe/ios/` is local CNG output; do not commit.
 
 ## Failure chain (owner-visible, in order)
 
@@ -100,20 +96,19 @@ Do **not** raise `SESSIONS_PER_IP_HOUR`. Do **not** JPEG-transcode library picks
 ## What is not proven
 
 - Any Simulator/device photo add that returned **200** and showed photos in the wizard
-- That the current XHR path reaches NAS (owner asked for handoff before a confirmed reload + retry)
-- That `File.bytes()` hang is the only remaining cause after 17:12 ET (Metro was then aborted)
+- That RN fetch multipart reaches NAS from a **development client** (Expo Go: zero POSTs)
 
-## Current on-disk client path (`apps/swipe/lib/api.ts`)
+## Current on-disk client path (`apps/swipe/lib/api.ts`, commit `4258b40`)
 
 Native (`Platform.OS !== "web"`):
 
 1. `ensureToken()`; fail closed `401 session_required` if empty
 2. `FormData` + `attachSessionField(form, token)`
-3. Each file: if not `file:` / absolute path, `ImageManipulator.manipulateAsync(uri, [])` (20s timeout); append `{uri,name,type}` via `appendNativeFilePart`
-4. `XMLHttpRequest` POST to `${API_URL}/api/profile/photos` — session header + form `session`, **no** `Content-Type`, 45s `xhr.timeout` + 50s `Promise.race`
-5. Web still uses Blob + `expo/fetch`
+3. Each file: `appendNativeFilePart` with `{uri, name, type}` (picker URI as-is; no ImageManipulator)
+4. `request()` → `reactNativeFetch()` (`global.originalFetch` if Expo replaced `fetch`, else global `fetch`) POST to `${API_URL}/api/profile/photos` — `X-Swipe-Session` + form `session`, **no** `Content-Type`, 25s `Promise.race`
+5. Web still uses Blob + `fetch`
 
-`nativeMultipartUploadOptions` (`File.upload` options) is unused by `api.ts`.
+There is **no** `XMLHttpRequest` upload path. `nativeMultipartUploadOptions` (`File.upload` options) is unused by `api.ts`.
 
 ## GitHub access for GPT (public — no token)
 
@@ -160,7 +155,9 @@ Last published client commit on this branch: `25501f0` *Publish the Expo photo-u
 - UniFFI `apps/ios` / `apps/android`
 - Production / App Store
 - Raising `SESSIONS_PER_IP_HOUR` without an explicit product decision
+- Switching back to Expo Go for photo-upload acceptance
 - More Cursor transport retries without a new GPT assignment
+- Committing generated `apps/swipe/ios/`
 
 ## Related task records
 
