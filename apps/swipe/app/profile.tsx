@@ -113,14 +113,13 @@ export default function ProfileScreen() {
       setSelfPhotoUrl(payload.photos[0]?.url ?? "");
       setFlash({ notice: payload.notice || "Photos added." });
     } catch (cause) {
-      setFlash({
-        error:
-          cause instanceof ApiError
-            ? signupErrorMessage(cause.code, cause.message)
-            : cause instanceof Error
-              ? cause.message
-              : "Upload failed.",
-      });
+      const message =
+        cause instanceof ApiError
+          ? signupErrorMessage(cause.code, cause.message)
+          : cause instanceof Error
+            ? cause.message
+            : "Upload failed.";
+      setFlash({ error: message || "Upload failed." });
     }
   }
 

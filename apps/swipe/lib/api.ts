@@ -1,10 +1,17 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as ImageManipulator from "expo-image-manipulator";
 import { Platform } from "react-native";
 
 import { API_URL, SESSION_HEADER, SESSION_TOKEN_KEY } from "@/lib/config";
 import { recordLastError, recordSessionHints } from "@/lib/diagnostics";
+import { attachSessionField, isFormBody } from "@/lib/formSession";
 import { payloadFromFailedResponse } from "@/lib/httpErrors";
 import { currentInstallId } from "@/lib/installId";
+import {
+  appendNativeFilePart,
+  NATIVE_UPLOAD_TIMEOUT_MS,
+  type FormWithNativeAppend,
+} from "@/lib/photoForm";
 import { photoAcceptHeader } from "@/lib/photoGeometry";
 import type {
   AuthState,
@@ -94,6 +101,9 @@ export function mediaHeaders(): Record<string, string> {
 
 async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   await ensureToken();
+  if (isFormBody(init.body)) {
+    attachSessionField(init.body, sessionToken);
+  }
   const headers = mergeHeaders(init.headers);
   if (sessionToken) {
     headers[SESSION_HEADER] = sessionToken;
@@ -110,7 +120,11 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   }
   let response: Response;
   try {
-    response = await fetch(`${API_URL}${path}`, { ...init, headers });
+    response = await fetch(`${API_URL}${path}`, {
+      ...init,
+      headers,
+      signal: typeof AbortSignal.timeout === "function" ? AbortSignal.timeout(90_000) : undefined,
+    });
   } catch (cause) {
     const message = cause instanceof Error && cause.message ? cause.message : "Can't reach Get fk'd right now.";
     recordLastError({ path, status: 0, code: "network", message });
@@ -119,21 +133,23 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   const payload = response.ok
     ? await readJson(response)
     : payloadFromFailedResponse(response.status, await readJson(response));
+  return finishPayload<T>(path, response.status, payload);
+}
+
+function finishPayload<T>(path: string, status: number, payload: Record<string, unknown>): T {
   if (typeof payload.token === "string" && payload.token) {
     sessionToken = payload.token;
-    await AsyncStorage.setItem(SESSION_TOKEN_KEY, payload.token);
+    void AsyncStorage.setItem(SESSION_TOKEN_KEY, payload.token);
   }
-  if (payload && typeof payload === "object") {
-    recordSessionHints(payload);
-  }
-  if (!response.ok) {
+  recordSessionHints(payload);
+  if (status < 200 || status >= 300) {
     recordLastError({
       path,
-      status: response.status,
+      status,
       code: String(payload.code ?? ""),
       message: String(payload.error ?? "Request failed"),
     });
-    throw new ApiError(response.status, payload);
+    throw new ApiError(status, payload);
   }
   return payload as T;
 }
@@ -151,16 +167,124 @@ async function readJson(response: Response): Promise<Record<string, unknown>> {
   }
 }
 
-async function appendPhotoPart(
+async function withTimeout<T>(promise: Promise<T>, ms: number, message: string): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([
+      promise,
+      new Promise<T>((_, reject) => {
+        timer = setTimeout(() => {
+          reject(new ApiError(0, { error: message, code: "network" }));
+        }, ms);
+      }),
+    ]);
+  } finally {
+    if (timer) {
+      clearTimeout(timer);
+    }
+  }
+}
+
+async function localUploadUri(uri: string): Promise<string> {
+  if (uri.startsWith("file:")) {
+    return uri;
+  }
+  if (uri.startsWith("/")) {
+    return `file://${uri}`;
+  }
+  const copied = await withTimeout(
+    ImageManipulator.manipulateAsync(uri, []),
+    20_000,
+    "Photo upload timed out. Try again.",
+  );
+  return copied.uri;
+}
+
+async function appendLocalFile(
   form: FormData,
+  fieldName: string,
   file: { uri: string; name: string; type: string },
 ): Promise<void> {
   if (Platform.OS === "web") {
     const blob = await (await fetch(file.uri)).blob();
-    form.append("photo", blob, file.name);
+    form.append(fieldName, blob, file.name);
     return;
   }
-  form.append("photo", { uri: file.uri, name: file.name, type: file.type } as unknown as Blob);
+  appendNativeFilePart(form as FormWithNativeAppend, fieldName, {
+    uri: await localUploadUri(file.uri),
+    name: file.name,
+    type: file.type,
+  });
+}
+
+function parseXhrJson(xhr: XMLHttpRequest): Record<string, unknown> {
+  const contentType = xhr.getResponseHeader("content-type") ?? "";
+  if (!contentType.includes("application/json")) {
+    return {};
+  }
+  try {
+    const raw = JSON.parse(xhr.responseText || "{}") as unknown;
+    return raw && typeof raw === "object" ? (raw as Record<string, unknown>) : {};
+  } catch {
+    return {};
+  }
+}
+
+function sendNativeForm(path: string, form: FormData): Promise<Record<string, unknown>> {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", `${API_URL}${path}`);
+    xhr.timeout = NATIVE_UPLOAD_TIMEOUT_MS;
+    const headers: Record<string, string> = {};
+    if (sessionToken) {
+      headers[SESSION_HEADER] = sessionToken;
+    }
+    if (!__DEV__) {
+      headers["X-Getfkd-Release"] = "store";
+    }
+    headers["X-Getfkd-Install"] = currentInstallId();
+    headers.Accept = "application/json";
+    for (const [key, value] of Object.entries(headers)) {
+      xhr.setRequestHeader(key, value);
+    }
+    xhr.onload = () => {
+      const payload =
+        xhr.status >= 200 && xhr.status < 300
+          ? parseXhrJson(xhr)
+          : payloadFromFailedResponse(xhr.status, parseXhrJson(xhr));
+      try {
+        resolve(finishPayload(path, xhr.status, payload));
+      } catch (cause) {
+        reject(cause);
+      }
+    };
+    xhr.onerror = () => {
+      const message = "Can't reach Get fk'd right now.";
+      recordLastError({ path, status: 0, code: "network", message });
+      reject(new ApiError(0, { error: message, code: "network" }));
+    };
+    xhr.ontimeout = () => {
+      const message = "Photo upload timed out. Try again.";
+      recordLastError({ path, status: 0, code: "network", message });
+      reject(new ApiError(0, { error: message, code: "network" }));
+    };
+    xhr.send(form);
+  });
+}
+
+async function postForm<T>(path: string, form: FormData): Promise<T> {
+  if (Platform.OS === "web") {
+    return request<T>(path, {
+      method: "POST",
+      body: form,
+      headers: { Accept: "application/json" },
+    });
+  }
+  return (await withTimeout(
+    sendNativeForm(path, form),
+    NATIVE_UPLOAD_TIMEOUT_MS + 5_000,
+    "Photo upload timed out. Try again.",
+  )) as T;
 }
 
 export const api = {
@@ -270,15 +394,27 @@ export const api = {
   saveProfile: (body: Record<string, unknown>) =>
     request<Record<string, unknown>>("/api/profile", { method: "POST", body: JSON.stringify(body) }),
   uploadPhotos: async (files: { uri: string; name: string; type: string }[]) => {
-    const form = new FormData();
-    for (const file of files) {
-      await appendPhotoPart(form, file);
+    if (!files.length) {
+      throw new ApiError(400, { error: "Choose photos, then tap Add photos.", code: "photo_empty" });
     }
-    return request<Record<string, unknown>>("/api/profile/photos", {
-      method: "POST",
-      body: form,
-      headers: { Accept: "application/json" },
-    });
+    await ensureToken();
+    if (!sessionToken) {
+      throw new ApiError(401, {
+        error: "Your session expired. Try again.",
+        code: "session_required",
+      });
+    }
+    const form = new FormData();
+    attachSessionField(form, sessionToken);
+    for (const file of files) {
+      await appendLocalFile(form, "photo", file);
+    }
+    const payload = await postForm<Record<string, unknown>>("/api/profile/photos", form);
+    const photos = payload.photos;
+    if (!Array.isArray(photos) || photos.length < 1) {
+      throw new ApiError(400, { error: "Photo upload failed.", code: "photo_empty" });
+    }
+    return payload;
   },
   removePhoto: (slot: number) =>
     request<Record<string, unknown>>(`/api/profile/photos/${slot}/remove`, { method: "POST", body: "{}" }),
@@ -295,7 +431,7 @@ export const api = {
       method: "POST",
       body: JSON.stringify({ reviewer_id: reviewerId, choice }),
     }),
-  reportInAppError: (input: {
+  reportInAppError: async (input: {
     uri: string;
     name: string;
     type: string;
@@ -303,16 +439,17 @@ export const api = {
     context: Record<string, unknown>;
     tags?: string[];
   }) => {
+    await ensureToken();
     const form = new FormData();
-    form.append("screenshot", { uri: input.uri, name: input.name, type: input.type } as unknown as Blob);
+    await appendLocalFile(form, "screenshot", {
+      uri: input.uri,
+      name: input.name,
+      type: input.type,
+    });
     form.append("explanation", input.explanation);
     form.append("context", JSON.stringify(input.context));
     form.append("tags", JSON.stringify(input.tags ?? []));
-    return request<{ id: string; title: string; tags: string[]; notice?: string }>("/api/system/errors", {
-      method: "POST",
-      body: form,
-      headers: { Accept: "application/json" },
-    });
+    return postForm<{ id: string; title: string; tags: string[]; notice?: string }>("/api/system/errors", form);
   },
   sendFeedback: (body: string, tags: string[] = ["feedback"]) =>
     request<{ id: string; notice?: string }>("/api/system/feedback", {

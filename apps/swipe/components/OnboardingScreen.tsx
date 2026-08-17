@@ -241,19 +241,19 @@ export function OnboardingScreen() {
             busy={busy}
             onAdd={() => {
               void (async () => {
-                const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
-                if (!permission.granted) {
-                  setError("Photo library access is needed to add photos.");
-                  return;
-                }
-                const picked = await ImagePicker.launchImageLibraryAsync(
-                  profilePhotoPickerOptions(Math.max(1, 6 - photos.length)),
-                );
-                if (picked.canceled || !picked.assets.length) {
-                  return;
-                }
-                setBusy(true);
                 try {
+                  const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+                  if (!permission.granted) {
+                    setError("Photo library access is needed to add photos.");
+                    return;
+                  }
+                  const picked = await ImagePicker.launchImageLibraryAsync(
+                    profilePhotoPickerOptions(Math.max(1, 6 - photos.length)),
+                  );
+                  if (picked.canceled || !picked.assets.length) {
+                    return;
+                  }
+                  setBusy(true);
                   const payload = (await api.uploadPhotos(await preparePhotoUploads(picked.assets))) as {
                     photos?: { slot: number; url: string }[];
                     photo_count?: number;
@@ -261,13 +261,13 @@ export function OnboardingScreen() {
                   setPhotos(payload.photos ?? []);
                   setError(null);
                 } catch (cause) {
-                  setError(
+                  const message =
                     cause instanceof ApiError
                       ? signupErrorMessage(cause.code, cause.message)
                       : cause instanceof Error
                         ? cause.message
-                        : "Photo upload failed.",
-                  );
+                        : "Photo upload failed.";
+                  setError(message || "Photo upload failed.");
                 } finally {
                   setBusy(false);
                 }
@@ -540,7 +540,9 @@ function PhotoStep({
   return (
     <ScrollView contentContainerStyle={styles.body}>
       <Text style={styles.title}>Photos</Text>
-      <Text style={styles.help}>Add at least 2 photos. {photos.length} added.</Text>
+      <Text style={styles.help}>
+        {busy ? "Uploading photos…" : `Add at least 2 photos. ${photos.length} added.`}
+      </Text>
       <View style={styles.photoGrid}>
         {photos.map((photo) => (
           <View key={photo.slot} style={styles.photoSlot}>
@@ -551,7 +553,7 @@ function PhotoStep({
           </View>
         ))}
         {photos.length < 6 ? (
-          <Pressable onPress={onAdd} style={styles.addSlot}>
+          <Pressable disabled={busy} onPress={onAdd} style={styles.addSlot}>
             <Text style={styles.addMark}>+</Text>
             <Text style={styles.addLabel}>Add photos</Text>
           </Pressable>
