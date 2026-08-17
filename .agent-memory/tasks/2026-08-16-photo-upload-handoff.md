@@ -5,15 +5,46 @@
 - **Architect:** Codex / GPT Main
 - **Implementer:** Cursor IDE Agent
 - **Handoff requested by:** product owner, 2026-08-17 17:22 ET
-- **Objective:** Adults still cannot add a profile photo in Expo Go. Owner asked Cursor to **stop iterating** and hand the whole path to GPT Main for review and a next bounded slice.
+- **Architect decision:** 2026-08-17 18:16 ET — REQUEST CHANGES. One slice: Expo Go + `EXPO_PUBLIC_USE_RN_FETCH=1` + RN `fetch`.
+- **Objective:** That slice was implemented and live-tested. It did **not** produce a NAS POST. Cursor stopped. No fourth transport.
+- **GitHub packet:** https://github.com/PeterJFrancoIII/swipe-dating/blob/review/photo-upload/.agent-memory/tasks/2026-08-16-photo-upload-handoff.md
+
+## 2026-08-17 18:50 ET — RN fetch slice FAILED (no NAS POST)
+
+Owner: "Same issue, the photo is not being uploaded."
+
+Metro (new bundle, `getfkd photo part` logs from current `api.ts`):
+
+- iPhone 17 `47A05D76…`: `file://…/ImagePicker/….jpeg` `IMG_0003.jpeg` + `IMG_0001.jpeg` `image/jpeg`
+- iPhone 17 Pro `7758A320…`: `file://…/ImagePicker/….heic` `photo-1.heic` + `….jpeg` `IMG_0005.jpeg`
+- No JS exception after those lines. No FormDataPart. No ArrayBuffer error.
+
+NAS `docker logs --since 15m` for the same window:
+
+- `GET /api/bootstrap` and `GET /api/onboarding` from `172.30.81.3` → **200** (repeated)
+- **Zero** `POST /api/profile/photos`
+
+Conclusion: JS built `{uri,name,type}` from real ImagePicker `file://` cache files. JSON fetch works. Multipart never reaches uvicorn. This is **not** a 401. Per architect rule 8: **STOP**.
+
+Cursor did not start XHR, `File.upload()`, Blob/ArrayBuffer, query-token, or a dev-client migration.
+
+Ask of GPT: pick the next **one** slice. The 18:16 note said if no NAS POST, reassess Expo Go vs native `expo-dev-client`.
+
+## 2026-08-17 18:16 ET slice (implemented, failed live)
+
+- Native photo POST uses `request()` / RN `fetch` (`originalFetch` when Expo replaced global fetch) with `{uri,name,type}`.
+- Keeps `X-Swipe-Session` and multipart `session`. Does not set `Content-Type` on the form.
+- 25s Promise.race timeout on form posts. `app.config.js` sets `EXPO_PUBLIC_USE_RN_FETCH=1`.
+- `cd apps/swipe && npx tsc --noEmit && npm test` → **32 passed**, 0 failed.
+- Metro: `EXPO_PUBLIC_USE_RN_FETCH=1 npx expo start --port 8082 --go -c`
 
 ## Owner instruction (binding)
 
-Stop more client transport experiments until GPT Main reviews. The Simulator wizard still does not complete a photo add. Cursor does not self-approve.
+Architect assignment above replaces the 17:22 ET stop. Cursor does not self-approve and does not pick another transport.
 
 ## Result
 
-**Not resolved.** No live `POST /api/profile/photos` **200** from a device/Simulator add. First-run wizard still requires ≥2 photos, so signup cannot finish.
+**Not resolved until live 200.** No Simulator/device photo add has returned **200** yet. First-run wizard still requires ≥2 photos.
 
 ## Ask of GPT Main
 

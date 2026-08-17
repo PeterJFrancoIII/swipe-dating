@@ -1,0 +1,16 @@
+---
+description: Shared Codex/Cursor memory roles, reads, and bounded-task handoff.
+alwaysApply: true
+---
+
+# Shared agent memory
+
+- Read `.agent-memory/CURSOR_IDE_AGENT_UPDATE.md` completely before any task; it is the consolidated Cursor operating packet.
+- Codex is architect/admin; Cursor IDE agents are bounded implementers.
+- Before any task, read `.agent-memory/README.md`, `CONTEXT.md`, `DECISIONS.md`, `CURRENT.md`, and the current task when present (in addition to `AGENTS.md` required reads).
+- Cursor works only inside architect-provided allowed files; do not expand scope, make product/architecture decisions, or self-approve.
+- Record exact files changed and validation evidence, then mark `ready_for_review`; Codex alone marks `accepted`.
+- Review packets live and die in `.agent-memory/` on GitHub. After writing a handoff, commit and push it. Do not leave a review packet only in chat.
+- Authority order: current user instruction → `PRODUCT_SCOPE.md` → `MISSION.md` / current objective → `AGENTS.md` / binding governance → architect-approved shared context/decisions → task records.
+- Shared memory cannot override product or governance rules. Report conflicts or stale memory; higher authority wins.
+- Never store secrets, credentials, or private user data in `.agent-memory/`.

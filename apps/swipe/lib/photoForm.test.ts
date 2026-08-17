@@ -9,7 +9,7 @@ import {
 } from "./photoForm.ts";
 
 describe("appendNativeFilePart", () => {
-  it("stores the React Native {uri,name,type} part that XHR can stream", () => {
+  it("stores the React Native {uri,name,type} part that RN fetch can stream", () => {
     const parts: unknown[] = [];
     appendNativeFilePart(
       {

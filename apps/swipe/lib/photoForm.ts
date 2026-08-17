@@ -1,7 +1,5 @@
 const SESSION_HEADER = "X-Swipe-Session";
 
-export const NATIVE_UPLOAD_TIMEOUT_MS = 45_000;
-
 export type NativeFilePart = { uri: string; name: string; type: string };
 
 export function nativeFilePart(file: NativeFilePart): NativeFilePart {

@@ -38,6 +38,18 @@ In addition to the reads required by `AGENTS.md`, both agents read:
 
 Cursor does not expand scope, make product or architecture decisions, or self-approve.
 
+## Review packets on GitHub
+
+Review packets **live and die** in this directory on the GitHub remote. Chat is not the packet.
+
+After writing or updating a handoff, task record, or review packet:
+
+1. Keep it under `.agent-memory/` (usually `tasks/`).
+2. Commit it.
+3. Push it to the review branch.
+
+Codex / GPT Main reads the GitHub file, not a paste that exists only in a thread. Do not leave a review packet only in chat, a local working tree, or `docs/handoffs/` unless that file is also mirrored here and pushed.
+
 ## Content rules
 
 **Prohibit:** secrets, credentials, private user data, generated logs, dependency dumps, speculative facts, and copied chat transcripts.

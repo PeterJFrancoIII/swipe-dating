@@ -1,5 +1,4 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import * as ImageManipulator from "expo-image-manipulator";
 import { Platform } from "react-native";
 
 import { API_URL, SESSION_HEADER, SESSION_TOKEN_KEY } from "@/lib/config";
@@ -7,11 +6,7 @@ import { recordLastError, recordSessionHints } from "@/lib/diagnostics";
 import { attachSessionField, isFormBody } from "@/lib/formSession";
 import { payloadFromFailedResponse } from "@/lib/httpErrors";
 import { currentInstallId } from "@/lib/installId";
-import {
-  appendNativeFilePart,
-  NATIVE_UPLOAD_TIMEOUT_MS,
-  type FormWithNativeAppend,
-} from "@/lib/photoForm";
+import { appendNativeFilePart, type FormWithNativeAppend } from "@/lib/photoForm";
 import { photoAcceptHeader } from "@/lib/photoGeometry";
 import type {
   AuthState,
@@ -99,10 +94,38 @@ export function mediaHeaders(): Record<string, string> {
   return headers;
 }
 
+function reactNativeFetch(input: string, init: RequestInit): Promise<Response> {
+  const rn = (globalThis as { originalFetch?: typeof fetch }).originalFetch;
+  if (typeof rn === "function") {
+    return rn(input, init);
+  }
+  return fetch(input, init);
+}
+
+async function withTimeout<T>(promise: Promise<T>, ms: number, message: string): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([
+      promise,
+      new Promise<T>((_, reject) => {
+        timer = setTimeout(() => {
+          reject(new ApiError(0, { error: message, code: "network" }));
+        }, ms);
+      }),
+    ]);
+  } finally {
+    if (timer) {
+      clearTimeout(timer);
+    }
+  }
+}
+
 async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   await ensureToken();
+  let form = false;
   if (isFormBody(init.body)) {
     attachSessionField(init.body, sessionToken);
+    form = true;
   }
   const headers = mergeHeaders(init.headers);
   if (sessionToken) {
@@ -118,13 +141,21 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   if (typeof init.body === "string" && !headers["Content-Type"] && !headers["content-type"]) {
     headers["Content-Type"] = "application/json";
   }
+  const send = form ? reactNativeFetch : fetch;
   let response: Response;
   try {
-    response = await fetch(`${API_URL}${path}`, {
+    const pending = send(`${API_URL}${path}`, {
       ...init,
       headers,
-      signal: typeof AbortSignal.timeout === "function" ? AbortSignal.timeout(90_000) : undefined,
+      signal: form
+        ? undefined
+        : typeof AbortSignal.timeout === "function"
+          ? AbortSignal.timeout(90_000)
+          : undefined,
     });
+    response = form
+      ? await withTimeout(pending, 25_000, "Photo upload timed out. Try again.")
+      : await pending;
   } catch (cause) {
     const message = cause instanceof Error && cause.message ? cause.message : "Can't reach Get fk'd right now.";
     recordLastError({ path, status: 0, code: "network", message });
@@ -167,39 +198,6 @@ async function readJson(response: Response): Promise<Record<string, unknown>> {
   }
 }
 
-async function withTimeout<T>(promise: Promise<T>, ms: number, message: string): Promise<T> {
-  let timer: ReturnType<typeof setTimeout> | undefined;
-  try {
-    return await Promise.race([
-      promise,
-      new Promise<T>((_, reject) => {
-        timer = setTimeout(() => {
-          reject(new ApiError(0, { error: message, code: "network" }));
-        }, ms);
-      }),
-    ]);
-  } finally {
-    if (timer) {
-      clearTimeout(timer);
-    }
-  }
-}
-
-async function localUploadUri(uri: string): Promise<string> {
-  if (uri.startsWith("file:")) {
-    return uri;
-  }
-  if (uri.startsWith("/")) {
-    return `file://${uri}`;
-  }
-  const copied = await withTimeout(
-    ImageManipulator.manipulateAsync(uri, []),
-    20_000,
-    "Photo upload timed out. Try again.",
-  );
-  return copied.uri;
-}
-
 async function appendLocalFile(
   form: FormData,
   fieldName: string,
@@ -210,81 +208,7 @@ async function appendLocalFile(
     form.append(fieldName, blob, file.name);
     return;
   }
-  appendNativeFilePart(form as FormWithNativeAppend, fieldName, {
-    uri: await localUploadUri(file.uri),
-    name: file.name,
-    type: file.type,
-  });
-}
-
-function parseXhrJson(xhr: XMLHttpRequest): Record<string, unknown> {
-  const contentType = xhr.getResponseHeader("content-type") ?? "";
-  if (!contentType.includes("application/json")) {
-    return {};
-  }
-  try {
-    const raw = JSON.parse(xhr.responseText || "{}") as unknown;
-    return raw && typeof raw === "object" ? (raw as Record<string, unknown>) : {};
-  } catch {
-    return {};
-  }
-}
-
-function sendNativeForm(path: string, form: FormData): Promise<Record<string, unknown>> {
-  return new Promise((resolve, reject) => {
-    const xhr = new XMLHttpRequest();
-    xhr.open("POST", `${API_URL}${path}`);
-    xhr.timeout = NATIVE_UPLOAD_TIMEOUT_MS;
-    const headers: Record<string, string> = {};
-    if (sessionToken) {
-      headers[SESSION_HEADER] = sessionToken;
-    }
-    if (!__DEV__) {
-      headers["X-Getfkd-Release"] = "store";
-    }
-    headers["X-Getfkd-Install"] = currentInstallId();
-    headers.Accept = "application/json";
-    for (const [key, value] of Object.entries(headers)) {
-      xhr.setRequestHeader(key, value);
-    }
-    xhr.onload = () => {
-      const payload =
-        xhr.status >= 200 && xhr.status < 300
-          ? parseXhrJson(xhr)
-          : payloadFromFailedResponse(xhr.status, parseXhrJson(xhr));
-      try {
-        resolve(finishPayload(path, xhr.status, payload));
-      } catch (cause) {
-        reject(cause);
-      }
-    };
-    xhr.onerror = () => {
-      const message = "Can't reach Get fk'd right now.";
-      recordLastError({ path, status: 0, code: "network", message });
-      reject(new ApiError(0, { error: message, code: "network" }));
-    };
-    xhr.ontimeout = () => {
-      const message = "Photo upload timed out. Try again.";
-      recordLastError({ path, status: 0, code: "network", message });
-      reject(new ApiError(0, { error: message, code: "network" }));
-    };
-    xhr.send(form);
-  });
-}
-
-async function postForm<T>(path: string, form: FormData): Promise<T> {
-  if (Platform.OS === "web") {
-    return request<T>(path, {
-      method: "POST",
-      body: form,
-      headers: { Accept: "application/json" },
-    });
-  }
-  return (await withTimeout(
-    sendNativeForm(path, form),
-    NATIVE_UPLOAD_TIMEOUT_MS + 5_000,
-    "Photo upload timed out. Try again.",
-  )) as T;
+  appendNativeFilePart(form as FormWithNativeAppend, fieldName, file);
 }
 
 export const api = {
@@ -407,9 +331,16 @@ export const api = {
     const form = new FormData();
     attachSessionField(form, sessionToken);
     for (const file of files) {
+      if (__DEV__) {
+        console.warn("getfkd photo part", file.uri, file.name, file.type);
+      }
       await appendLocalFile(form, "photo", file);
     }
-    const payload = await postForm<Record<string, unknown>>("/api/profile/photos", form);
+    const payload = await request<Record<string, unknown>>("/api/profile/photos", {
+      method: "POST",
+      body: form,
+      headers: { Accept: "application/json" },
+    });
     const photos = payload.photos;
     if (!Array.isArray(photos) || photos.length < 1) {
       throw new ApiError(400, { error: "Photo upload failed.", code: "photo_empty" });
@@ -449,7 +380,11 @@ export const api = {
     form.append("explanation", input.explanation);
     form.append("context", JSON.stringify(input.context));
     form.append("tags", JSON.stringify(input.tags ?? []));
-    return postForm<{ id: string; title: string; tags: string[]; notice?: string }>("/api/system/errors", form);
+    return request<{ id: string; title: string; tags: string[]; notice?: string }>("/api/system/errors", {
+      method: "POST",
+      body: form,
+      headers: { Accept: "application/json" },
+    });
   },
   sendFeedback: (body: string, tags: string[] = ["feedback"]) =>
     request<{ id: string; notice?: string }>("/api/system/feedback", {
