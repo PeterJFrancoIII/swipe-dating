@@ -89,12 +89,13 @@ export function OnboardingScreen() {
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
+    setError(null);
     void api.onboarding().then((payload) => {
       setValues({ ...blank, ...payload.values });
       setPhotos(hydrateOnboardingPhotos(payload.photos));
       setStep(nextOnboardingStep(payload.missing_fields));
     });
-  }, []);
+  }, [setError]);
 
   const requiredIndex = REQUIRED.indexOf(step);
   const progress =
