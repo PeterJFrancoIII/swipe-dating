@@ -1,5 +1,6 @@
 import ExpoModulesCore
 import ImageIO
+import Photos
 import UniformTypeIdentifiers
 import UIKit
 
@@ -9,6 +10,10 @@ public class GetfkdPhotoModule: Module {
 
     AsyncFunction("encodeProfileHeic") { (uri: String) -> [String: Any] in
       try PhotoEncoder.encode(uri: uri)
+    }
+
+    AsyncFunction("stagePickedPhoto") { (uri: String, assetId: String) -> [String: Any] in
+      try await PhotoStager.stage(uri: uri, assetId: assetId)
     }
   }
 }
@@ -100,5 +105,68 @@ private enum PhotoEncoder {
       throw PhotoEncodeError.encodeFailed
     }
     return data as Data
+  }
+}
+
+private enum PhotoStager {
+  static func stage(uri: String, assetId: String) async throws -> [String: Any] {
+    if !assetId.isEmpty, let dest = try? await copyLibraryAsset(assetId) {
+      return ["uri": dest.absoluteString]
+    }
+    return ["uri": try copyFile(uri).absoluteString]
+  }
+
+  private static func copyLibraryAsset(_ assetId: String) async throws -> URL {
+    let fetch = PHAsset.fetchAssets(withLocalIdentifiers: [assetId], options: nil)
+    guard let asset = fetch.firstObject else {
+      throw PhotoEncodeError.unreadable
+    }
+    let resources = PHAssetResource.assetResources(for: asset)
+    guard
+      let resource = resources.first(where: { $0.type == .fullSizePhoto })
+        ?? resources.first(where: { $0.type == .photo })
+    else {
+      throw PhotoEncodeError.unreadable
+    }
+    let ext = URL(fileURLWithPath: resource.originalFilename).pathExtension
+    let dest = FileManager.default.temporaryDirectory
+      .appendingPathComponent("getfkd-pick-\(UUID().uuidString).\(ext.isEmpty ? "heic" : ext)")
+    let options = PHAssetResourceRequestOptions()
+    options.isNetworkAccessAllowed = true
+    try await write(resource, to: dest, options: options)
+    return dest
+  }
+
+  private static func copyFile(_ uri: String) throws -> URL {
+    let source = fileURL(from: uri)
+    let ext = source.pathExtension.isEmpty ? "heic" : source.pathExtension
+    let dest = FileManager.default.temporaryDirectory
+      .appendingPathComponent("getfkd-pick-\(UUID().uuidString).\(ext)")
+    try FileManager.default.copyItem(at: source, to: dest)
+    return dest
+  }
+
+  private static func fileURL(from uri: String) -> URL {
+    if let url = URL(string: uri), url.isFileURL {
+      return url
+    }
+    let path = uri.replacingOccurrences(of: "file://", with: "")
+    return URL(fileURLWithPath: path.removingPercentEncoding ?? path)
+  }
+
+  private static func write(
+    _ resource: PHAssetResource,
+    to dest: URL,
+    options: PHAssetResourceRequestOptions
+  ) async throws {
+    try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+      PHAssetResourceManager.default().writeData(for: resource, toFile: dest, options: options) { error in
+        if let error {
+          continuation.resume(throwing: error)
+        } else {
+          continuation.resume()
+        }
+      }
+    }
   }
 }

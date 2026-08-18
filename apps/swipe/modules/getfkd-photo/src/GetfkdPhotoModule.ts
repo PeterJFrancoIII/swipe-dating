@@ -6,8 +6,13 @@ export type EncodedProfilePhoto = {
   height: number;
 };
 
+export type StagedPickedPhoto = {
+  uri: string;
+};
+
 type GetfkdPhotoNative = {
   encodeProfileHeic(uri: string): Promise<EncodedProfilePhoto>;
+  stagePickedPhoto?(uri: string, assetId: string): Promise<StagedPickedPhoto>;
 };
 
 let cached: GetfkdPhotoNative | null | undefined;

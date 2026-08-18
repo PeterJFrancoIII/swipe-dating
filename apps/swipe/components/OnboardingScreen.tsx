@@ -18,7 +18,7 @@ import { ApiError, api } from "@/lib/api";
 import { signupErrorMessage } from "@/lib/signupErrors";
 import { loadAuthedPhoto } from "@/lib/hotDeck";
 import { hydrateOnboardingPhotos, nextOnboardingStep, photosSatisfyRequirement } from "@/lib/onboardingStep";
-import { preparePhotoUploads, profilePhotoPickerOptions } from "@/lib/photoUpload";
+import { preparePhotoUploads, profilePhotoPickerOptions, uniquePickedPhotos } from "@/lib/photoUpload";
 import { emptyCatalogs, useSession } from "@/lib/session";
 import type { PhotoUploadSnapshot } from "@/lib/uploadProgress";
 import { usePhotoUploadProgress } from "@/lib/usePhotoUploadProgress";
@@ -247,9 +247,10 @@ export function OnboardingScreen() {
                   if (picked.canceled || !picked.assets.length) {
                     return;
                   }
+                  const assets = uniquePickedPhotos(picked.assets);
                   setBusy(true);
-                  upload.start(picked.assets.length);
-                  const prepared = await preparePhotoUploads(picked.assets, {
+                  upload.start(assets.length);
+                  const prepared = await preparePhotoUploads(assets, {
                     onStart: (index) => upload.prepareStart(index),
                     onDone: (index) => upload.prepared(index),
                   });
