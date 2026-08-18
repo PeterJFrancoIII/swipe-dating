@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import { useRouter } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 
 import { ChoiceRow } from "@/components/ChoiceSheet";
 import { DistanceSlider } from "@/components/DistanceSlider";
@@ -8,6 +8,7 @@ import { ActionBang, SurfaceBang } from "@/components/ReportBugButton";
 import { surfaceHref } from "@/lib/surfaces";
 import { Screen, Toast } from "@/components/Screen";
 import { ApiError, api } from "@/lib/api";
+import { useCommitSave } from "@/lib/autosave";
 import { parseMaxDistanceMiles } from "@/lib/distance";
 import { emptyCatalogs, useSession } from "@/lib/session";
 import { theme } from "@/lib/theme";
@@ -31,19 +32,67 @@ export default function FiltersScreen() {
   const [values, setValues] = useState<FilterValues | null>(null);
   const [flash, setFlash] = useState<{ error?: string | null; notice?: string | null }>({});
   const [sliderHeld, setSliderHeld] = useState(false);
+  const valuesRef = useRef<FilterValues | null>(null);
+
+  function applyFilters(next: FilterValues) {
+    valuesRef.current = next;
+    setValues(next);
+  }
+
+  function patchFilters(patch: Partial<FilterValues>) {
+    const current = valuesRef.current;
+    if (!current) {
+      return;
+    }
+    applyFilters({ ...current, ...patch });
+  }
+
+  const { commit, markSaved } = useCommitSave(
+    () => valuesRef.current,
+    async (next) => {
+      try {
+        const payload = await api.saveFilters(next);
+        const saved = payload.values as FilterValues;
+        const normalized: FilterValues = {
+          ...saved,
+          max_distance_miles:
+            saved.max_distance_miles !== undefined
+              ? parseMaxDistanceMiles(saved.max_distance_miles)
+              : saved.distance_band
+                ? parseMaxDistanceMiles(undefined, saved.distance_band)
+                : next.max_distance_miles,
+        };
+        applyFilters(normalized);
+        markSaved(normalized);
+      } catch (cause) {
+        setFlash({ error: cause instanceof ApiError ? cause.message : "Couldn't save." });
+        throw cause;
+      }
+    },
+  );
 
   useEffect(() => {
     void api
       .filters()
       .then((payload) => {
-        const values = payload.values as FilterValues;
-        setValues({
-          ...values,
-          max_distance_miles: parseMaxDistanceMiles(values.max_distance_miles, values.distance_band),
-        });
+        const loaded = payload.values as FilterValues;
+        const next = {
+          ...loaded,
+          max_distance_miles: parseMaxDistanceMiles(loaded.max_distance_miles, loaded.distance_band),
+        };
+        applyFilters(next);
+        markSaved(next);
       })
       .catch((cause) => setFlash({ error: cause instanceof ApiError ? cause.message : "Filters failed." }));
-  }, []);
+  }, [markSaved]);
+
+  useFocusEffect(
+    useCallback(() => {
+      return () => {
+        void commit();
+      };
+    }, [commit]),
+  );
 
   if (!values) {
     return (
@@ -71,7 +120,9 @@ export default function FiltersScreen() {
       >
         <Text style={styles.eyebrow}>LOOKING FOR</Text>
         <Text style={styles.title}>Show people who fit what you want.</Text>
-        <Text style={styles.lede}>These are eligibility preferences, not algorithm-weight controls.</Text>
+        <Text style={styles.lede}>
+          These are eligibility preferences, not algorithm-weight controls. Changes save when you leave a field.
+        </Text>
         <Toast error={flash.error} notice={flash.notice} />
         <ChoiceRow
           group="preference"
@@ -81,12 +132,14 @@ export default function FiltersScreen() {
           help="Always private. Leave all unchecked to see everyone."
           options={choices.preference}
           selected={values.show_genders}
-          onChange={(show_genders) => setValues({ ...values, show_genders })}
+          onChange={(show_genders) => patchFilters({ show_genders })}
+          onCommit={() => void commit()}
         />
         <DistanceSlider
           mark={sectionMarks.distance || "📍"}
           value={values.max_distance_miles}
-          onChange={(max_distance_miles) => setValues({ ...values, max_distance_miles })}
+          onChange={(max_distance_miles) => patchFilters({ max_distance_miles })}
+          onCommit={() => void commit()}
           onSlidingChange={setSliderHeld}
         />
         <ChoiceRow
@@ -96,7 +149,8 @@ export default function FiltersScreen() {
           empty="Everyone"
           options={choices.looking}
           selected={values.immediate_intent}
-          onChange={(immediate_intent) => setValues({ ...values, immediate_intent })}
+          onChange={(immediate_intent) => patchFilters({ immediate_intent })}
+          onCommit={() => void commit()}
         />
         <ChoiceRow
           group="looking"
@@ -105,7 +159,8 @@ export default function FiltersScreen() {
           empty="Everyone"
           options={choices.openness}
           selected={values.relational_openness}
-          onChange={(relational_openness) => setValues({ ...values, relational_openness })}
+          onChange={(relational_openness) => patchFilters({ relational_openness })}
+          onCommit={() => void commit()}
         />
         <ChoiceRow
           group="smoking"
@@ -114,7 +169,8 @@ export default function FiltersScreen() {
           empty="Everyone"
           options={choices.smoking}
           selected={values.show_smoking}
-          onChange={(show_smoking) => setValues({ ...values, show_smoking })}
+          onChange={(show_smoking) => patchFilters({ show_smoking })}
+          onCommit={() => void commit()}
         />
         <ChoiceRow
           group="drinking"
@@ -123,7 +179,8 @@ export default function FiltersScreen() {
           empty="Everyone"
           options={choices.drinking}
           selected={values.show_drinking}
-          onChange={(show_drinking) => setValues({ ...values, show_drinking })}
+          onChange={(show_drinking) => patchFilters({ show_drinking })}
+          onCommit={() => void commit()}
         />
         <ChoiceRow
           group="drugs"
@@ -132,7 +189,8 @@ export default function FiltersScreen() {
           empty="Everyone"
           options={choices.drugs}
           selected={values.show_drugs}
-          onChange={(show_drugs) => setValues({ ...values, show_drugs })}
+          onChange={(show_drugs) => patchFilters({ show_drugs })}
+          onCommit={() => void commit()}
         />
         <ChoiceRow
           group="turn_ons"
@@ -141,37 +199,13 @@ export default function FiltersScreen() {
           empty="Everyone"
           options={choices.turn_ons}
           selected={values.show_turn_ons}
-          onChange={(show_turn_ons) => setValues({ ...values, show_turn_ons })}
+          onChange={(show_turn_ons) => patchFilters({ show_turn_ons })}
+          onCommit={() => void commit()}
         />
         <View style={styles.note}>
           <Text style={styles.noteTitle}>Ranking weights stay fixed</Text>
           <Text style={styles.lede}>Filters only change who is eligible, not how the remaining cards are scored.</Text>
         </View>
-        <ActionBang href={surfaceHref("settings", "save")} label="Save settings">
-        <Pressable
-          onPress={async () => {
-            try {
-              const payload = await api.saveFilters(values);
-              const saved = payload.values as FilterValues;
-              setValues({
-                ...saved,
-                max_distance_miles:
-                  saved.max_distance_miles !== undefined
-                    ? parseMaxDistanceMiles(saved.max_distance_miles)
-                    : saved.distance_band
-                      ? parseMaxDistanceMiles(undefined, saved.distance_band)
-                      : values.max_distance_miles,
-              });
-              setFlash({ notice: String(payload.notice ?? "Filters updated. Ranking weights remain fixed.") });
-            } catch (cause) {
-              setFlash({ error: cause instanceof ApiError ? cause.message : "Save failed." });
-            }
-          }}
-          style={styles.primary}
-        >
-          <Text style={styles.primaryLabel}>Save settings</Text>
-        </Pressable>
-        </ActionBang>
       </ScrollView>
     </Screen>
   );
@@ -235,17 +269,6 @@ const styles = StyleSheet.create({
   },
   noteTitle: {
     fontSize: 12,
-    fontWeight: "800",
-  },
-  primary: {
-    alignItems: "center",
-    backgroundColor: theme.rose,
-    borderRadius: 16,
-    minHeight: 48,
-    justifyContent: "center",
-  },
-  primaryLabel: {
-    color: "#fff",
     fontWeight: "800",
   },
 });

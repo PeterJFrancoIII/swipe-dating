@@ -40,7 +40,7 @@
     "android": "EXPO_PUBLIC_USE_RN_FETCH=1 expo start --android",
     "ios": "EXPO_PUBLIC_USE_RN_FETCH=1 expo start --ios",
     "web": "expo start --web",
-    "test": "node --experimental-strip-types --test lib/adult.test.ts lib/distance.test.ts lib/alignment.test.ts lib/installId.test.ts lib/signupErrors.test.ts lib/photoUpload.test.ts lib/httpErrors.test.ts lib/getfkdMode.test.ts lib/getfkdProximity.test.ts lib/formSession.test.ts lib/photoForm.test.ts lib/requestTimeout.test.ts lib/onboardingStep.test.ts lib/appleGate.test.ts lib/uploadProgress.test.ts lib/testingCard.test.ts lib/surfaces.test.ts lib/securityFilter.test.ts",
+    "test": "node --experimental-strip-types --test lib/adult.test.ts lib/distance.test.ts lib/alignment.test.ts lib/installId.test.ts lib/signupErrors.test.ts lib/photoUpload.test.ts lib/httpErrors.test.ts lib/getfkdMode.test.ts lib/getfkdProximity.test.ts lib/formSession.test.ts lib/photoForm.test.ts lib/requestTimeout.test.ts lib/onboardingStep.test.ts lib/appleGate.test.ts lib/uploadProgress.test.ts lib/testingCard.test.ts lib/surfaces.test.ts lib/securityFilter.test.ts lib/autosave.test.ts",
     "typecheck": "tsc --noEmit"
   },
   "private": true

@@ -20,11 +20,13 @@ export function DistanceSlider({
   value,
   onChange,
   onSlidingChange,
+  onCommit,
 }: {
   mark?: string;
   value: number | null;
   onChange: (miles: number | null) => void;
   onSlidingChange?: (held: boolean) => void;
+  onCommit?: () => void;
 }) {
   const tone = tones.distance;
   const index = distanceSliderIndex(value);
@@ -34,10 +36,12 @@ export function DistanceSlider({
   const valueRef = useRef(value);
   const onChangeRef = useRef(onChange);
   const onSlidingRef = useRef(onSlidingChange);
+  const onCommitRef = useRef(onCommit);
   const [width, setWidth] = useState(0);
   valueRef.current = value;
   onChangeRef.current = onChange;
   onSlidingRef.current = onSlidingChange;
+  onCommitRef.current = onCommit;
 
   const applyPageX = (pageX: number) => {
     const { x, width: span } = track.current;
@@ -75,9 +79,11 @@ export function DistanceSlider({
       },
       onPanResponderRelease: () => {
         onSlidingRef.current?.(false);
+        onCommitRef.current?.();
       },
       onPanResponderTerminate: () => {
         onSlidingRef.current?.(false);
+        onCommitRef.current?.();
       },
     }),
   ).current;
@@ -106,10 +112,12 @@ export function DistanceSlider({
         onAccessibilityAction={(event) => {
           if (event.nativeEvent.actionName === "increment") {
             onChange(milesFromSliderIndex(index + 1));
+            onCommit?.();
             return;
           }
           if (event.nativeEvent.actionName === "decrement") {
             onChange(milesFromSliderIndex(index - 1));
+            onCommit?.();
           }
         }}
         style={[styles.value, { color: tone.ink }]}

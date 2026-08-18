@@ -1,5 +1,5 @@
 import * as ImagePicker from "expo-image-picker";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Alert,
   KeyboardAvoidingView,
@@ -12,7 +12,7 @@ import {
   TextInput,
   View,
 } from "react-native";
-import { useRouter } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 
 import { AuthPhoto } from "@/components/AuthPhoto";
 import { ChoiceRow } from "@/components/ChoiceSheet";
@@ -21,6 +21,7 @@ import { ActionBang, FeedbackButton, SurfaceBang } from "@/components/ReportBugB
 import { surfaceHref } from "@/lib/surfaces";
 import { Screen, Toast } from "@/components/Screen";
 import { ApiError, api } from "@/lib/api";
+import { useCommitSave } from "@/lib/autosave";
 import { signupErrorMessage } from "@/lib/signupErrors";
 import { LEGAL_DOCS } from "@/lib/legalDocs";
 import { assertIdentifiablePicks, preparePhotoUploads, profilePhotoPickerOptions } from "@/lib/photoUpload";
@@ -73,9 +74,38 @@ export default function ProfileScreen() {
   const [flash, setFlash] = useState<{ error?: string | null; notice?: string | null }>({});
   const [loading, setLoading] = useState(true);
   const upload = usePhotoUploadProgress();
+  const profileRef = useRef<ProfileFields | null>(null);
+  const { commit, markSaved } = useCommitSave(
+    () => profileRef.current,
+    async (next) => {
+      try {
+        const payload = (await api.saveProfile(next)) as ProfilePayload;
+        profileRef.current = payload.profile;
+        setData(payload);
+        setDisplayName(payload.profile.display_name.trim() || "You");
+        markSaved(payload.profile);
+      } catch (cause) {
+        setFlash({ error: cause instanceof ApiError ? cause.message : "Couldn't save." });
+        throw cause;
+      }
+    },
+  );
+
+  function patchProfile(patch: Partial<ProfileFields>) {
+    setData((current) => {
+      if (!current) {
+        return current;
+      }
+      const profile = { ...current.profile, ...patch };
+      profileRef.current = profile;
+      return { ...current, profile };
+    });
+  }
 
   async function reload() {
     const payload = (await api.profile()) as ProfilePayload;
+    profileRef.current = payload.profile;
+    markSaved(payload.profile);
     setData(payload);
     setSelfPhotoUrl(payload.photos[0]?.url ?? "");
     setLoading(false);
@@ -88,16 +118,13 @@ export default function ProfileScreen() {
     });
   }, []);
 
-  async function save(next: ProfileFields) {
-    try {
-      const payload = (await api.saveProfile(next)) as ProfilePayload;
-      setData(payload);
-      setDisplayName(next.display_name.trim() || "You");
-      setFlash({ notice: payload.notice || "Profile saved." });
-    } catch (cause) {
-      setFlash({ error: cause instanceof ApiError ? cause.message : "Save failed." });
-    }
-  }
+  useFocusEffect(
+    useCallback(() => {
+      return () => {
+        void commit();
+      };
+    }, [commit]),
+  );
 
   async function pickPhotos(remaining: number) {
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -191,7 +218,7 @@ export default function ProfileScreen() {
               </Pressable>
             </ActionBang>
             <Text style={styles.help}>
-              This is what other adults see. Sexual preference stays in Settings, not on your card.
+              This is what other adults see. Sexual preference stays in Settings, not on your card. Changes save when you leave a field.
             </Text>
             <FeedbackButton />
             <View style={styles.sectionHead}>
@@ -239,7 +266,9 @@ export default function ProfileScreen() {
               <Text style={styles.fieldTitle}>Display name</Text>
               <TextInput
                 accessibilityLabel="Display name"
-                onChangeText={(display_name) => setData({ ...data, profile: { ...profile, display_name } })}
+                onBlur={() => void commit()}
+                onChangeText={(display_name) => patchProfile({ display_name })}
+                onEndEditing={() => void commit()}
                 placeholder="What should other adults call you?"
                 placeholderTextColor={theme.mute}
                 style={styles.input}
@@ -250,7 +279,9 @@ export default function ProfileScreen() {
               <Text style={styles.fieldTitle}>City or region</Text>
               <TextInput
                 accessibilityLabel="City or region"
-                onChangeText={(home_region) => setData({ ...data, profile: { ...profile, home_region } })}
+                onBlur={() => void commit()}
+                onChangeText={(home_region) => patchProfile({ home_region })}
+                onEndEditing={() => void commit()}
                 placeholder="Where you usually are"
                 placeholderTextColor={theme.mute}
                 style={styles.input}
@@ -262,7 +293,9 @@ export default function ProfileScreen() {
               <TextInput
                 accessibilityLabel="About you"
                 multiline
-                onChangeText={(about) => setData({ ...data, profile: { ...profile, about } })}
+                onBlur={() => void commit()}
+                onChangeText={(about) => patchProfile({ about })}
+                onEndEditing={() => void commit()}
                 placeholder="A short intro"
                 placeholderTextColor={theme.mute}
                 style={[styles.input, styles.about]}
@@ -277,7 +310,8 @@ export default function ProfileScreen() {
               multiple={false}
               options={choices.gender}
               selected={profile.gender_identities}
-              onChange={(gender_identities) => setData({ ...data, profile: { ...profile, gender_identities } })}
+              onChange={(gender_identities) => patchProfile({ gender_identities })}
+              onCommit={() => void commit()}
             />
             <ChoiceRow
               group="smoking"
@@ -287,7 +321,8 @@ export default function ProfileScreen() {
               multiple={false}
               options={choices.smoking}
               selected={profile.smoking ? [profile.smoking] : []}
-              onChange={(next) => setData({ ...data, profile: { ...profile, smoking: next[0] ?? "" } })}
+              onChange={(next) => patchProfile({ smoking: next[0] ?? "" })}
+              onCommit={() => void commit()}
             />
             <ChoiceRow
               group="drinking"
@@ -297,7 +332,8 @@ export default function ProfileScreen() {
               multiple={false}
               options={choices.drinking}
               selected={profile.drinking ? [profile.drinking] : []}
-              onChange={(next) => setData({ ...data, profile: { ...profile, drinking: next[0] ?? "" } })}
+              onChange={(next) => patchProfile({ drinking: next[0] ?? "" })}
+              onCommit={() => void commit()}
             />
             <ChoiceRow
               group="drugs"
@@ -307,7 +343,8 @@ export default function ProfileScreen() {
               multiple={false}
               options={choices.drugs}
               selected={profile.drugs ? [profile.drugs] : []}
-              onChange={(next) => setData({ ...data, profile: { ...profile, drugs: next[0] ?? "" } })}
+              onChange={(next) => patchProfile({ drugs: next[0] ?? "" })}
+              onCommit={() => void commit()}
             />
             <ChoiceRow
               group="turn_ons"
@@ -317,7 +354,8 @@ export default function ProfileScreen() {
               limit={turnLimit}
               options={choices.turn_ons}
               selected={profile.turn_ons}
-              onChange={(turn_ons) => setData({ ...data, profile: { ...profile, turn_ons } })}
+              onChange={(turn_ons) => patchProfile({ turn_ons })}
+              onCommit={() => void commit()}
             />
             {choices.interests.length ? (
               <ChoiceRow
@@ -327,7 +365,8 @@ export default function ProfileScreen() {
                 empty="Choose interests"
                 options={choices.interests}
                 selected={profile.lifestyle_tags}
-                onChange={(lifestyle_tags) => setData({ ...data, profile: { ...profile, lifestyle_tags } })}
+                onChange={(lifestyle_tags) => patchProfile({ lifestyle_tags })}
+                onCommit={() => void commit()}
               />
             ) : null}
             {choices.hobbies.length ? (
@@ -338,7 +377,8 @@ export default function ProfileScreen() {
                 empty="Choose hobbies"
                 options={choices.hobbies}
                 selected={profile.hobby_tags}
-                onChange={(hobby_tags) => setData({ ...data, profile: { ...profile, hobby_tags } })}
+                onChange={(hobby_tags) => patchProfile({ hobby_tags })}
+                onCommit={() => void commit()}
               />
             ) : null}
             {choices.personality.length ? (
@@ -349,14 +389,10 @@ export default function ProfileScreen() {
                 empty="Choose traits"
                 options={choices.personality}
                 selected={profile.personality_tags}
-                onChange={(personality_tags) => setData({ ...data, profile: { ...profile, personality_tags } })}
+                onChange={(personality_tags) => patchProfile({ personality_tags })}
+                onCommit={() => void commit()}
               />
             ) : null}
-            <ActionBang href={surfaceHref("profile", "save")} label="Save profile">
-              <Pressable onPress={() => void save(profile)} style={styles.primary}>
-                <Text style={styles.primaryLabel}>Save profile</Text>
-              </Pressable>
-            </ActionBang>
             <View style={styles.box}>
               <Text style={styles.boxTitle}>Boost and Superlike</Text>
               <Text style={styles.help}>

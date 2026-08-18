@@ -14,6 +14,7 @@ export function ChoiceRow({
   selected,
   options,
   onChange,
+  onCommit,
   required,
   needed,
   help,
@@ -27,6 +28,7 @@ export function ChoiceRow({
   selected: string[];
   options: Choice[];
   onChange: (next: string[]) => void;
+  onCommit?: () => void;
   required?: boolean;
   needed?: boolean;
   help?: string;
@@ -35,6 +37,11 @@ export function ChoiceRow({
 }) {
   const [open, setOpen] = useState(false);
   const tone = tones[group] ?? tones.gender;
+
+  function close() {
+    setOpen(false);
+    onCommit?.();
+  }
   const summary = useMemo(() => {
     const labels = options.filter((option) => selected.includes(option.id)).map((option) => `${option.icon} ${option.label}`.trim());
     return labels.length ? labels.join(", ") : empty;
@@ -57,8 +64,8 @@ export function ChoiceRow({
           <Text style={styles.chevron}>›</Text>
         </Pressable>
       </ActionBang>
-      <Modal animationType="fade" transparent visible={open} onRequestClose={() => setOpen(false)}>
-        <Pressable style={styles.backdrop} onPress={() => setOpen(false)}>
+      <Modal animationType="fade" transparent visible={open} onRequestClose={close}>
+        <Pressable style={styles.backdrop} onPress={close}>
           <Pressable style={[styles.panel, { borderColor: tone.border }]} onPress={() => undefined}>
             <View style={styles.header}>
               <Text style={styles.headerTitle}>
@@ -67,7 +74,7 @@ export function ChoiceRow({
               </Text>
               <View style={styles.headerActions}>
                 <ReportFab embedded href={surfaceHref(group, title)} label={title} />
-                <Pressable accessibilityLabel="Close" onPress={() => setOpen(false)} style={styles.close}>
+                <Pressable accessibilityLabel="Close" onPress={close} style={styles.close}>
                   <Text style={styles.closeMark}>×</Text>
                 </Pressable>
               </View>
@@ -89,7 +96,7 @@ export function ChoiceRow({
                         onPress={() => {
                           if (!multiple) {
                             onChange([option.id]);
-                            setOpen(false);
+                            close();
                             return;
                           }
                           if (on) {
@@ -99,7 +106,7 @@ export function ChoiceRow({
                           const next = [...selected, option.id];
                           onChange(next);
                           if (limit && next.length >= limit) {
-                            setOpen(false);
+                            close();
                           }
                         }}
                         style={[
