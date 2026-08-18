@@ -1,7 +1,9 @@
-# Photo upload system — GPT Main review handoff
+# Photo upload system — evidence appendix
+
+**GPT start here (2026-08-18):** [2026-08-18-gpt-photo-review.md](./2026-08-18-gpt-photo-review.md)
 
 - **ID:** 2026-08-16-photo-upload-handoff
-- **Status:** ready_for_review
+- **Status:** ready_for_review (appendix; do not treat as the current ask)
 - **Architect:** Codex / GPT Main
 - **Implementer:** Cursor IDE Agent
 - **Handoff requested by:** product owner, 2026-08-17 17:22 ET
@@ -132,7 +134,7 @@ RN-fetch multipart **does** leave the development client and returns **200**. Re
 | 2026-08-17 16:53 ET | **Unsupported FormDataPart Implementation** | SDK 57 global `fetch` is `expo/fetch`. `convertFormData.ts` rejects `{uri,name,type}`. | `File.upload()` multipart. |
 | 2026-08-17 ~16:55 ET | **Uploading photos…** forever | `File.upload()` / URLSession promise never settled. No NAS POST. No JS error. | `File.arrayBuffer()` + `new Blob([bytes])`. |
 | 2026-08-17 | **Creating blobs from 'ArrayBuffer' and 'ArrayBufferView' are not supported** | RN `BlobManager` rejects ArrayBuffer parts. | Append `expo-file-system` `File` to FormData for `expo/fetch` (`.bytes()`). |
-| 2026-08-17 17:12 ET | **Uploading photos…** forever again | `expo/fetch` `convertFormDataAsync` calls `File.bytes()` and buffers the body **before** `request.start()`, so `AbortSignal.timeout(90s)` never fires. No Metro error. No NAS POST. | XHR + `{uri,name,type}` + 45s timeout (on disk now). |
+| 2026-08-17 17:12 ET | **Uploading photos…** forever again | `expo/fetch` `convertFormDataAsync` calls `File.bytes()` and buffers the body **before** `request.start()`, so `AbortSignal.timeout(90s)` never fires. No Metro error. No NAS POST. | Historical next-step was XHR (later used, then abandoned). **Not current.** |
 | 2026-08-17 17:22 ET | Owner: hand to GPT. Not resolved. | Latest XHR path has **no owner confirmation** and **no live 200**. XHR already failed once (2026-08-16). | **Stop.** |
 | 2026-08-17 18:50 ET | still not uploading (Expo Go) | Real `file://` parts; NAS onboarding **200**; **zero** photo POSTs | Architect: leave Expo Go; build Getfkd dev client |
 | 2026-08-17 19:22 ET | **Photo upload timed out. Try again.** / **0 added** | Getfkd dev client. NAS `POST /api/profile/photos` **200** at 23:22:16Z. `photo_count` **2**. Client 25s `Promise.race` lost the race. | **Stop.** No transport change. GPT reviews. |
@@ -144,7 +146,7 @@ RN-fetch multipart **does** leave the development client and returns **200**. Re
 - Fresh token + form-only `session` → **401 `adult_gate_required`** (field is read)
 - Same token + header-only → **401 `adult_gate_required`**
 - JSON `POST /api/getfkd` and `/api/location` from the same Simulator session → **200**
-- Device/Simulator photo POSTs on NAS (72h snapshot 2026-08-17): **5 total, 0× 200, 5× 401**
+- Device/Simulator photo POSTs on NAS (72h snapshot **before** 19:22 ET on 2026-08-17): **5 total, 0× 200, 5× 401**. Superseded by the 19:22 ET development-client **200**.
 - Expo Go does not load `getfkd-photo`. Server converts HEIC. Native rebuild required for on-device encode (AM-016 / module note).
 - `cd apps/swipe && npx tsc --noEmit && npm test` → **32 passed**, 0 failed (2026-08-17 17:15 ET)
 - **2026-08-17 19:22 ET Getfkd development client:** `POST /api/profile/photos` **200**; `GET /api/onboarding` `photo_count: 2`; `GET /api/profile/photos/0` and `/1` **200** `image/avif`

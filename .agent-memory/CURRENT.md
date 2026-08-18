@@ -1,24 +1,21 @@
 # Current task
 
-- **Task:** 2026-08-16-photo-upload-handoff
+- **Task:** 2026-08-18-gpt-photo-review
 - **Status:** ready_for_review
-- **Authorization:** GPT Architect 2026-08-17 18:58 ET — Expo Go is not the photo-upload runtime. Build a local iOS development client. **Do not change RN-fetch transport.**
+- **Authorization:** Owner 2026-08-18 15:11 ET — publish a GPT handoff for review. Cursor does not self-accept.
 
-## This slice (done, not self-accepted)
+## GPT start here
 
-- Built **Getfkd** (`app.getfkd.ios`) on iPhone 17 Pro Simulator. Not Expo Go.
-- Metro: `EXPO_PUBLIC_USE_RN_FETCH=1 npx expo start --dev-client --port 8082 -c`
-- One real multipart (HEIC + JPEG) via unchanged `request()` → `reactNativeFetch()`
-- NAS `POST /api/profile/photos` **200** at 23:22:16Z
-- `GET /api/onboarding` `photo_count: 2`; photo slots 0 and 1 return **200** `image/avif`
-- Wizard showed **Photo upload timed out** / **0 added** (25s client `Promise.race`)
-- Did not commit `apps/swipe/ios/`. In-repo `expo run:ios` fails on the space in `App Development`; successful build was `/tmp/getfkd-swipe`
+https://github.com/PeterJFrancoIII/swipe-dating/blob/review/photo-upload/.agent-memory/tasks/2026-08-18-gpt-photo-review.md
 
-## Prior evidence (do not re-run Expo Go)
+Evidence appendix: https://github.com/PeterJFrancoIII/swipe-dating/blob/review/photo-upload/.agent-memory/tasks/2026-08-16-photo-upload-handoff.md
 
-- 2026-08-17 18:50 ET: Expo Go RN-fetch created `file://` parts; NAS onboarding **200**; **zero** photo POSTs. Architect accepted that evidence.
+## Last verified slice (2026-08-17 19:22 ET)
 
-Packet (GitHub): https://github.com/PeterJFrancoIII/swipe-dating/blob/review/photo-upload/.agent-memory/tasks/2026-08-16-photo-upload-handoff.md
+- Getfkd development client (`app.getfkd.ios`), not Expo Go
+- Transport unchanged: `request()` → `reactNativeFetch()` + FormData `{uri,name,type}`
+- NAS `POST /api/profile/photos` **200**; `photo_count: 2`
+- Wizard showed **Photo upload timed out** / **0 added** (25s form `Promise.race`)
 
 ## Review branches
 
