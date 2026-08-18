@@ -2,7 +2,9 @@ import { useEffect, useMemo, useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 
+import { SurfaceBang } from "@/components/ReportBugButton";
 import { Screen, Toast } from "@/components/Screen";
+import { surfaceHref } from "@/lib/surfaces";
 import { ApiError, api } from "@/lib/api";
 import { useSession } from "@/lib/session";
 import type { AlignmentQuestion } from "@/lib/types";
@@ -68,7 +70,7 @@ export default function CompatibilityQuizScreen() {
           <Text style={styles.backMark}>‹</Text>
         </Pressable>
         <Text style={styles.topTitle}>Compatibility quiz</Text>
-        <View style={styles.spacer} />
+        <SurfaceBang href={surfaceHref("quiz")} label="Compatibility quiz" />
       </View>
       <Toast error={flash.error} notice={flash.notice} />
       {question ? (

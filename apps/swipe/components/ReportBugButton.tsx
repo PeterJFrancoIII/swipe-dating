@@ -1,17 +1,19 @@
 import * as ImagePicker from "expo-image-picker";
 import { usePathname } from "expo-router";
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
-import { Modal, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { Modal, Pressable, StyleSheet, Text, TextInput, View, type StyleProp, type ViewStyle } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { ApiError, api } from "@/lib/api";
 import { diagnosticContext, screenName } from "@/lib/diagnostics";
+import { SECURITY_HOLD_NOTICE } from "@/lib/securityFilter";
+import { surfaceFromRoute, surfaceTag, withSurfaceLine, type SurfaceRef } from "@/lib/surfaces";
 import { theme } from "@/lib/theme";
 
 type Step = "closed" | "choose" | "idea";
 
 type ReportApi = {
-  open: (step?: "choose" | "idea", popup?: boolean) => void;
+  open: (step?: "choose" | "idea", surface?: SurfaceRef) => void;
 };
 
 const ReportContext = createContext<ReportApi | null>(null);
@@ -27,7 +29,7 @@ export function useReport(): ReportApi {
 export function ReportProvider({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const [step, setStep] = useState<Step>("closed");
-  const [fromPopup, setFromPopup] = useState(false);
+  const [surface, setSurface] = useState<SurfaceRef>(() => surfaceFromRoute(pathname || "/"));
   const [idea, setIdea] = useState("");
   const [busy, setBusy] = useState(false);
   const [flash, setFlash] = useState<string | null>(null);
@@ -39,7 +41,7 @@ export function ReportProvider({ children }: { children: ReactNode }) {
     if (toastTimer.current) {
       clearTimeout(toastTimer.current);
     }
-    toastTimer.current = setTimeout(() => setToast(null), 1800);
+    toastTimer.current = setTimeout(() => setToast(null), 2200);
   }
 
   useEffect(() => {
@@ -50,15 +52,11 @@ export function ReportProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  function open(next: "choose" | "idea" = "choose", popup = false) {
-    setFromPopup(popup);
+  function open(next: "choose" | "idea" = "choose", nextSurface?: SurfaceRef) {
+    setSurface(nextSurface ?? surfaceFromRoute(pathname || "/", screenName(pathname || "/")));
     setFlash(null);
     setIdea("");
     setStep(next);
-  }
-
-  function contextTags(): string[] {
-    return fromPopup ? ["popup"] : [];
   }
 
   async function sendBug() {
@@ -80,16 +78,21 @@ export function ReportProvider({ children }: { children: ReactNode }) {
     try {
       const route = pathname || "/";
       const matchId = route.includes("/matches/") ? decodeURIComponent(route.split("/matches/")[1] || "") : undefined;
-      await api.reportInAppError({
+      const result = await api.reportInAppError({
         uri: asset.uri,
         name: asset.fileName || "screenshot.jpg",
         type: asset.mimeType || "image/jpeg",
-        explanation: "",
-        context: diagnosticContext(route, screenName(route), matchId),
-        tags: ["bug", ...contextTags()],
+        explanation: withSurfaceLine(surface.href),
+        context: {
+          ...diagnosticContext(route, screenName(route), matchId),
+          surface_href: surface.href,
+          surface_label: surface.label,
+          kind: "bug",
+        },
+        tags: ["bug", "kind:bug", surfaceTag(surface.href)],
       });
       setStep("closed");
-      showToast("Sent.");
+      showToast(result.notice || "Sent.");
     } catch (cause) {
       setFlash(cause instanceof ApiError ? cause.message : "Didn't send. Tap Bug again.");
     } finally {
@@ -100,15 +103,19 @@ export function ReportProvider({ children }: { children: ReactNode }) {
   async function sendIdea() {
     const text = idea.trim();
     if (!text) {
-      setFlash("Type the idea.");
+      setFlash("Type the feature request.");
       return;
     }
     setBusy(true);
     try {
-      await api.sendFeedback(text, ["feedback", "feature", ...contextTags()]);
+      const result = await api.sendFeedback(withSurfaceLine(surface.href, text), {
+        tags: ["feedback", "feature", "kind:feature", surfaceTag(surface.href)],
+        surface_href: surface.href,
+        kind: "feature",
+      });
       setIdea("");
       setStep("closed");
-      showToast("Sent.");
+      showToast(result.notice || "Sent.");
     } catch (cause) {
       setFlash(cause instanceof ApiError ? cause.message : "Didn't send. Try again.");
     } finally {
@@ -124,27 +131,33 @@ export function ReportProvider({ children }: { children: ReactNode }) {
           <Pressable style={styles.sheet} onPress={() => undefined}>
             {step === "choose" ? (
               <>
-                <Text style={styles.title}>Bug or idea?</Text>
+                <Text style={styles.title}>Bug or Feature Request?</Text>
+                <Text style={styles.surfaceLine} numberOfLines={2}>
+                  {surface.label} · {surface.href}
+                </Text>
                 <View style={styles.row}>
                   <Pressable disabled={busy} onPress={() => void sendBug()} style={[styles.pick, styles.bug]}>
                     <Text style={styles.pickLabel}>{busy ? "…" : "Bug"}</Text>
                     <Text style={styles.pickHelp}>It's broken</Text>
                   </Pressable>
                   <Pressable disabled={busy} onPress={() => setStep("idea")} style={[styles.pick, styles.idea]}>
-                    <Text style={styles.pickLabel}>Idea</Text>
-                    <Text style={styles.pickHelp}>A feature I want</Text>
+                    <Text style={styles.pickLabel}>Feature Request</Text>
+                    <Text style={styles.pickHelp}>Something to add</Text>
                   </Pressable>
                 </View>
               </>
             ) : (
               <>
-                <Text style={styles.title}>Idea</Text>
+                <Text style={styles.title}>Feature Request</Text>
+                <Text style={styles.surfaceLine} numberOfLines={2}>
+                  {surface.label} · {surface.href}
+                </Text>
                 <TextInput
                   autoFocus
                   multiline
                   onChangeText={setIdea}
                   onSubmitEditing={() => void sendIdea()}
-                  placeholder="One sentence."
+                  placeholder="What should this control do?"
                   placeholderTextColor={theme.mute}
                   returnKeyType="send"
                   style={styles.input}
@@ -153,6 +166,7 @@ export function ReportProvider({ children }: { children: ReactNode }) {
                 <Pressable disabled={busy} onPress={() => void sendIdea()} style={styles.send}>
                   <Text style={styles.sendLabel}>{busy ? "…" : "Send"}</Text>
                 </Pressable>
+                <Text style={styles.fine}>{SECURITY_HOLD_NOTICE.replace("This was not added to the community queue.", "Security asks stay with admins.")}</Text>
               </>
             )}
             {flash ? <Text style={styles.error}>{flash}</Text> : null}
@@ -168,21 +182,77 @@ export function ReportProvider({ children }: { children: ReactNode }) {
   );
 }
 
-export function ReportFab({ embedded = false }: { embedded?: boolean }) {
+export function SurfaceBang({
+  href,
+  label,
+  size = "section",
+}: {
+  href: string;
+  label: string;
+  size?: "page" | "section" | "button";
+}) {
   const report = useContext(ReportContext);
-  const insets = useSafeAreaInsets();
   if (!report) {
     return null;
   }
   return (
     <Pressable
-      accessibilityLabel="Bug or idea"
-      onPress={() => report.open("choose", embedded)}
-      style={
-        embedded
-          ? styles.embedded
-          : [styles.fab, { bottom: Math.max(insets.bottom, 12) + 8, left: 12 }]
-      }
+      accessibilityLabel={`Report ${label}`}
+      accessibilityHint="Opens Bug or Feature Request for this control"
+      hitSlop={6}
+      onPress={() => report.open("choose", { href, label })}
+      style={size === "button" ? styles.bangTiny : size === "page" ? styles.fab : styles.embedded}
+    >
+      <Text style={size === "button" ? styles.bangTinyMark : styles.fabMark}>!</Text>
+    </Pressable>
+  );
+}
+
+export function ActionBang({
+  href,
+  label,
+  children,
+  style,
+}: {
+  href: string;
+  label: string;
+  children: ReactNode;
+  style?: StyleProp<ViewStyle>;
+}) {
+  return (
+    <View style={[styles.actionWrap, style]}>
+      {children}
+      <View pointerEvents="box-none" style={styles.actionBang}>
+        <SurfaceBang href={href} label={label} size="button" />
+      </View>
+    </View>
+  );
+}
+
+export function ReportFab({
+  embedded = false,
+  href,
+  label,
+}: {
+  embedded?: boolean;
+  href?: string;
+  label?: string;
+}) {
+  const report = useContext(ReportContext);
+  const insets = useSafeAreaInsets();
+  const pathname = usePathname();
+  if (!report) {
+    return null;
+  }
+  const surface = href && label ? { href, label } : surfaceFromRoute(pathname || "/", screenName(pathname || "/"));
+  if (embedded) {
+    return <SurfaceBang href={surface.href} label={surface.label} size="section" />;
+  }
+  return (
+    <Pressable
+      accessibilityLabel="Bug or Feature Request"
+      onPress={() => report.open("choose", surface)}
+      style={[styles.fab, { bottom: Math.max(insets.bottom, 12) + 8, left: 12 }]}
     >
       <Text style={styles.fabMark}>!</Text>
     </Pressable>
@@ -195,13 +265,15 @@ export function ReportBugButton() {
 
 export function FeedbackButton() {
   const report = useContext(ReportContext);
+  const pathname = usePathname();
   if (!report) {
     return null;
   }
+  const surface = surfaceFromRoute(pathname || "/", "Profile");
   return (
-    <Pressable onPress={() => report.open("choose")} style={styles.settings}>
-      <Text style={styles.settingsTitle}>Bug or idea</Text>
-      <Text style={styles.settingsHelp}>Tap once. Then tap Bug or Idea.</Text>
+    <Pressable onPress={() => report.open("choose", surface)} style={styles.settings}>
+      <Text style={styles.settingsTitle}>Bug or Feature Request</Text>
+      <Text style={styles.settingsHelp}>Every ! mark sends that control's link with the report.</Text>
     </Pressable>
   );
 }
@@ -225,10 +297,33 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     width: 36,
   },
+  bangTiny: {
+    alignItems: "center",
+    backgroundColor: theme.ink,
+    borderRadius: 9,
+    height: 18,
+    justifyContent: "center",
+    width: 18,
+  },
   fabMark: {
     color: "#fff",
     fontSize: 20,
     fontWeight: "900",
+  },
+  bangTinyMark: {
+    color: "#fff",
+    fontSize: 11,
+    fontWeight: "900",
+    lineHeight: 12,
+  },
+  actionWrap: {
+    position: "relative",
+  },
+  actionBang: {
+    position: "absolute",
+    right: -4,
+    top: -6,
+    zIndex: 20,
   },
   overlay: {
     backgroundColor: theme.overlay,
@@ -246,6 +341,15 @@ const styles = StyleSheet.create({
     color: theme.ink,
     fontSize: 22,
     fontWeight: "800",
+  },
+  surfaceLine: {
+    color: theme.mute,
+    fontSize: 12,
+    fontWeight: "700",
+  },
+  fine: {
+    color: theme.mute,
+    fontSize: 11,
   },
   row: {
     flexDirection: "row",
@@ -266,7 +370,7 @@ const styles = StyleSheet.create({
   },
   pickLabel: {
     color: theme.ink,
-    fontSize: 22,
+    fontSize: 18,
     fontWeight: "900",
   },
   pickHelp: {

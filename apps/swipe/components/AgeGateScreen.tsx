@@ -10,7 +10,9 @@ import {
 } from "react-native";
 
 import { GetFkdLogo } from "@/components/GetFkdLogo";
+import { ActionBang, SurfaceBang } from "@/components/ReportBugButton";
 import { Screen, Toast } from "@/components/Screen";
+import { surfaceHref } from "@/lib/surfaces";
 import { useSession } from "@/lib/session";
 import { theme } from "@/lib/theme";
 
@@ -109,7 +111,10 @@ export function AgeGateScreen() {
         <View style={styles.copy}>
           <GetFkdLogo size={168} style={styles.logo} />
           <Text style={styles.kicker}>ADULTS 18+</Text>
-          <Text style={styles.title}>Adults 18+ only.</Text>
+          <View style={styles.titleRow}>
+            <Text style={styles.title}>Adults 18+ only.</Text>
+            <SurfaceBang href={surfaceHref("age-gate")} label="Age gate" />
+          </View>
           <Text style={styles.lede}>
             {allowBirthday
               ? "Development build: enter your birth date. Store and preview builds use Apple Declared Age Range and fail closed if 18+ cannot be established."
@@ -136,19 +141,23 @@ export function AgeGateScreen() {
             </View>
           ) : null}
           {allowBirthday ? (
-            <Pressable
-              accessibilityRole="button"
-              onPress={() => {
-                void acceptAdult({ birth_month: month, birth_day: day, birth_year: year });
-              }}
-              style={styles.button}
-            >
-              <Text style={styles.buttonLabel}>Enter Get fk'd</Text>
-            </Pressable>
+            <ActionBang href={surfaceHref("age-gate", "enter")} label="Enter Get fk'd">
+              <Pressable
+                accessibilityRole="button"
+                onPress={() => {
+                  void acceptAdult({ birth_month: month, birth_day: day, birth_year: year });
+                }}
+                style={styles.button}
+              >
+                <Text style={styles.buttonLabel}>Enter Get fk'd</Text>
+              </Pressable>
+            </ActionBang>
           ) : (
-            <Pressable accessibilityRole="button" onPress={() => void continueWithApple()} style={styles.button}>
-              <Text style={styles.buttonLabel}>Continue with Apple age</Text>
-            </Pressable>
+            <ActionBang href={surfaceHref("age-gate", "apple-age")} label="Continue with Apple age">
+              <Pressable accessibilityRole="button" onPress={() => void continueWithApple()} style={styles.button}>
+                <Text style={styles.buttonLabel}>Continue with Apple age</Text>
+              </Pressable>
+            </ActionBang>
           )}
           <Text style={styles.fine}>
             There is no parental-consent bypass. Eligibility fails closed when adult age cannot be established.
@@ -178,6 +187,11 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: "800",
     letterSpacing: 1.4,
+  },
+  titleRow: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: 8,
   },
   title: {
     color: theme.ink,

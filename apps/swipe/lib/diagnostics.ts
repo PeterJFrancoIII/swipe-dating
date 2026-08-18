@@ -25,6 +25,9 @@ export type DiagnosticContext = {
   match_id?: string;
   timezone: string;
   client_time: string;
+  surface_href?: string;
+  surface_label?: string;
+  kind?: string;
 };
 
 const state: {

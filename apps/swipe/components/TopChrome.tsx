@@ -3,6 +3,8 @@ import { usePathname, useRouter } from "expo-router";
 
 import { AuthPhoto } from "@/components/AuthPhoto";
 import { GetFkdModeButton } from "@/components/GetFkdModeButton";
+import { ActionBang } from "@/components/ReportBugButton";
+import { surfaceHref } from "@/lib/surfaces";
 import { useSession } from "@/lib/session";
 import { theme } from "@/lib/theme";
 
@@ -18,43 +20,53 @@ export function TopChrome() {
     <View style={styles.wrap}>
       <View style={styles.toolbar}>
         <View style={styles.side}>
-          <Pressable
-            accessibilityLabel="Profile settings"
-            accessibilityHint="Edit your photo, profile, and compatibility quiz"
-            onPress={() => router.push("/profile")}
-            style={styles.youButton}
-          >
-            <AuthPhoto fallback={youMark} path={selfPhotoUrl} style={styles.youFace} />
-          </Pressable>
+          <ActionBang href={surfaceHref("chrome", "profile")} label="Profile">
+            <Pressable
+              accessibilityLabel="Profile settings"
+              accessibilityHint="Edit your photo, profile, and compatibility quiz"
+              onPress={() => router.push("/profile")}
+              style={styles.youButton}
+            >
+              <AuthPhoto fallback={youMark} path={selfPhotoUrl} style={styles.youFace} />
+            </Pressable>
+          </ActionBang>
         </View>
         <View style={styles.wordmark}>
-          <GetFkdModeButton size={46} />
+          <ActionBang href={surfaceHref("chrome", "getfkd")} label="Get Fk'd">
+            <GetFkdModeButton size={46} />
+          </ActionBang>
         </View>
         <View style={styles.sideEnd}>
-          <Pressable accessibilityLabel="Settings" onPress={() => router.push("/filters")} style={styles.icon}>
-            <Text style={styles.gear}>⚙</Text>
-          </Pressable>
+          <ActionBang href={surfaceHref("chrome", "settings")} label="Settings">
+            <Pressable accessibilityLabel="Settings" onPress={() => router.push("/filters")} style={styles.icon}>
+              <Text style={styles.gear}>⚙</Text>
+            </Pressable>
+          </ActionBang>
         </View>
       </View>
       <View accessibilityRole="tablist" style={styles.tabs}>
-        <Pressable
-          accessibilityLabel="Swipe"
-          accessibilityRole="tab"
-          accessibilityState={{ selected: !onMatches }}
-          onPress={() => router.replace("/")}
-          style={[styles.tab, !onMatches && styles.tabOn]}
-        >
-          <Text style={[styles.tabLabel, !onMatches && styles.tabLabelOn]}>♡  Swipe</Text>
-        </Pressable>
-        <Pressable
-          accessibilityLabel="Matches"
-          accessibilityRole="tab"
-          accessibilityState={{ selected: onMatches }}
-          onPress={() => router.replace("/matches")}
-          style={[styles.tab, onMatches && styles.tabOn]}
-        >
-          <Text style={[styles.tabLabel, onMatches && styles.tabLabelOn]}>◉  Matches</Text>
-        </Pressable>
+        <ActionBang href={surfaceHref("tabs", "swipe")} label="Swipe tab" style={styles.tabWrap}>
+          <Pressable
+            accessibilityLabel="Swipe"
+            accessibilityRole="tab"
+            accessibilityState={{ selected: !onMatches }}
+            onPress={() => router.replace("/")}
+            style={[styles.tab, !onMatches && styles.tabOn]}
+          >
+            <Text style={[styles.tabLabel, !onMatches && styles.tabLabelOn]}>♡  Swipe</Text>
+          </Pressable>
+        </ActionBang>
+        <ActionBang href={surfaceHref("tabs", "matches")} label="Matches tab" style={styles.tabWrap}>
+          <Pressable
+            accessibilityLabel="Matches"
+            accessibilityRole="tab"
+            accessibilityState={{ selected: onMatches }}
+            onPress={() => router.replace("/matches")}
+            style={[styles.tab, onMatches && styles.tabOn]}
+          >
+            <Text style={[styles.tabLabel, onMatches && styles.tabLabelOn]}>◉  Matches</Text>
+          </Pressable>
+        </ActionBang>
       </View>
     </View>
   );
@@ -108,6 +120,9 @@ const styles = StyleSheet.create({
     color: theme.ink,
     fontSize: 20,
     lineHeight: 22,
+  },
+  tabWrap: {
+    flex: 1,
   },
   tabs: {
     backgroundColor: theme.paper,

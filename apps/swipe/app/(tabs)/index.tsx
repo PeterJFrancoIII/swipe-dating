@@ -3,6 +3,8 @@ import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-
 import { useFocusEffect, useRouter } from "expo-router";
 
 import { DatingCard, ProfileSheet } from "@/components/DatingCard";
+import { ActionBang } from "@/components/ReportBugButton";
+import { surfaceHref } from "@/lib/surfaces";
 import { MatchMoment } from "@/components/MatchMoment";
 import { Screen, Toast } from "@/components/Screen";
 import { TopChrome } from "@/components/TopChrome";
@@ -97,9 +99,11 @@ export default function SwipeScreen() {
                     } left`}{" "}
                 · {reach?.boosts ?? 0} Boost{(reach?.boosts ?? 0) === 1 ? "" : "s"}
               </Text>
-              <Pressable onPress={() => void run(() => api.boost())} style={styles.secondary}>
-                <Text style={styles.secondaryLabel}>Boost</Text>
-              </Pressable>
+              <ActionBang href={surfaceHref("swipe", "boost")} label="Boost">
+                <Pressable onPress={() => void run(() => api.boost())} style={styles.secondary}>
+                  <Text style={styles.secondaryLabel}>Boost</Text>
+                </Pressable>
+              </ActionBang>
             </>
           )}
         </View>
@@ -115,36 +119,46 @@ export default function SwipeScreen() {
               />
               {reportOpen ? null : (
                 <View style={styles.deck}>
-                  <Pressable accessibilityLabel="Undo last decision" onPress={() => void run(() => api.undo())} style={styles.small}>
-                    <Text style={styles.smallMark}>↶</Text>
-                  </Pressable>
-                  <Pressable
-                    accessibilityLabel={`Pass ${candidate.display_name}`}
-                    disabled={outOfSwipes}
-                    onPress={() => void run(() => api.pass(candidate.id))}
-                    style={[styles.round, outOfSwipes && styles.deckDisabled]}
-                  >
-                    <Text style={styles.passMark}>×</Text>
-                  </Pressable>
-                  <Pressable
-                    accessibilityLabel={`Superlike ${candidate.display_name}`}
-                    disabled={outOfSwipes}
-                    onPress={() => void run(() => api.superlike(candidate.id))}
-                    style={[styles.superlike, outOfSwipes && styles.deckDisabled]}
-                  >
-                    <Text style={styles.superMark}>★</Text>
-                  </Pressable>
-                  <Pressable
-                    accessibilityLabel={`Like ${candidate.display_name}`}
-                    disabled={outOfSwipes}
-                    onPress={() => void run(() => api.like(candidate.id))}
-                    style={[styles.like, outOfSwipes && styles.deckDisabled]}
-                  >
-                    <Text style={styles.likeMark}>♥</Text>
-                  </Pressable>
-                  <Pressable accessibilityLabel="More actions" onPress={() => setReportOpen(true)} style={styles.small}>
-                    <Text style={styles.smallMark}>•••</Text>
-                  </Pressable>
+                  <ActionBang href={surfaceHref("swipe", "deck", "undo")} label="Undo">
+                    <Pressable accessibilityLabel="Undo last decision" onPress={() => void run(() => api.undo())} style={styles.small}>
+                      <Text style={styles.smallMark}>↶</Text>
+                    </Pressable>
+                  </ActionBang>
+                  <ActionBang href={surfaceHref("swipe", "deck", "pass")} label="Pass">
+                    <Pressable
+                      accessibilityLabel={`Pass ${candidate.display_name}`}
+                      disabled={outOfSwipes}
+                      onPress={() => void run(() => api.pass(candidate.id))}
+                      style={[styles.round, outOfSwipes && styles.deckDisabled]}
+                    >
+                      <Text style={styles.passMark}>×</Text>
+                    </Pressable>
+                  </ActionBang>
+                  <ActionBang href={surfaceHref("swipe", "deck", "superlike")} label="Superlike">
+                    <Pressable
+                      accessibilityLabel={`Superlike ${candidate.display_name}`}
+                      disabled={outOfSwipes}
+                      onPress={() => void run(() => api.superlike(candidate.id))}
+                      style={[styles.superlike, outOfSwipes && styles.deckDisabled]}
+                    >
+                      <Text style={styles.superMark}>★</Text>
+                    </Pressable>
+                  </ActionBang>
+                  <ActionBang href={surfaceHref("swipe", "deck", "like")} label="Like">
+                    <Pressable
+                      accessibilityLabel={`Like ${candidate.display_name}`}
+                      disabled={outOfSwipes}
+                      onPress={() => void run(() => api.like(candidate.id))}
+                      style={[styles.like, outOfSwipes && styles.deckDisabled]}
+                    >
+                      <Text style={styles.likeMark}>♥</Text>
+                    </Pressable>
+                  </ActionBang>
+                  <ActionBang href={surfaceHref("swipe", "deck", "more")} label="More actions">
+                    <Pressable accessibilityLabel="More actions" onPress={() => setReportOpen(true)} style={styles.small}>
+                      <Text style={styles.smallMark}>•••</Text>
+                    </Pressable>
+                  </ActionBang>
                 </View>
               )}
               {reportOpen ? (

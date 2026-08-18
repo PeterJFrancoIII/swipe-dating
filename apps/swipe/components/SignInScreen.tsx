@@ -1,7 +1,9 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { GetFkdLogo } from "@/components/GetFkdLogo";
+import { ActionBang, SurfaceBang } from "@/components/ReportBugButton";
 import { Screen, Toast } from "@/components/Screen";
+import { surfaceHref } from "@/lib/surfaces";
 import { useSession } from "@/lib/session";
 import { theme } from "@/lib/theme";
 
@@ -44,7 +46,10 @@ export function SignInScreen() {
         <View style={styles.copy}>
           <GetFkdLogo size={168} style={styles.logo} />
           <Text style={styles.kicker}>SIGN IN</Text>
-          <Text style={styles.title}>Sign in with Apple.</Text>
+          <View style={styles.titleRow}>
+            <Text style={styles.title}>Sign in with Apple.</Text>
+            <SurfaceBang href={surfaceHref("sign-in")} label="Sign in" />
+          </View>
           <Text style={styles.lede}>
             Your Apple ID is the account. There is no email or password. Sign out keeps the account. Delete
             account wipes it.
@@ -54,9 +59,11 @@ export function SignInScreen() {
           <Text style={styles.step}>APPLE ACCOUNT</Text>
           <Text style={styles.cardTitle}>Continue with Apple</Text>
           <Toast error={error} />
-          <Pressable accessibilityRole="button" onPress={() => void continueWithApple()} style={styles.button}>
-            <Text style={styles.buttonLabel}>Sign in with Apple</Text>
-          </Pressable>
+          <ActionBang href={surfaceHref("sign-in", "apple")} label="Sign in with Apple">
+            <Pressable accessibilityRole="button" onPress={() => void continueWithApple()} style={styles.button}>
+              <Text style={styles.buttonLabel}>Sign in with Apple</Text>
+            </Pressable>
+          </ActionBang>
           <Text style={styles.fine}>
             This is the account. The live API will not let you into Swipe until Apple is bound.
           </Text>
@@ -85,6 +92,11 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: "800",
     letterSpacing: 1.4,
+  },
+  titleRow: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: 8,
   },
   title: {
     color: theme.ink,

@@ -415,17 +415,24 @@ export const api = {
     form.append("explanation", input.explanation);
     form.append("context", JSON.stringify(input.context));
     form.append("tags", JSON.stringify(input.tags ?? []));
-    return request<{ id: string; title: string; tags: string[]; notice?: string }>("/api/system/errors", {
+    return request<{ id: string; title: string; tags: string[]; notice?: string; security_hold?: boolean }>("/api/system/errors", {
       method: "POST",
       body: form,
       headers: { Accept: "application/json" },
     });
   },
-  sendFeedback: (body: string, tags: string[] = ["feedback"]) =>
-    request<{ id: string; notice?: string }>("/api/system/feedback", {
+  sendFeedback: (
+    body: string,
+    extra: { tags?: string[]; surface_href?: string; kind?: string } | string[] = ["feedback"],
+  ) => {
+    const payload = Array.isArray(extra)
+      ? { body, tags: extra }
+      : { body, tags: extra.tags ?? ["feedback"], surface_href: extra.surface_href, kind: extra.kind };
+    return request<{ id: string; notice?: string; security_hold?: boolean }>("/api/system/feedback", {
       method: "POST",
-      body: JSON.stringify({ body, tags }),
-    }),
+      body: JSON.stringify(payload),
+    });
+  },
   appeal: (caseId: string) =>
     request<{ cases: CommunityCase[]; notice?: string }>(`/api/community/${caseId}/appeal`, {
       method: "POST",

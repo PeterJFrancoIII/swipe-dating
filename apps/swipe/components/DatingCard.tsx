@@ -147,7 +147,7 @@ export function ProfileSheet({
           <View style={styles.sheetHeader}>
             <Text style={styles.sheetTitle}>{name}</Text>
             <View style={styles.sheetActions}>
-              <ReportFab embedded />
+              <ReportFab embedded href="getfkd://swipe/card/sheet" label="Profile sheet" />
               <Pressable accessibilityLabel="Close" onPress={onClose} style={styles.close}>
                 <Text style={styles.closeMark}>×</Text>
               </Pressable>

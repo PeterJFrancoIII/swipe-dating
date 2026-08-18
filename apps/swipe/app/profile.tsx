@@ -17,7 +17,8 @@ import { useRouter } from "expo-router";
 import { AuthPhoto } from "@/components/AuthPhoto";
 import { ChoiceRow } from "@/components/ChoiceSheet";
 import { PhotoUploadMeter } from "@/components/PhotoUploadMeter";
-import { FeedbackButton } from "@/components/ReportBugButton";
+import { ActionBang, FeedbackButton, SurfaceBang } from "@/components/ReportBugButton";
+import { surfaceHref } from "@/lib/surfaces";
 import { Screen, Toast } from "@/components/Screen";
 import { ApiError, api } from "@/lib/api";
 import { signupErrorMessage } from "@/lib/signupErrors";
@@ -179,15 +180,20 @@ export default function ProfileScreen() {
               />
               <Text style={styles.heroName}>{profile.display_name || "You"}</Text>
             </View>
-            <Pressable onPress={() => router.push("/quiz")} style={styles.quiz}>
-              <Text style={styles.quizLabel}>{quizProgressLabel(alignmentAnswered, alignmentTotal)}</Text>
-              <Text style={styles.quizHelp}>Skip any question. Skip counts and does not lower your match.</Text>
-            </Pressable>
+            <ActionBang href={surfaceHref("profile", "quiz")} label="Compatibility quiz">
+              <Pressable onPress={() => router.push("/quiz")} style={styles.quiz}>
+                <Text style={styles.quizLabel}>{quizProgressLabel(alignmentAnswered, alignmentTotal)}</Text>
+                <Text style={styles.quizHelp}>Skip any question. Skip counts and does not lower your match.</Text>
+              </Pressable>
+            </ActionBang>
             <Text style={styles.help}>
               This is what other adults see. Sexual preference stays in Settings, not on your card.
             </Text>
             <FeedbackButton />
-            <Text style={styles.sectionTitle}>Photos</Text>
+            <View style={styles.sectionHead}>
+              <Text style={styles.sectionTitle}>Photos</Text>
+              <SurfaceBang href={surfaceHref("profile", "photos")} label="Photos" />
+            </View>
             {upload.progress ? <PhotoUploadMeter progress={upload.progress} /> : null}
             <View style={styles.photoGrid}>
               {data.photos.map((photo) => (
@@ -503,6 +509,11 @@ const styles = StyleSheet.create({
     color: theme.mute,
     fontSize: 12,
     lineHeight: 17,
+  },
+  sectionHead: {
+    alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
   sectionTitle: {
     color: theme.ink,

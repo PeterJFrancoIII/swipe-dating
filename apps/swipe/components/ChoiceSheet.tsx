@@ -1,7 +1,8 @@
 import { useMemo, useState } from "react";
 import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
-import { ReportFab } from "@/components/ReportBugButton";
+import { ReportFab, SurfaceBang } from "@/components/ReportBugButton";
+import { surfaceHref } from "@/lib/surfaces";
 import type { Choice } from "@/lib/types";
 import { theme, tones } from "@/lib/theme";
 
@@ -41,10 +42,13 @@ export function ChoiceRow({
 
   return (
     <View style={[styles.section, { backgroundColor: tone.fill, borderColor: needed ? "#F3A0B4" : tone.border }]}>
-      <Text style={[styles.legend, { color: needed ? theme.errorInk : tone.ink }]}>
-        {mark ? `${mark}  ` : ""}
-        {title}
-      </Text>
+      <View style={styles.legendRow}>
+        <Text style={[styles.legend, { color: needed ? theme.errorInk : tone.ink, flex: 1 }]}>
+          {mark ? `${mark}  ` : ""}
+          {title}
+        </Text>
+        <SurfaceBang href={surfaceHref(group, title)} label={title} />
+      </View>
       {help ? <Text style={styles.help}>{help}</Text> : null}
       {needed ? <Text style={styles.needed}>Still needed to finish signup.</Text> : null}
       <Pressable accessibilityRole="button" onPress={() => setOpen(true)} style={styles.picker}>
@@ -60,7 +64,7 @@ export function ChoiceRow({
                 {title}
               </Text>
               <View style={styles.headerActions}>
-                <ReportFab embedded />
+                <ReportFab embedded href={surfaceHref(group, title)} label={title} />
                 <Pressable accessibilityLabel="Close" onPress={() => setOpen(false)} style={styles.close}>
                   <Text style={styles.closeMark}>×</Text>
                 </Pressable>
@@ -124,10 +128,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingTop: 14,
   },
+  legendRow: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: 8,
+    marginBottom: 8,
+  },
   legend: {
     fontSize: 14,
     fontWeight: "800",
-    marginBottom: 8,
   },
   help: {
     color: theme.mute,

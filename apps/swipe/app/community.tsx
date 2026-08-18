@@ -2,7 +2,9 @@ import { useCallback, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useFocusEffect, useRouter } from "expo-router";
 
+import { SurfaceBang } from "@/components/ReportBugButton";
 import { Screen, Toast } from "@/components/Screen";
+import { surfaceHref } from "@/lib/surfaces";
 import { ApiError, api } from "@/lib/api";
 import type { CommunityCase } from "@/lib/types";
 import { theme } from "@/lib/theme";
@@ -32,7 +34,7 @@ export default function CommunityScreen() {
           <Text style={styles.backMark}>‹</Text>
         </Pressable>
         <Text style={styles.topTitle}>Community review</Text>
-        <View style={styles.spacer} />
+        <SurfaceBang href={surfaceHref("community")} label="Community review" />
       </View>
       <ScrollView contentContainerStyle={styles.page}>
         <Text style={styles.eyebrow}>PRIVATE BOT CONTROL</Text>

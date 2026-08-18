@@ -4,6 +4,8 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 
 import { AuthPhoto } from "@/components/AuthPhoto";
 import { ProfileSheet } from "@/components/DatingCard";
+import { ActionBang, SurfaceBang } from "@/components/ReportBugButton";
+import { surfaceHref } from "@/lib/surfaces";
 import { Screen, Toast } from "@/components/Screen";
 import { alignmentLabel } from "@/lib/alignment";
 import { ApiError, api } from "@/lib/api";
@@ -140,6 +142,7 @@ export default function ChatScreen() {
             </Text>
           </View>
         </Pressable>
+        <SurfaceBang href={surfaceHref("chat")} label="Chat" />
         <Pressable accessibilityLabel="Conversation options" onPress={() => setMenu((open) => !open)} style={styles.icon}>
           <Text>•••</Text>
         </Pressable>
@@ -264,20 +267,22 @@ export default function ChatScreen() {
             style={styles.input}
             value={text}
           />
-          <Pressable
-            accessibilityLabel="Send message"
-            onPress={() => {
-              const body = text.trim();
-              if (!body) {
-                return;
-              }
-              setText("");
-              void run(() => api.message(matchId, body));
-            }}
-            style={styles.send}
-          >
-            <Text style={styles.sendMark}>↑</Text>
-          </Pressable>
+          <ActionBang href={surfaceHref("chat", "send")} label="Send message">
+            <Pressable
+              accessibilityLabel="Send message"
+              onPress={() => {
+                const body = text.trim();
+                if (!body) {
+                  return;
+                }
+                setText("");
+                void run(() => api.message(matchId, body));
+              }}
+              style={styles.send}
+            >
+              <Text style={styles.sendMark}>↑</Text>
+            </Pressable>
+          </ActionBang>
         </View>
       )}
       <ProfileSheet

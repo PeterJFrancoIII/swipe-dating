@@ -3,6 +3,8 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useFocusEffect, useRouter } from "expo-router";
 
 import { AuthPhoto } from "@/components/AuthPhoto";
+import { ActionBang, SurfaceBang } from "@/components/ReportBugButton";
+import { surfaceHref } from "@/lib/surfaces";
 import { Screen, Toast } from "@/components/Screen";
 import { TopChrome } from "@/components/TopChrome";
 import { alignmentLabel } from "@/lib/alignment";
@@ -35,7 +37,10 @@ export default function MatchesScreen() {
             <Text style={styles.eyebrow}>MATCHES</Text>
             <Text style={styles.title}>People who chose you too.</Text>
           </View>
-          <Text style={styles.count}>{matches.length}</Text>
+          <View style={styles.headingMeta}>
+            <SurfaceBang href={surfaceHref("matches")} label="Matches" />
+            <Text style={styles.count}>{matches.length}</Text>
+          </View>
         </View>
         <Toast error={error} />
         {matches.length ? (
@@ -57,7 +62,8 @@ export default function MatchesScreen() {
             </ScrollView>
             <Text style={styles.listTitle}>Conversations</Text>
             {matches.map((match) => (
-              <Pressable key={match.id} onPress={() => router.push(`/matches/${encodeURIComponent(match.id)}`)} style={styles.row}>
+              <ActionBang key={match.id} href={surfaceHref("matches", "row")} label={`Chat with ${match.display_name}`}>
+              <Pressable onPress={() => router.push(`/matches/${encodeURIComponent(match.id)}`)} style={styles.row}>
                 <AuthPhoto
                   fallback={match.initial}
                   path={match.photo_url}
@@ -88,6 +94,7 @@ export default function MatchesScreen() {
                 </View>
                 <Text style={styles.chevron}>›</Text>
               </Pressable>
+              </ActionBang>
             ))}
           </>
         ) : (
@@ -114,6 +121,11 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
     paddingHorizontal: 16,
     paddingTop: 8,
+  },
+  headingMeta: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: 10,
   },
   heading: {
     flexDirection: "row",

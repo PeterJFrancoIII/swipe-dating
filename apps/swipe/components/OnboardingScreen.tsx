@@ -13,7 +13,9 @@ import {
 import * as ImagePicker from "expo-image-picker";
 
 import { PhotoUploadMeter } from "@/components/PhotoUploadMeter";
+import { SurfaceBang } from "@/components/ReportBugButton";
 import { Screen, Toast } from "@/components/Screen";
+import { surfaceHref } from "@/lib/surfaces";
 import { ApiError, api } from "@/lib/api";
 import { signupErrorMessage } from "@/lib/signupErrors";
 import { loadAuthedPhoto } from "@/lib/hotDeck";
@@ -471,7 +473,10 @@ function ChoiceStep({
 }) {
   return (
     <ScrollView contentContainerStyle={styles.body} keyboardShouldPersistTaps="handled">
-      <Text style={styles.title}>{title}</Text>
+      <View style={styles.titleRow}>
+        <Text style={[styles.title, { flex: 1 }]}>{title}</Text>
+        <SurfaceBang href={surfaceHref("onboarding", title)} label={title} />
+      </View>
       {help ? <Text style={styles.help}>{help}</Text> : null}
       <View style={styles.options}>
         {options.map((option) => {
@@ -719,6 +724,11 @@ const styles = StyleSheet.create({
   body: {
     gap: 12,
     paddingBottom: 40,
+  },
+  titleRow: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: 8,
   },
   title: {
     color: theme.ink,

@@ -9,6 +9,8 @@ import {
   distanceSliderLabel,
   milesFromSliderIndex,
 } from "@/lib/distance";
+import { SurfaceBang } from "@/components/ReportBugButton";
+import { surfaceHref } from "@/lib/surfaces";
 import { theme, tones } from "@/lib/theme";
 
 const THUMB = 28;
@@ -82,7 +84,10 @@ export function DistanceSlider({
 
   return (
     <View style={[styles.section, { backgroundColor: tone.fill, borderColor: tone.border }]}>
-      <Text style={[styles.legend, { color: tone.ink }]}>{mark}  Distance</Text>
+      <View style={styles.legendRow}>
+        <Text style={[styles.legend, { color: tone.ink, flex: 1 }]}>{mark}  Distance</Text>
+        <SurfaceBang href={surfaceHref("settings", "distance")} label="Distance" />
+      </View>
       <Text style={styles.help}>
         1 to {DISTANCE_FILTER_MAX_MILES} miles, then Any distance. People without a distance stay
         hidden when a limit is set.
@@ -156,10 +161,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingTop: 14,
   },
+  legendRow: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: 8,
+    marginBottom: 8,
+  },
   legend: {
     fontSize: 14,
     fontWeight: "800",
-    marginBottom: 8,
   },
   help: {
     color: theme.mute,

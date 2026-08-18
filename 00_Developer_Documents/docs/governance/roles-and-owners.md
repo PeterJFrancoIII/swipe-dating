@@ -11,7 +11,7 @@ No autonomous agent may fill an owner field, approve its own work, or treat a pl
 | Legal counsel | CHANGE_ME | Terms, CSAE, NCII, §2258A process, proximity/location, marketplace, payments |
 | Privacy / DPO | CHANGE_ME | DPIA, sensitive questionnaire, location/proximity, rights requests, retention |
 | Trust & safety lead | CHANGE_ME | Staffing, P0 coverage, enforcement, appeals, group/proximity/location abuse |
-| Security | CHANGE_ME | External review, identity/protocol, vault access, attestation, bot controls |
+| Security | CHANGE_ME | External review, identity/protocol, vault access, attestation, bot controls. Sole reader of `security_hold` crowd reports. The crowd never owns this surface. |
 | Adult-assurance owner | CHANGE_ME | Provider design, DPA, credential issuance/revocation, appeal, network enforcement |
 | Anti-abuse / integrity | CHANGE_ME | App Attest, Play Integrity, quotas, bot/Sybil red team, false-positive review |
 | Proximity safety owner | CHANGE_ME | BLE consent, stalking controls, permissions, battery, replay/relay testing |

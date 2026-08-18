@@ -4,6 +4,8 @@ import { useRouter } from "expo-router";
 
 import { ChoiceRow } from "@/components/ChoiceSheet";
 import { DistanceSlider } from "@/components/DistanceSlider";
+import { SurfaceBang } from "@/components/ReportBugButton";
+import { surfaceHref } from "@/lib/surfaces";
 import { Screen, Toast } from "@/components/Screen";
 import { ApiError, api } from "@/lib/api";
 import { parseMaxDistanceMiles } from "@/lib/distance";
@@ -58,7 +60,7 @@ export default function FiltersScreen() {
           <Text style={styles.backMark}>‹</Text>
         </Pressable>
         <Text style={styles.topTitle}>Settings</Text>
-        <View style={styles.spacer} />
+        <SurfaceBang href={surfaceHref("settings")} label="Settings" />
       </View>
       <ScrollView
         contentContainerStyle={styles.sheet}
