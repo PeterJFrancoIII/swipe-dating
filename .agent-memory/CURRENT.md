@@ -1,20 +1,18 @@
 # Current task
 
-- **Task:** 2026-08-18-photo-timeout-ux
+- **Task:** 2026-08-18-photo-upload-reconcile
 - **Status:** ready_for_review
-- **Authorization:** GPT Architect 2026-08-18 15:14 ET — Timeout / UX only. RN-fetch accepted. No URLSession.
+- **Authorization:** Owner 2026-08-18 16:16 ET — fix photo upload / debug it. RN-fetch only. No URLSession.
 
 ## GPT start here
 
-https://github.com/PeterJFrancoIII/swipe-dating/blob/review/photo-upload/.agent-memory/tasks/2026-08-18-photo-timeout-ux.md
+https://github.com/PeterJFrancoIII/swipe-dating/blob/review/photo-upload/.agent-memory/tasks/2026-08-18-photo-upload-reconcile.md
 
 ## This slice
 
-- Form timeout **90s**. Transport unchanged.
-- `missing_fields=[]` → `continue_extras`, not Sex. Photos always hydrate.
-- `npx tsc --noEmit && npm test` → **41 passed**, 0 failed.
-- Live E (relaunch): **Want to add more?** not Sex.
-- Live C this session: picker logged HEIC+JPEG; NAS **no POST**; timeout toast. Owner can retry on the open Photos step.
+- NAS storage is fine (200 at 23:22:16Z and 20:08:44Z).
+- Client now reconciles `/api/onboarding` after a timeout and uploads one file per POST.
+- `npx tsc --noEmit && npm test` → **43 passed**, 0 failed.
 
 ## Review branches
 

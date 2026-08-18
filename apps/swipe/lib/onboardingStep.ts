@@ -42,3 +42,28 @@ export function photosSatisfyRequirement(
 ): boolean {
   return Math.max(photos.length, photoCount ?? 0) >= MIN_REQUIRED_PHOTOS;
 }
+
+export function recoverPhotosFromOnboarding(
+  payload:
+    | {
+        photos?: { slot: number; url: string }[];
+        photo_count?: number;
+      }
+    | null
+    | undefined,
+): {
+  photos: { slot: number; url: string }[];
+  photo_count: number;
+} | null {
+  if (!payload) {
+    return null;
+  }
+  const photos = hydrateOnboardingPhotos(payload.photos);
+  if (photos.length < 1) {
+    return null;
+  }
+  return {
+    photos,
+    photo_count: Math.max(photos.length, payload.photo_count ?? 0),
+  };
+}

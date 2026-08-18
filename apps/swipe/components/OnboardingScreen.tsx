@@ -249,6 +249,17 @@ export function OnboardingScreen() {
                   setPhotos(hydrateOnboardingPhotos(payload.photos));
                   setError(null);
                 } catch (cause) {
+                  try {
+                    const recovered = await api.onboarding();
+                    const next = hydrateOnboardingPhotos(recovered.photos);
+                    if (next.length > 0) {
+                      setPhotos(next);
+                      setError(null);
+                      return;
+                    }
+                  } catch {
+                    /* keep the upload error */
+                  }
                   const message =
                     cause instanceof ApiError
                       ? signupErrorMessage(cause.code, cause.message)

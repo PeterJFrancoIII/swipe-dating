@@ -5,6 +5,7 @@ import {
   hydrateOnboardingPhotos,
   nextOnboardingStep,
   photosSatisfyRequirement,
+  recoverPhotosFromOnboarding,
 } from "./onboardingStep.ts";
 
 describe("nextOnboardingStep", () => {
@@ -49,5 +50,24 @@ describe("photosSatisfyRequirement", () => {
     );
     assert.equal(photosSatisfyRequirement([], 2), true);
     assert.equal(photosSatisfyRequirement([{ slot: 0, url: "/api/profile/photos/0" }]), false);
+  });
+});
+
+describe("recoverPhotosFromOnboarding", () => {
+  it("recovers photos the server already stored after a client timeout", () => {
+    const recovered = recoverPhotosFromOnboarding({
+      photos: [
+        { slot: 0, url: "/api/profile/photos/0" },
+        { slot: 1, url: "/api/profile/photos/1" },
+      ],
+      photo_count: 2,
+    });
+    assert.equal(recovered?.photo_count, 2);
+    assert.equal(recovered?.photos.length, 2);
+  });
+
+  it("does not invent photos when onboarding is empty", () => {
+    assert.equal(recoverPhotosFromOnboarding({ photos: [], photo_count: 0 }), null);
+    assert.equal(recoverPhotosFromOnboarding(undefined), null);
   });
 });

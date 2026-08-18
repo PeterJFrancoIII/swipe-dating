@@ -6,6 +6,7 @@ import { recordLastError, recordSessionHints } from "@/lib/diagnostics";
 import { attachSessionField, isFormBody } from "@/lib/formSession";
 import { payloadFromFailedResponse } from "@/lib/httpErrors";
 import { currentInstallId } from "@/lib/installId";
+import { recoverPhotosFromOnboarding } from "@/lib/onboardingStep";
 import { appendNativeFilePart, type FormWithNativeAppend } from "@/lib/photoForm";
 import { photoAcceptHeader } from "@/lib/photoGeometry";
 import { FORM_UPLOAD_TIMEOUT_MESSAGE, FORM_UPLOAD_TIMEOUT_MS, withTimeout } from "@/lib/requestTimeout";
@@ -125,6 +126,10 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
     headers["Content-Type"] = "application/json";
   }
   const send = form ? reactNativeFetch : fetch;
+  if (form && __DEV__) {
+    const rn = (globalThis as { originalFetch?: typeof fetch }).originalFetch;
+    console.warn("getfkd photo fetch", typeof rn === "function" ? "originalFetch" : "globalFetch", path);
+  }
   let response: Response;
   try {
     const pending = send(`${API_URL}${path}`, {
@@ -192,6 +197,33 @@ async function appendLocalFile(
     return;
   }
   appendNativeFilePart(form as FormWithNativeAppend, fieldName, file);
+}
+
+async function recoverStoredPhotos(): Promise<Record<string, unknown> | null> {
+  for (const delayMs of [0, 2_500]) {
+    if (delayMs) {
+      await new Promise((resolve) => {
+        setTimeout(resolve, delayMs);
+      });
+    }
+    try {
+      const recovered = recoverPhotosFromOnboarding(
+        await request<{
+          photos?: { slot: number; url: string }[];
+          photo_count?: number;
+        }>("/api/onboarding"),
+      );
+      if (recovered) {
+        if (__DEV__) {
+          console.warn("getfkd photo recovered from onboarding", recovered.photo_count);
+        }
+        return recovered;
+      }
+    } catch {
+      /* keep the original upload error */
+    }
+  }
+  return null;
 }
 
 export const api = {
@@ -311,24 +343,33 @@ export const api = {
         code: "session_required",
       });
     }
-    const form = new FormData();
-    attachSessionField(form, sessionToken);
-    for (const file of files) {
-      if (__DEV__) {
-        console.warn("getfkd photo part", file.uri, file.name, file.type);
+    try {
+      let payload: Record<string, unknown> | null = null;
+      for (const file of files) {
+        if (__DEV__) {
+          console.warn("getfkd photo part", file.uri, file.name, file.type);
+        }
+        const form = new FormData();
+        attachSessionField(form, sessionToken);
+        await appendLocalFile(form, "photo", file);
+        payload = await request<Record<string, unknown>>("/api/profile/photos", {
+          method: "POST",
+          body: form,
+          headers: { Accept: "application/json" },
+        });
       }
-      await appendLocalFile(form, "photo", file);
+      const photos = payload?.photos;
+      if (!Array.isArray(photos) || photos.length < 1) {
+        throw new ApiError(400, { error: "Photo upload failed.", code: "photo_empty" });
+      }
+      return payload;
+    } catch (cause) {
+      const recovered = await recoverStoredPhotos();
+      if (recovered) {
+        return recovered;
+      }
+      throw cause;
     }
-    const payload = await request<Record<string, unknown>>("/api/profile/photos", {
-      method: "POST",
-      body: form,
-      headers: { Accept: "application/json" },
-    });
-    const photos = payload.photos;
-    if (!Array.isArray(photos) || photos.length < 1) {
-      throw new ApiError(400, { error: "Photo upload failed.", code: "photo_empty" });
-    }
-    return payload;
   },
   removePhoto: (slot: number) =>
     request<Record<string, unknown>>(`/api/profile/photos/${slot}/remove`, { method: "POST", body: "{}" }),
