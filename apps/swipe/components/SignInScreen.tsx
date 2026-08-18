@@ -11,6 +11,13 @@ export function SignInScreen() {
   async function continueWithApple() {
     try {
       const AppleAuthentication = await import("expo-apple-authentication");
+      const available = await AppleAuthentication.isAvailableAsync();
+      if (!available) {
+        setError(
+          "Sign in with Apple is not available. On the Simulator, sign into an Apple ID in Settings, then try again.",
+        );
+        return;
+      }
       const credential = await AppleAuthentication.signInAsync({
         requestedScopes: [],
       });
@@ -22,10 +29,12 @@ export function SignInScreen() {
     } catch (cause) {
       const code = cause && typeof cause === "object" && "code" in cause ? String(cause.code) : "";
       if (code === "ERR_REQUEST_CANCELED") {
-        setError("Sign in with Apple was canceled. Get fk'd cannot open without it on this build.");
+        setError("Sign in with Apple was canceled. Get fk'd cannot finish without it.");
         return;
       }
-      setError("Sign in with Apple is unavailable on this device.");
+      setError(
+        "Sign in with Apple failed. On the Simulator, sign into an Apple ID in Settings, then try again.",
+      );
     }
   }
 
@@ -49,7 +58,7 @@ export function SignInScreen() {
             <Text style={styles.buttonLabel}>Sign in with Apple</Text>
           </Pressable>
           <Text style={styles.fine}>
-            Store builds require this step. Development builds can skip it so Metro still works.
+            This is the account. The live API will not let you into Swipe until Apple is bound.
           </Text>
         </View>
       </View>

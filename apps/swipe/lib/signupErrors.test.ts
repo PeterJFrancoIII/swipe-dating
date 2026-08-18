@@ -9,6 +9,7 @@ describe("signupErrorMessage", () => {
     assert.equal(signupErrorMessage("signup_rate_limited", "nope"), "Slow down and try again later.");
     assert.equal(signupErrorMessage("photo_reused", "nope"), "Choose a different photo.");
     assert.equal(signupErrorMessage("session_required", "nope"), "Your session expired. Try again.");
+    assert.equal(signupErrorMessage("apple_sign_in_required", "nope"), "Sign in with Apple is required.");
     assert.equal(signupErrorMessage("other", "Age check failed."), "Age check failed.");
   });
 });

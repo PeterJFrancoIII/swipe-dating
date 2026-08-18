@@ -1,6 +1,6 @@
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Platform, Pressable, StyleSheet, Text, View } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { AgeGateScreen } from "@/components/AgeGateScreen";
@@ -8,6 +8,7 @@ import { GetFkdLogo } from "@/components/GetFkdLogo";
 import { OnboardingScreen } from "@/components/OnboardingScreen";
 import { ReportFab, ReportProvider } from "@/components/ReportBugButton";
 import { SignInScreen } from "@/components/SignInScreen";
+import { shouldShowAppleSignIn } from "@/lib/appleGate";
 import { SessionProvider, useSession } from "@/lib/session";
 import { theme } from "@/lib/theme";
 
@@ -33,7 +34,7 @@ function Gate() {
   if (!adultAccepted) {
     return <AgeGateScreen />;
   }
-  if (!appleBound && !__DEV__) {
+  if (shouldShowAppleSignIn(appleBound, Platform.OS)) {
     return <SignInScreen />;
   }
   if (!onboardingComplete) {
