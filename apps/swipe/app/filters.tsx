@@ -5,6 +5,7 @@ import { useRouter } from "expo-router";
 import { ChoiceRow } from "@/components/ChoiceSheet";
 import { Screen, Toast } from "@/components/Screen";
 import { ApiError, api } from "@/lib/api";
+import { DISTANCE_FILTER_ANY, DISTANCE_FILTER_CHOICES } from "@/lib/distance";
 import { emptyCatalogs, useSession } from "@/lib/session";
 import { theme } from "@/lib/theme";
 
@@ -16,6 +17,7 @@ type FilterValues = {
   show_drinking: string[];
   show_drugs: string[];
   show_turn_ons: string[];
+  distance_band: string;
 };
 
 export default function FiltersScreen() {
@@ -28,7 +30,13 @@ export default function FiltersScreen() {
   useEffect(() => {
     void api
       .filters()
-      .then((payload) => setValues(payload.values as FilterValues))
+      .then((payload) => {
+        const values = payload.values as FilterValues;
+        setValues({
+          ...values,
+          distance_band: values.distance_band || DISTANCE_FILTER_ANY,
+        });
+      })
       .catch((cause) => setFlash({ error: cause instanceof ApiError ? cause.message : "Filters failed." }));
   }, []);
 
@@ -63,6 +71,19 @@ export default function FiltersScreen() {
           options={choices.preference}
           selected={values.show_genders}
           onChange={(show_genders) => setValues({ ...values, show_genders })}
+        />
+        <ChoiceRow
+          group="distance"
+          mark={sectionMarks.distance || "📍"}
+          title="Distance"
+          empty="Any distance"
+          help="Rounded mile bands only. People without a loose distance stay hidden when a limit is set."
+          multiple={false}
+          options={choices.distance?.length ? choices.distance : [...DISTANCE_FILTER_CHOICES]}
+          selected={values.distance_band ? [values.distance_band] : [DISTANCE_FILTER_ANY]}
+          onChange={(next) =>
+            setValues({ ...values, distance_band: next[0] || DISTANCE_FILTER_ANY })
+          }
         />
         <ChoiceRow
           group="looking"
@@ -126,7 +147,11 @@ export default function FiltersScreen() {
           onPress={async () => {
             try {
               const payload = await api.saveFilters(values);
-              setValues(payload.values as FilterValues);
+              const saved = payload.values as FilterValues;
+              setValues({
+                ...saved,
+                distance_band: saved.distance_band || values.distance_band || DISTANCE_FILTER_ANY,
+              });
               setFlash({ notice: String(payload.notice ?? "Filters updated. Ranking weights remain fixed.") });
             } catch (cause) {
               setFlash({ error: cause instanceof ApiError ? cause.message : "Save failed." });

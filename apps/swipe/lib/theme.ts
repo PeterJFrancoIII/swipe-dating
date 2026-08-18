@@ -38,4 +38,5 @@ export const tones: Record<string, { fill: string; border: string; ink: string; 
     hobbies: { fill: "#F3FAEC", border: "#B5D89A", ink: "#2F5A1C", checked: "#D8F0C4", accent: "#5A9A3A" },
     personality: { fill: "#F0F7FF", border: "#A8C8E8", ink: "#1A4A72", checked: "#D0E8FF", accent: "#3A8AD4" },
     bedroom: { fill: "#FFF0F4", border: "#F3A0B4", ink: "#8B1E3A", checked: "#FFD0DC", accent: "#E2185A" },
+    distance: { fill: "#F3F7FF", border: "#A8C4E8", ink: "#1A3A72", checked: "#D4E4FF", accent: "#3A6AD4" },
   };

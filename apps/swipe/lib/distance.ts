@@ -1,4 +1,5 @@
 export const DISTANCE_UNAVAILABLE = "Distance unavailable";
+export const DISTANCE_FILTER_ANY = "any";
 
 export const DISTANCE_LABELS = [
   "About 1 mile",
@@ -6,6 +7,14 @@ export const DISTANCE_LABELS = [
   "About 15 miles",
   "Farther",
   DISTANCE_UNAVAILABLE,
+] as const;
+
+export const DISTANCE_FILTER_CHOICES = [
+  { id: DISTANCE_FILTER_ANY, label: "Any distance", icon: "🌍" },
+  { id: "about_1_mile", label: "About 1 mile", icon: "📍" },
+  { id: "about_5_miles", label: "About 5 miles", icon: "📌" },
+  { id: "about_15_miles", label: "About 15 miles", icon: "🗺️" },
+  { id: "farther", label: "Farther", icon: "✈️" },
 ] as const;
 
 export type DistanceLabel = (typeof DISTANCE_LABELS)[number];

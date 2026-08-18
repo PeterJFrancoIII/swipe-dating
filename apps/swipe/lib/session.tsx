@@ -57,6 +57,7 @@ const emptyCatalogs = {
   hobbies: [],
   personality: [],
   bedroom: [],
+  distance: [],
 } satisfies Catalogs;
 
 const SessionContext = createContext<SessionValue | null>(null);
@@ -128,7 +129,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     await AsyncStorage.setItem(SESSION_TOKEN_KEY, bootstrap.token);
     applyAuth(bootstrap, setAdultAccepted, setOnboardingComplete, setDisplayName, setAppleBound);
     setGetFkdEnabledState(Boolean(bootstrap.get_fkd_enabled));
-    setCatalogs(bootstrap.catalogs);
+    setCatalogs({ ...emptyCatalogs, ...bootstrap.catalogs });
     setSectionMarks(bootstrap.section_marks);
     setTurnLimit(bootstrap.turn_limit);
     setBirthMonths(bootstrap.birth_months);

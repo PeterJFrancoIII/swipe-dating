@@ -1,17 +1,18 @@
 # Current task
 
-- **Task:** 2026-08-18-profile-field-titles
+- **Task:** 2026-08-18-distance-filter
 - **Status:** ready_for_review
-- **Authorization:** Owner 2026-08-18 18:21 ET — add titles to edit-profile text fields.
+- **Authorization:** Owner 2026-08-18 18:22 ET — filter discovery/swiping cards by distance.
 
 ## GPT start here
 
-https://github.com/PeterJFrancoIII/swipe-dating/blob/review/photo-upload/.agent-memory/tasks/2026-08-18-profile-field-titles.md
+https://github.com/PeterJFrancoIII/swipe-dating/blob/review/photo-upload/.agent-memory/tasks/2026-08-18-distance-filter.md
 
 ## This slice
 
-- Profile settings shows titles above Display name, City or region, and About you.
-- Choice rows already had titles and were left alone.
+- Settings has a single-select mile-band Distance filter.
+- API eligibility uses `distance_band` / `feed_distance_band` (sibling repo working tree; not committed; not deployed).
+- Any distance includes everyone. A chosen max hides farther bands and Distance unavailable.
 
 ## Review branches
 

@@ -13,6 +13,7 @@ export type Catalogs = {
   hobbies: Choice[];
   personality: Choice[];
   bedroom: Choice[];
+  distance: Choice[];
 };
 
 export type AuthState = {

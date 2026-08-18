@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
-import { DISTANCE_LABELS, coarseRegionLabel, displayDistance } from "./distance.ts";
+import { DISTANCE_FILTER_CHOICES, DISTANCE_LABELS, coarseRegionLabel, displayDistance } from "./distance.ts";
 
 describe("distance labels", () => {
   it("never returns a kilometer number or tenths", () => {
@@ -16,5 +16,8 @@ describe("distance labels", () => {
     assert.equal(coarseRegionLabel(undefined), "Distance unavailable");
     assert.equal(displayDistance("About 5 miles"), "About 5 miles");
     assert.equal(displayDistance("Nearby"), "Distance unavailable");
+    for (const choice of DISTANCE_FILTER_CHOICES) {
+      assert.equal(/km|kilometer|\d+\.\d+/.test(choice.label), false);
+    }
   });
 });
