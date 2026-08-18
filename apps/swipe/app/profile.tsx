@@ -22,7 +22,7 @@ import { Screen, Toast } from "@/components/Screen";
 import { ApiError, api } from "@/lib/api";
 import { signupErrorMessage } from "@/lib/signupErrors";
 import { LEGAL_DOCS } from "@/lib/legalDocs";
-import { preparePhotoUploads, profilePhotoPickerOptions, uniquePickedPhotos } from "@/lib/photoUpload";
+import { assertIdentifiablePicks, preparePhotoUploads, profilePhotoPickerOptions } from "@/lib/photoUpload";
 import { quizProgressLabel } from "@/lib/alignment";
 import { emptyCatalogs, useSession } from "@/lib/session";
 import { theme } from "@/lib/theme";
@@ -108,7 +108,7 @@ export default function ProfileScreen() {
     if (picked.canceled || !picked.assets.length) {
       return;
     }
-    const assets = uniquePickedPhotos(picked.assets).slice(0, remaining);
+    const assets = assertIdentifiablePicks(picked.assets).slice(0, remaining);
     try {
       upload.start(assets.length);
       const prepared = await preparePhotoUploads(assets, {

@@ -2,16 +2,21 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
 import {
+  AMBIGUOUS_PHOTO_PICK_MESSAGE,
+  PHOTO_STAGE_FAILED_MESSAGE,
   assemblePhotoUploads,
+  assertIdentifiablePicks,
   fitPhoneRaster,
   heicUploadPart,
   isDefaultPhotoFormat,
+  isPhotoPickIdentityError,
   photoAcceptHeader,
   photoMimeFromName,
   photoResizeAction,
   photoUploadFallback,
   pickFileExtension,
   pickIdentity,
+  resolveStagedPick,
   uniquePickFileName,
   uniquePickedPhotos,
 } from "./photoGeometry.ts";
@@ -89,7 +94,7 @@ describe("uniquePickedPhotos", () => {
     );
   });
 
-  it("drops a reused cache URI when the library id is missing", () => {
+  it("keeps a reused cache URI when the library id is missing so callers can fail closed", () => {
     const shared = "file:///tmp/ImagePicker/reused.heic";
     assert.deepEqual(
       uniquePickedPhotos([
@@ -97,7 +102,38 @@ describe("uniquePickedPhotos", () => {
         { uri: "file:///tmp/ImagePicker/b.heic", fileName: "IMG_2.HEIC" },
         { uri: shared, fileName: "IMG_3.HEIC" },
       ]).map((asset) => asset.fileName),
-      ["IMG_1.HEIC", "IMG_2.HEIC"],
+      ["IMG_1.HEIC", "IMG_2.HEIC", "IMG_3.HEIC"],
+    );
+  });
+});
+
+describe("assertIdentifiablePicks", () => {
+  it("fails closed when two picks share a URI and at least one lacks a library id", () => {
+    const shared = "file:///tmp/ImagePicker/reused.heic";
+    assert.throws(
+      () =>
+        assertIdentifiablePicks([
+          { uri: shared, fileName: "IMG_1.HEIC" },
+          { uri: "file:///tmp/ImagePicker/b.heic", fileName: "IMG_2.HEIC" },
+          { uri: shared, fileName: "IMG_3.HEIC" },
+        ]),
+      (error: unknown) => {
+        assert.equal(error instanceof Error && error.message, AMBIGUOUS_PHOTO_PICK_MESSAGE);
+        assert.equal(isPhotoPickIdentityError(error), true);
+        return true;
+      },
+    );
+  });
+
+  it("keeps three library items that share a picker cache URI", () => {
+    const shared = "file:///tmp/ImagePicker/reused.heic";
+    assert.deepEqual(
+      assertIdentifiablePicks([
+        { uri: shared, assetId: "A" },
+        { uri: "file:///tmp/ImagePicker/b.heic", assetId: "B" },
+        { uri: shared, assetId: "C" },
+      ]).map((asset) => asset.assetId),
+      ["A", "B", "C"],
     );
   });
 });
@@ -137,5 +173,84 @@ describe("assemblePhotoUploads", () => {
     );
     assert.equal(pickFileExtension("IMG_0001.HEIC", shared), "heic");
     assert.equal(uniquePickFileName(2, "heic"), "getfkd-pick-1700000000000-2-a1b2c3d4.heic");
+  });
+
+  it("stops before encode when a library-id stage fails", async () => {
+    const encoded: string[] = [];
+    const copied: string[] = [];
+    await assert.rejects(
+      () =>
+        assemblePhotoUploads(
+          [
+            { uri: "file:///tmp/ImagePicker/a.heic", assetId: "A", mimeType: "image/heic" },
+            { uri: "file:///tmp/ImagePicker/reused.heic", assetId: "B", mimeType: "image/heic" },
+            { uri: "file:///tmp/ImagePicker/reused.heic", assetId: "C", mimeType: "image/heic" },
+          ],
+          {
+            stage: (asset, index) =>
+              resolveStagedPick(asset, index, {
+                stageLibrary: async (_uri, assetId) => {
+                  if (assetId === "C") {
+                    throw new Error(PHOTO_STAGE_FAILED_MESSAGE);
+                  }
+                  return { uri: `file:///tmp/staged-${assetId}.heic` };
+                },
+                copyPicker: async (current) => {
+                  copied.push(current.uri);
+                  return current;
+                },
+              }),
+            encode: async (uri) => {
+              encoded.push(uri);
+              return { uri };
+            },
+          },
+        ),
+      (error: unknown) => {
+        assert.equal(isPhotoPickIdentityError(error), true);
+        return true;
+      },
+    );
+    assert.deepEqual(encoded, ["file:///tmp/staged-A.heic", "file:///tmp/staged-B.heic"]);
+    assert.deepEqual(copied, []);
+  });
+});
+
+describe("resolveStagedPick", () => {
+  it("does not copy the picker URI after a library-id stage failure", async () => {
+    const copied: string[] = [];
+    await assert.rejects(
+      () =>
+        resolveStagedPick(
+          { uri: "file:///tmp/ImagePicker/reused.heic", assetId: "C" },
+          2,
+          {
+            stageLibrary: async () => {
+              throw new Error("phasset missing");
+            },
+            copyPicker: async (asset) => {
+              copied.push(asset.uri);
+              return asset;
+            },
+          },
+        ),
+      (error: unknown) => isPhotoPickIdentityError(error),
+    );
+    assert.deepEqual(copied, []);
+  });
+
+  it("does not copy the picker URI when native library staging is unavailable", async () => {
+    const copied: string[] = [];
+    await assert.rejects(
+      () =>
+        resolveStagedPick({ uri: "file:///tmp/ImagePicker/reused.heic", assetId: "C" }, 2, {
+          copyPicker: async (asset) => {
+            copied.push(asset.uri);
+            return asset;
+          },
+        }),
+      (error: unknown) => isPhotoPickIdentityError(error),
+    );
+    assert.deepEqual(copied, []);
   });
 });

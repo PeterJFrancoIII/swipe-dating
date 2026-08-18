@@ -3,8 +3,13 @@ import * as ImagePicker from "expo-image-picker";
 import { getfkdPhoto } from "getfkd-photo";
 
 import {
+  AMBIGUOUS_PHOTO_PICK_MESSAGE,
+  PHOTO_STAGE_FAILED_MESSAGE,
   assemblePhotoUploads,
+  assertIdentifiablePicks,
+  isPhotoPickIdentityError,
   pickFileExtension,
+  resolveStagedPick,
   uniquePickFileName,
   uniquePickedPhotos,
   type PhotoPrepareProgress,
@@ -13,7 +18,13 @@ import {
 } from "@/lib/photoGeometry";
 
 export type { PhotoUploadPart, PickedPhoto };
-export { uniquePickedPhotos };
+export {
+  AMBIGUOUS_PHOTO_PICK_MESSAGE,
+  PHOTO_STAGE_FAILED_MESSAGE,
+  assertIdentifiablePicks,
+  isPhotoPickIdentityError,
+  uniquePickedPhotos,
+};
 
 export function profilePhotoPickerOptions(remaining: number): ImagePicker.ImagePickerOptions {
   return {
@@ -28,7 +39,7 @@ export async function preparePhotoUploads(
   assets: PickedPhoto[],
   onProgress?: PhotoPrepareProgress,
 ): Promise<PhotoUploadPart[]> {
-  const unique = uniquePickedPhotos(assets);
+  const unique = assertIdentifiablePicks(assets);
   if (__DEV__) {
     console.warn(
       "getfkd photo picks",
@@ -36,38 +47,25 @@ export async function preparePhotoUploads(
     );
   }
   const encoder = getfkdPhoto();
+  const stageLibrary = encoder?.stagePickedPhoto?.bind(encoder);
   return assemblePhotoUploads(
     unique,
     {
-      stage: (asset, index) => stagePickedPhoto(asset, index, encoder),
+      stage: (asset, index) =>
+        resolveStagedPick(asset, index, {
+          stageLibrary,
+          copyPicker: copyPickedPhotoToUniqueFile,
+        }),
       encode: encoder ? (uri) => encoder.encodeProfileHeic(uri) : undefined,
     },
     onProgress,
   );
 }
 
-async function stagePickedPhoto(
-  asset: PickedPhoto,
-  index: number,
-  encoder: ReturnType<typeof getfkdPhoto>,
-): Promise<PickedPhoto> {
-  if (encoder && typeof encoder.stagePickedPhoto === "function") {
-    try {
-      const staged = await encoder.stagePickedPhoto(asset.uri, asset.assetId?.trim() || "");
-      if (staged.uri) {
-        return { ...asset, uri: staged.uri };
-      }
-    } catch {
-      /* copy the picker file instead */
-    }
-  }
-  return copyPickedPhotoToUniqueFile(asset, index);
-}
-
 export async function copyPickedPhotoToUniqueFile(asset: PickedPhoto, index: number): Promise<PickedPhoto> {
   const root = FileSystem.cacheDirectory;
   if (!root) {
-    return asset;
+    throw new Error(PHOTO_STAGE_FAILED_MESSAGE);
   }
   const dest = `${root}${uniquePickFileName(
     index,
@@ -75,10 +73,6 @@ export async function copyPickedPhotoToUniqueFile(asset: PickedPhoto, index: num
     Date.now(),
     Math.random().toString(16).slice(2, 10),
   )}`;
-  try {
-    await FileSystem.copyAsync({ from: asset.uri, to: dest });
-    return { ...asset, uri: dest };
-  } catch {
-    return asset;
-  }
+  await FileSystem.copyAsync({ from: asset.uri, to: dest });
+  return { ...asset, uri: dest };
 }

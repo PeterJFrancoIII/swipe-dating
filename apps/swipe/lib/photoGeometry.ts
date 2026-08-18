@@ -92,6 +92,11 @@ export type PhotoPrepareIO = {
   encode?: (uri: string) => Promise<{ uri: string }>;
 };
 
+export const AMBIGUOUS_PHOTO_PICK_MESSAGE =
+  "Couldn't reliably identify all selected photos; try selecting them individually.";
+
+export const PHOTO_STAGE_FAILED_MESSAGE = "Could not copy that photo from the library.";
+
 export function pickIdentity(asset: { assetId?: string | null; uri: string }): string {
   const id = asset.assetId?.trim();
   if (id) {
@@ -101,17 +106,72 @@ export function pickIdentity(asset: { assetId?: string | null; uri: string }): s
 }
 
 export function uniquePickedPhotos<T extends { assetId?: string | null; uri: string }>(assets: T[]): T[] {
-  const seen = new Set<string>();
+  const seenIds = new Set<string>();
   const out: T[] = [];
   for (const asset of assets) {
-    const key = pickIdentity(asset);
-    if (seen.has(key)) {
-      continue;
+    const id = asset.assetId?.trim();
+    if (id) {
+      if (seenIds.has(id)) {
+        continue;
+      }
+      seenIds.add(id);
     }
-    seen.add(key);
     out.push(asset);
   }
   return out;
+}
+
+export function assertIdentifiablePicks<T extends { assetId?: string | null; uri: string }>(assets: T[]): T[] {
+  const unique = uniquePickedPhotos(assets);
+  const uriOwners = new Map<string, string>();
+  for (const asset of unique) {
+    const id = asset.assetId?.trim() || "";
+    const previous = uriOwners.get(asset.uri);
+    if (previous === undefined) {
+      uriOwners.set(asset.uri, id);
+      continue;
+    }
+    if (!id || !previous) {
+      throw new Error(AMBIGUOUS_PHOTO_PICK_MESSAGE);
+    }
+  }
+  return unique;
+}
+
+export function isPhotoPickIdentityError(cause: unknown): boolean {
+  return (
+    cause instanceof Error &&
+    (cause.message === AMBIGUOUS_PHOTO_PICK_MESSAGE || cause.message === PHOTO_STAGE_FAILED_MESSAGE)
+  );
+}
+
+export async function resolveStagedPick(
+  asset: PickedPhoto,
+  index: number,
+  io: {
+    stageLibrary?: (uri: string, assetId: string) => Promise<{ uri: string }>;
+    copyPicker: (asset: PickedPhoto, index: number) => Promise<PickedPhoto>;
+  },
+): Promise<PickedPhoto> {
+  const assetId = asset.assetId?.trim() || "";
+  if (assetId) {
+    if (!io.stageLibrary) {
+      throw new Error(PHOTO_STAGE_FAILED_MESSAGE);
+    }
+    try {
+      const staged = await io.stageLibrary(asset.uri, assetId);
+      if (!staged?.uri) {
+        throw new Error(PHOTO_STAGE_FAILED_MESSAGE);
+      }
+      return { ...asset, uri: staged.uri };
+    } catch (cause) {
+      if (isPhotoPickIdentityError(cause)) {
+        throw cause;
+      }
+      throw new Error(PHOTO_STAGE_FAILED_MESSAGE);
+    }
+  }
+  return io.copyPicker(asset, index);
 }
 
 export function pickFileExtension(fileName?: string | null, uri?: string): string {
@@ -136,7 +196,7 @@ export async function assemblePhotoUploads(
   io: PhotoPrepareIO,
   onProgress?: PhotoPrepareProgress,
 ): Promise<PhotoUploadPart[]> {
-  const unique = uniquePickedPhotos(assets);
+  const unique = assertIdentifiablePicks(assets);
   const prepared: PhotoUploadPart[] = [];
   const total = unique.length;
   for (const [index, asset] of unique.entries()) {

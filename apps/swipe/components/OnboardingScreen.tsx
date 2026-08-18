@@ -18,7 +18,12 @@ import { ApiError, api } from "@/lib/api";
 import { signupErrorMessage } from "@/lib/signupErrors";
 import { loadAuthedPhoto } from "@/lib/hotDeck";
 import { hydrateOnboardingPhotos, nextOnboardingStep, photosSatisfyRequirement } from "@/lib/onboardingStep";
-import { preparePhotoUploads, profilePhotoPickerOptions, uniquePickedPhotos } from "@/lib/photoUpload";
+import {
+  assertIdentifiablePicks,
+  isPhotoPickIdentityError,
+  preparePhotoUploads,
+  profilePhotoPickerOptions,
+} from "@/lib/photoUpload";
 import { emptyCatalogs, useSession } from "@/lib/session";
 import type { PhotoUploadSnapshot } from "@/lib/uploadProgress";
 import { usePhotoUploadProgress } from "@/lib/usePhotoUploadProgress";
@@ -247,7 +252,7 @@ export function OnboardingScreen() {
                   if (picked.canceled || !picked.assets.length) {
                     return;
                   }
-                  const assets = uniquePickedPhotos(picked.assets);
+                  const assets = assertIdentifiablePicks(picked.assets);
                   setBusy(true);
                   upload.start(assets.length);
                   const prepared = await preparePhotoUploads(assets, {
@@ -266,16 +271,18 @@ export function OnboardingScreen() {
                   setPhotos(hydrateOnboardingPhotos(payload.photos));
                   setError(null);
                 } catch (cause) {
-                  try {
-                    const recovered = await api.onboarding();
-                    const next = hydrateOnboardingPhotos(recovered.photos);
-                    if (next.length > 0) {
-                      setPhotos(next);
-                      setError(null);
-                      return;
+                  if (!isPhotoPickIdentityError(cause)) {
+                    try {
+                      const recovered = await api.onboarding();
+                      const next = hydrateOnboardingPhotos(recovered.photos);
+                      if (next.length > 0) {
+                        setPhotos(next);
+                        setError(null);
+                        return;
+                      }
+                    } catch {
+                      /* keep the upload error */
                     }
-                  } catch {
-                    /* keep the upload error */
                   }
                   const message =
                     cause instanceof ApiError

@@ -21,6 +21,7 @@ public class GetfkdPhotoModule: Module {
 private enum PhotoEncodeError: LocalizedError {
   case unreadable
   case encodeFailed
+  case libraryCopyFailed
 
   var errorDescription: String? {
     switch self {
@@ -28,6 +29,8 @@ private enum PhotoEncodeError: LocalizedError {
       return "Could not read that photo."
     case .encodeFailed:
       return "Could not convert that photo to HEIC."
+    case .libraryCopyFailed:
+      return "Could not copy that photo from the library."
     }
   }
 }
@@ -110,7 +113,8 @@ private enum PhotoEncoder {
 
 private enum PhotoStager {
   static func stage(uri: String, assetId: String) async throws -> [String: Any] {
-    if !assetId.isEmpty, let dest = try? await copyLibraryAsset(assetId) {
+    if !assetId.isEmpty {
+      let dest = try await copyLibraryAsset(assetId)
       return ["uri": dest.absoluteString]
     }
     return ["uri": try copyFile(uri).absoluteString]
@@ -119,14 +123,14 @@ private enum PhotoStager {
   private static func copyLibraryAsset(_ assetId: String) async throws -> URL {
     let fetch = PHAsset.fetchAssets(withLocalIdentifiers: [assetId], options: nil)
     guard let asset = fetch.firstObject else {
-      throw PhotoEncodeError.unreadable
+      throw PhotoEncodeError.libraryCopyFailed
     }
     let resources = PHAssetResource.assetResources(for: asset)
     guard
       let resource = resources.first(where: { $0.type == .fullSizePhoto })
         ?? resources.first(where: { $0.type == .photo })
     else {
-      throw PhotoEncodeError.unreadable
+      throw PhotoEncodeError.libraryCopyFailed
     }
     let ext = URL(fileURLWithPath: resource.originalFilename).pathExtension
     let dest = FileManager.default.temporaryDirectory
