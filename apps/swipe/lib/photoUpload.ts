@@ -8,6 +8,7 @@ import {
   assemblePhotoUploads,
   assertIdentifiablePicks,
   isPhotoPickIdentityError,
+  pickerUriIsUnique,
   pickFileExtension,
   resolveStagedPick,
   uniquePickFileName,
@@ -52,10 +53,15 @@ export async function preparePhotoUploads(
     unique,
     {
       stage: (asset, index) =>
-        resolveStagedPick(asset, index, {
-          stageLibrary,
-          copyPicker: copyPickedPhotoToUniqueFile,
-        }),
+        resolveStagedPick(
+          asset,
+          index,
+          {
+            stageLibrary,
+            copyPicker: copyPickedPhotoToUniqueFile,
+          },
+          { uniquePickerUri: pickerUriIsUnique(unique, asset.uri) },
+        ),
       encode: encoder ? (uri) => encoder.encodeProfileHeic(uri) : undefined,
     },
     onProgress,

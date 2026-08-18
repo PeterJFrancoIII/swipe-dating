@@ -97,6 +97,18 @@ export const AMBIGUOUS_PHOTO_PICK_MESSAGE =
 
 export const PHOTO_STAGE_FAILED_MESSAGE = "Could not copy that photo from the library.";
 
+export function libraryAssetId(assetId: string): string {
+  let id = assetId.trim();
+  if (id.toLowerCase().startsWith("ph://")) {
+    id = id.slice(5);
+  }
+  return id.split("?")[0] ?? id;
+}
+
+export function pickerUriIsUnique(assets: Array<{ uri: string }>, uri: string): boolean {
+  return assets.filter((asset) => asset.uri === uri).length === 1;
+}
+
 export function pickIdentity(asset: { assetId?: string | null; uri: string }): string {
   const id = asset.assetId?.trim();
   if (id) {
@@ -152,22 +164,26 @@ export async function resolveStagedPick(
     stageLibrary?: (uri: string, assetId: string) => Promise<{ uri: string }>;
     copyPicker: (asset: PickedPhoto, index: number) => Promise<PickedPhoto>;
   },
+  options?: { uniquePickerUri?: boolean },
 ): Promise<PickedPhoto> {
-  const assetId = asset.assetId?.trim() || "";
+  const assetId = libraryAssetId(asset.assetId?.trim() || "");
   if (assetId) {
-    if (!io.stageLibrary) {
-      throw new Error(PHOTO_STAGE_FAILED_MESSAGE);
-    }
-    try {
-      const staged = await io.stageLibrary(asset.uri, assetId);
-      if (!staged?.uri) {
-        throw new Error(PHOTO_STAGE_FAILED_MESSAGE);
+    if (io.stageLibrary) {
+      try {
+        const staged = await io.stageLibrary(asset.uri, assetId);
+        if (!staged?.uri) {
+          throw new Error(PHOTO_STAGE_FAILED_MESSAGE);
+        }
+        return { ...asset, uri: staged.uri };
+      } catch (cause) {
+        if (isPhotoPickIdentityError(cause) && !options?.uniquePickerUri) {
+          throw cause;
+        }
+        if (!options?.uniquePickerUri) {
+          throw new Error(PHOTO_STAGE_FAILED_MESSAGE);
+        }
       }
-      return { ...asset, uri: staged.uri };
-    } catch (cause) {
-      if (isPhotoPickIdentityError(cause)) {
-        throw cause;
-      }
+    } else if (!options?.uniquePickerUri) {
       throw new Error(PHOTO_STAGE_FAILED_MESSAGE);
     }
   }

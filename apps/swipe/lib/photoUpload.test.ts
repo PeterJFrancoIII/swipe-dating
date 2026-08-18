@@ -15,6 +15,8 @@ import {
   photoResizeAction,
   photoUploadFallback,
   pickFileExtension,
+  libraryAssetId,
+  pickerUriIsUnique,
   pickIdentity,
   resolveStagedPick,
   uniquePickFileName,
@@ -249,6 +251,75 @@ describe("resolveStagedPick", () => {
             return asset;
           },
         }),
+      (error: unknown) => isPhotoPickIdentityError(error),
+    );
+    assert.deepEqual(copied, []);
+  });
+
+  it("copies a unique picker file when PHAsset staging fails", async () => {
+    const copied: string[] = [];
+    const staged = await resolveStagedPick(
+      { uri: "file:///tmp/ImagePicker/extra.heic", assetId: "ph://DEADBEEF-1/L0/001" },
+      0,
+      {
+        stageLibrary: async () => {
+          throw new Error("phasset missing");
+        },
+        copyPicker: async (asset) => {
+          copied.push(asset.uri);
+          return { ...asset, uri: "file:///tmp/unique-extra.heic" };
+        },
+      },
+      { uniquePickerUri: true },
+    );
+    assert.deepEqual(copied, ["file:///tmp/ImagePicker/extra.heic"]);
+    assert.equal(staged.uri, "file:///tmp/unique-extra.heic");
+    assert.equal(libraryAssetId("ph://DEADBEEF-1/L0/001"), "DEADBEEF-1/L0/001");
+    assert.equal(pickerUriIsUnique([{ uri: "file:///tmp/a.heic" }, { uri: "file:///tmp/b.heic" }], "file:///tmp/a.heic"), true);
+    assert.equal(
+      pickerUriIsUnique(
+        [{ uri: "file:///tmp/ImagePicker/reused.heic" }, { uri: "file:///tmp/ImagePicker/reused.heic" }],
+        "file:///tmp/ImagePicker/reused.heic",
+      ),
+      false,
+    );
+  });
+
+  it("copies a unique picker file when native staging is unavailable", async () => {
+    const copied: string[] = [];
+    const staged = await resolveStagedPick(
+      { uri: "file:///tmp/ImagePicker/extra.heic", assetId: "C" },
+      0,
+      {
+        copyPicker: async (asset) => {
+          copied.push(asset.uri);
+          return { ...asset, uri: "file:///tmp/copied-extra.heic" };
+        },
+      },
+      { uniquePickerUri: true },
+    );
+    assert.deepEqual(copied, ["file:///tmp/ImagePicker/extra.heic"]);
+    assert.equal(staged.uri, "file:///tmp/copied-extra.heic");
+  });
+
+  it("still fails closed when a shared picker URI cannot be staged", async () => {
+    const copied: string[] = [];
+    await assert.rejects(
+      () =>
+        resolveStagedPick(
+          { uri: "file:///tmp/ImagePicker/reused.heic", assetId: "C" },
+          2,
+          {
+            stageLibrary: async () => {
+              throw new Error("phasset missing");
+            },
+            copyPicker: async (asset) => {
+              copied.push(asset.uri);
+              return asset;
+            },
+          },
+          { uniquePickerUri: false },
+        ),
       (error: unknown) => isPhotoPickIdentityError(error),
     );
     assert.deepEqual(copied, []);

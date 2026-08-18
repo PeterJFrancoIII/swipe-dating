@@ -120,8 +120,19 @@ private enum PhotoStager {
     return ["uri": try copyFile(uri).absoluteString]
   }
 
+  private static func normalizedAssetId(_ assetId: String) -> String {
+    var id = assetId.trimmingCharacters(in: .whitespacesAndNewlines)
+    if id.lowercased().hasPrefix("ph://") {
+      id = String(id.dropFirst(5))
+    }
+    if let query = id.firstIndex(of: "?") {
+      id = String(id[..<query])
+    }
+    return id
+  }
+
   private static func copyLibraryAsset(_ assetId: String) async throws -> URL {
-    let fetch = PHAsset.fetchAssets(withLocalIdentifiers: [assetId], options: nil)
+    let fetch = PHAsset.fetchAssets(withLocalIdentifiers: [normalizedAssetId(assetId)], options: nil)
     guard let asset = fetch.firstObject else {
       throw PhotoEncodeError.libraryCopyFailed
     }
