@@ -3,9 +3,10 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 
 import { ChoiceRow } from "@/components/ChoiceSheet";
+import { DistanceSlider } from "@/components/DistanceSlider";
 import { Screen, Toast } from "@/components/Screen";
 import { ApiError, api } from "@/lib/api";
-import { DISTANCE_FILTER_ANY, DISTANCE_FILTER_CHOICES } from "@/lib/distance";
+import { DISTANCE_FILTER_ANY } from "@/lib/distance";
 import { emptyCatalogs, useSession } from "@/lib/session";
 import { theme } from "@/lib/theme";
 
@@ -72,18 +73,10 @@ export default function FiltersScreen() {
           selected={values.show_genders}
           onChange={(show_genders) => setValues({ ...values, show_genders })}
         />
-        <ChoiceRow
-          group="distance"
+        <DistanceSlider
           mark={sectionMarks.distance || "📍"}
-          title="Distance"
-          empty="Any distance"
-          help="Rounded mile bands only. People without a loose distance stay hidden when a limit is set."
-          multiple={false}
-          options={choices.distance?.length ? choices.distance : [...DISTANCE_FILTER_CHOICES]}
-          selected={values.distance_band ? [values.distance_band] : [DISTANCE_FILTER_ANY]}
-          onChange={(next) =>
-            setValues({ ...values, distance_band: next[0] || DISTANCE_FILTER_ANY })
-          }
+          value={values.distance_band || DISTANCE_FILTER_ANY}
+          onChange={(distance_band) => setValues({ ...values, distance_band })}
         />
         <ChoiceRow
           group="looking"

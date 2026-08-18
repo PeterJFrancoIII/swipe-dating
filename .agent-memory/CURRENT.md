@@ -10,7 +10,7 @@ https://github.com/PeterJFrancoIII/swipe-dating/blob/review/photo-upload/.agent-
 
 ## This slice
 
-- Settings has a single-select mile-band Distance filter.
+- Settings Distance is a stepped mile-band slider (closest left, Any distance right).
 - API eligibility uses `distance_band` / `feed_distance_band` (sibling repo working tree; not committed; not deployed).
 - Any distance includes everyone. A chosen max hides farther bands and Distance unavailable.
 

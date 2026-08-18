@@ -17,6 +17,30 @@ export const DISTANCE_FILTER_CHOICES = [
   { id: "farther", label: "Farther", icon: "✈️" },
 ] as const;
 
+/** Closest on the left, no maximum on the right. */
+export const DISTANCE_SLIDER_STEPS = [
+  { id: "about_1_mile", label: "About 1 mile", tick: "1 mi" },
+  { id: "about_5_miles", label: "About 5 miles", tick: "5 mi" },
+  { id: "about_15_miles", label: "About 15 miles", tick: "15 mi" },
+  { id: "farther", label: "Farther", tick: "Farther" },
+  { id: DISTANCE_FILTER_ANY, label: "Any distance", tick: "Any" },
+] as const;
+
+export function distanceSliderIndex(band: string | undefined): number {
+  const index = DISTANCE_SLIDER_STEPS.findIndex((step) => step.id === band);
+  return index >= 0 ? index : DISTANCE_SLIDER_STEPS.length - 1;
+}
+
+export function distanceBandFromSliderIndex(index: number): string {
+  const last = DISTANCE_SLIDER_STEPS.length - 1;
+  const clamped = Math.max(0, Math.min(last, Math.round(index)));
+  return DISTANCE_SLIDER_STEPS[clamped].id;
+}
+
+export function distanceSliderLabel(band: string | undefined): string {
+  return DISTANCE_SLIDER_STEPS[distanceSliderIndex(band)].label;
+}
+
 export type DistanceLabel = (typeof DISTANCE_LABELS)[number];
 
 export function displayDistance(label: string | undefined): string {
