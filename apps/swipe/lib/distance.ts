@@ -1,5 +1,8 @@
 export const DISTANCE_UNAVAILABLE = "Distance unavailable";
 export const DISTANCE_FILTER_ANY = "any";
+export const DISTANCE_FILTER_MIN_MILES = 1;
+export const DISTANCE_FILTER_MAX_MILES = 500;
+export const DISTANCE_SLIDER_LAST = DISTANCE_FILTER_MAX_MILES;
 
 export const DISTANCE_LABELS = [
   "About 1 mile",
@@ -17,28 +20,69 @@ export const DISTANCE_FILTER_CHOICES = [
   { id: "farther", label: "Farther", icon: "✈️" },
 ] as const;
 
-/** Closest on the left, no maximum on the right. */
-export const DISTANCE_SLIDER_STEPS = [
-  { id: "about_1_mile", label: "About 1 mile", tick: "1 mi" },
-  { id: "about_5_miles", label: "About 5 miles", tick: "5 mi" },
-  { id: "about_15_miles", label: "About 15 miles", tick: "15 mi" },
-  { id: "farther", label: "Farther", tick: "Farther" },
-  { id: DISTANCE_FILTER_ANY, label: "Any distance", tick: "Any" },
-] as const;
+const LEGACY_BAND_MILES: Record<string, number | null> = {
+  [DISTANCE_FILTER_ANY]: null,
+  any_distance: null,
+  about_1_mile: 1,
+  about_5_miles: 5,
+  about_15_miles: 15,
+  farther: DISTANCE_FILTER_MAX_MILES,
+};
 
-export function distanceSliderIndex(band: string | undefined): number {
-  const index = DISTANCE_SLIDER_STEPS.findIndex((step) => step.id === band);
-  return index >= 0 ? index : DISTANCE_SLIDER_STEPS.length - 1;
+export function clampDistanceMiles(miles: number): number {
+  return Math.max(DISTANCE_FILTER_MIN_MILES, Math.min(DISTANCE_FILTER_MAX_MILES, Math.round(miles)));
 }
 
-export function distanceBandFromSliderIndex(index: number): string {
-  const last = DISTANCE_SLIDER_STEPS.length - 1;
-  const clamped = Math.max(0, Math.min(last, Math.round(index)));
-  return DISTANCE_SLIDER_STEPS[clamped].id;
+export function parseMaxDistanceMiles(
+  miles: unknown,
+  legacyBand?: unknown,
+): number | null {
+  if (miles === null) {
+    return null;
+  }
+  if (typeof miles === "number" && Number.isFinite(miles)) {
+    return miles <= 0 ? null : clampDistanceMiles(miles);
+  }
+  if (typeof miles === "string" && miles.trim()) {
+    const text = miles.trim().toLowerCase();
+    if (text === DISTANCE_FILTER_ANY || text === "infinite" || text === "infinity") {
+      return null;
+    }
+    const parsed = Number(text);
+    if (Number.isFinite(parsed)) {
+      return parsed <= 0 ? null : clampDistanceMiles(parsed);
+    }
+  }
+  if (miles === undefined && typeof legacyBand === "string") {
+    if (legacyBand in LEGACY_BAND_MILES) {
+      return LEGACY_BAND_MILES[legacyBand];
+    }
+  }
+  return null;
 }
 
-export function distanceSliderLabel(band: string | undefined): string {
-  return DISTANCE_SLIDER_STEPS[distanceSliderIndex(band)].label;
+/** 0 = 1 mile … 499 = 500 miles, 500 = infinite. */
+export function distanceSliderIndex(miles: number | null | undefined): number {
+  if (miles == null) {
+    return DISTANCE_SLIDER_LAST;
+  }
+  return clampDistanceMiles(miles) - DISTANCE_FILTER_MIN_MILES;
+}
+
+export function milesFromSliderIndex(index: number): number | null {
+  const clamped = Math.max(0, Math.min(DISTANCE_SLIDER_LAST, Math.round(index)));
+  if (clamped >= DISTANCE_SLIDER_LAST) {
+    return null;
+  }
+  return clamped + DISTANCE_FILTER_MIN_MILES;
+}
+
+export function distanceSliderLabel(miles: number | null | undefined): string {
+  if (miles == null) {
+    return "Any distance";
+  }
+  const value = clampDistanceMiles(miles);
+  return value === 1 ? "1 mile" : `${value} miles`;
 }
 
 export type DistanceLabel = (typeof DISTANCE_LABELS)[number];

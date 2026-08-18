@@ -6,6 +6,7 @@
 - **Implementer:** Cursor IDE Agent
 - **Owner:** 2026-08-18 18:22 ET — users should filter discovery/swiping cards by distance.
 - **Follow-up:** 2026-08-18 18:28 ET — Distance should be a slider.
+- **Follow-up:** 2026-08-18 18:36 ET — Selectable 1 to 500 miles, then infinite.
 - **Do not self-accept.**
 - **GitHub:** https://github.com/PeterJFrancoIII/swipe-dating/blob/review/photo-upload/.agent-memory/tasks/2026-08-18-distance-filter.md
 
@@ -52,16 +53,18 @@ HTML `/filters` left for a later slice. Golden master not touched.
 
 Eligibility uses `candidate_distance_label(viewer.location_cell, candidate.location_cell, candidate.distance_km)`: pairwise cells if both exist; else if both cells are None, fixture `distance_km`; else Distance unavailable.
 
-## Slider (2026-08-18 18:28 ET)
+## Slider (2026-08-18 18:36 ET)
 
-Settings Distance is a stepped slider, not a choice sheet. Left is About 1 mile; right is Any distance. Thumb snaps to the five approved bands. No km, no continuous radius, no new native dependency.
+Settings Distance is a slider from **1 to 500 miles**, then one more step for **Any distance** (infinite). Field is `max_distance_miles` (`null` = infinite). Cards still show rounded mile bands to peers, never exact km. A finite max hides people without a usable distance. Ranking weights stay fixed.
+
+API sibling working tree: `normalize_max_distance_miles`, `distance_within_max_miles`, `feed_max_distance_miles`. Not committed there (mixed prior dirty tree). Not deployed.
 
 ## Validation
 
 ```text
 cd apps/swipe && npx tsc --noEmit && npm test
 # tsc exit 0
-# tests 62, pass 62, fail 0
+# tests 62, pass 62, fail 0 (2026-08-18 18:36 ET, after 1–500 + infinite)
 
 cd /Users/computer/App Development/swipe-dating-web-repo
 uv run pytest tests/unit/test_loose_location.py tests/unit/test_discovery.py tests/integration/test_mobile_api.py -q --tb=short
@@ -77,6 +80,6 @@ uv run pytest tests/unit/test_loose_location.py tests/unit/test_discovery.py tes
 
 ## Ask of owner
 
-1. Reload Metro on `review/photo-upload`. Settings → Distance is a slider. Drag, then Save settings.
-2. Approve a NAS deploy of the sibling API working tree if the swipe deck should honor the band live.
-3. After deploy: a max of About 5 miles should hide About 15 miles, Farther, and Distance unavailable.
+1. Reload Metro on `review/photo-upload`. Settings → Distance slider is 1–500 miles, then Any distance. Save settings.
+2. Approve a NAS deploy of the sibling API working tree if the swipe deck should honor the max live.
+3. After deploy: a max of 25 miles should hide people farther than that and people with no distance.

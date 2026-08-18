@@ -6,7 +6,7 @@ import { ChoiceRow } from "@/components/ChoiceSheet";
 import { DistanceSlider } from "@/components/DistanceSlider";
 import { Screen, Toast } from "@/components/Screen";
 import { ApiError, api } from "@/lib/api";
-import { DISTANCE_FILTER_ANY } from "@/lib/distance";
+import { parseMaxDistanceMiles } from "@/lib/distance";
 import { emptyCatalogs, useSession } from "@/lib/session";
 import { theme } from "@/lib/theme";
 
@@ -18,7 +18,8 @@ type FilterValues = {
   show_drinking: string[];
   show_drugs: string[];
   show_turn_ons: string[];
-  distance_band: string;
+  max_distance_miles: number | null;
+  distance_band?: string;
 };
 
 export default function FiltersScreen() {
@@ -35,7 +36,7 @@ export default function FiltersScreen() {
         const values = payload.values as FilterValues;
         setValues({
           ...values,
-          distance_band: values.distance_band || DISTANCE_FILTER_ANY,
+          max_distance_miles: parseMaxDistanceMiles(values.max_distance_miles, values.distance_band),
         });
       })
       .catch((cause) => setFlash({ error: cause instanceof ApiError ? cause.message : "Filters failed." }));
@@ -75,8 +76,8 @@ export default function FiltersScreen() {
         />
         <DistanceSlider
           mark={sectionMarks.distance || "📍"}
-          value={values.distance_band || DISTANCE_FILTER_ANY}
-          onChange={(distance_band) => setValues({ ...values, distance_band })}
+          value={values.max_distance_miles}
+          onChange={(max_distance_miles) => setValues({ ...values, max_distance_miles })}
         />
         <ChoiceRow
           group="looking"
@@ -143,7 +144,12 @@ export default function FiltersScreen() {
               const saved = payload.values as FilterValues;
               setValues({
                 ...saved,
-                distance_band: saved.distance_band || values.distance_band || DISTANCE_FILTER_ANY,
+                max_distance_miles:
+                  saved.max_distance_miles !== undefined
+                    ? parseMaxDistanceMiles(saved.max_distance_miles)
+                    : saved.distance_band
+                      ? parseMaxDistanceMiles(undefined, saved.distance_band)
+                      : values.max_distance_miles,
               });
               setFlash({ notice: String(payload.notice ?? "Filters updated. Ranking weights remain fixed.") });
             } catch (cause) {

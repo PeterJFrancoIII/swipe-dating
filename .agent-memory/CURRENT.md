@@ -10,9 +10,9 @@ https://github.com/PeterJFrancoIII/swipe-dating/blob/review/photo-upload/.agent-
 
 ## This slice
 
-- Settings Distance is a stepped mile-band slider (closest left, Any distance right).
-- API eligibility uses `distance_band` / `feed_distance_band` (sibling repo working tree; not committed; not deployed).
-- Any distance includes everyone. A chosen max hides farther bands and Distance unavailable.
+- Settings Distance is a 1–500 mile slider, then Any distance (infinite).
+- API eligibility uses `max_distance_miles` (sibling repo working tree; not committed; not deployed).
+- Any distance includes everyone. A finite max hides farther people and Distance unavailable. Cards still show mile bands.
 
 ## Review branches
 

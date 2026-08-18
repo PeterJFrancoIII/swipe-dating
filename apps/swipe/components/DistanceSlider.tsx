@@ -2,15 +2,16 @@ import { useRef, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 
 import {
-  DISTANCE_SLIDER_STEPS,
-  distanceBandFromSliderIndex,
+  DISTANCE_FILTER_MAX_MILES,
+  DISTANCE_FILTER_MIN_MILES,
+  DISTANCE_SLIDER_LAST,
   distanceSliderIndex,
   distanceSliderLabel,
+  milesFromSliderIndex,
 } from "@/lib/distance";
 import { theme, tones } from "@/lib/theme";
 
 const THUMB = 28;
-const LAST = DISTANCE_SLIDER_STEPS.length - 1;
 
 export function DistanceSlider({
   mark = "📍",
@@ -18,8 +19,8 @@ export function DistanceSlider({
   onChange,
 }: {
   mark?: string;
-  value: string;
-  onChange: (band: string) => void;
+  value: number | null;
+  onChange: (miles: number | null) => void;
 }) {
   const tone = tones.distance;
   const index = distanceSliderIndex(value);
@@ -33,10 +34,9 @@ export function DistanceSlider({
     if (span <= 0) {
       return;
     }
-    const next = Math.round(((pageX - x) / span) * LAST);
-    const band = distanceBandFromSliderIndex(next);
-    if (band !== value) {
-      onChange(band);
+    const next = milesFromSliderIndex(((pageX - x) / span) * DISTANCE_SLIDER_LAST);
+    if (next !== value) {
+      onChange(next);
     }
   };
 
@@ -51,21 +51,27 @@ export function DistanceSlider({
     <View style={[styles.section, { backgroundColor: tone.fill, borderColor: tone.border }]}>
       <Text style={[styles.legend, { color: tone.ink }]}>{mark}  Distance</Text>
       <Text style={styles.help}>
-        Rounded mile bands only. People without a loose distance stay hidden when a limit is set.
+        1 to {DISTANCE_FILTER_MAX_MILES} miles, then Any distance. People without a distance stay
+        hidden when a limit is set.
       </Text>
       <Text
         accessibilityRole="adjustable"
         accessibilityLabel="Distance"
         accessibilityHint="Swipe up to see people farther away. Swipe down to stay closer."
-        accessibilityValue={{ min: 0, max: LAST, now: index, text: label }}
+        accessibilityValue={{
+          min: 0,
+          max: DISTANCE_SLIDER_LAST,
+          now: index,
+          text: label,
+        }}
         accessibilityActions={[{ name: "increment" }, { name: "decrement" }]}
         onAccessibilityAction={(event) => {
           if (event.nativeEvent.actionName === "increment") {
-            onChange(distanceBandFromSliderIndex(index + 1));
+            onChange(milesFromSliderIndex(index + 1));
             return;
           }
           if (event.nativeEvent.actionName === "decrement") {
-            onChange(distanceBandFromSliderIndex(index - 1));
+            onChange(milesFromSliderIndex(index - 1));
           }
         }}
         style={[styles.value, { color: tone.ink }]}
@@ -91,23 +97,11 @@ export function DistanceSlider({
                 styles.fill,
                 {
                   backgroundColor: tone.accent,
-                  width: (index / LAST) * width,
+                  width: (index / DISTANCE_SLIDER_LAST) * width,
                 },
               ]}
             />
           ) : null}
-          {DISTANCE_SLIDER_STEPS.map((step, stepIndex) => (
-            <View
-              key={step.id}
-              style={[
-                styles.tick,
-                {
-                  left: `${(stepIndex / LAST) * 100}%`,
-                  backgroundColor: stepIndex <= index ? tone.accent : theme.lineStrong,
-                },
-              ]}
-            />
-          ))}
           {width > 0 ? (
             <View
               style={[
@@ -115,7 +109,7 @@ export function DistanceSlider({
                 {
                   backgroundColor: theme.paper,
                   borderColor: tone.accent,
-                  left: (index / LAST) * width - THUMB / 2,
+                  left: (index / DISTANCE_SLIDER_LAST) * width - THUMB / 2,
                 },
               ]}
             />
@@ -123,11 +117,9 @@ export function DistanceSlider({
         </View>
       </View>
       <View style={styles.ends}>
-        {DISTANCE_SLIDER_STEPS.map((step) => (
-          <Text key={step.id} style={[styles.end, step.id === value ? { color: tone.ink } : null]}>
-            {step.tick}
-          </Text>
-        ))}
+        <Text style={styles.end}>{DISTANCE_FILTER_MIN_MILES} mi</Text>
+        <Text style={styles.end}>{DISTANCE_FILTER_MAX_MILES} mi</Text>
+        <Text style={[styles.end, value == null ? { color: tone.ink } : null]}>Any</Text>
       </View>
     </View>
   );
@@ -176,14 +168,6 @@ const styles = StyleSheet.create({
     left: 0,
     position: "absolute",
   },
-  tick: {
-    borderRadius: 4,
-    height: 8,
-    marginLeft: -4,
-    position: "absolute",
-    top: (THUMB - 8) / 2,
-    width: 8,
-  },
   thumb: {
     borderRadius: THUMB / 2,
     borderWidth: 3,
@@ -199,14 +183,13 @@ const styles = StyleSheet.create({
   },
   ends: {
     flexDirection: "row",
+    justifyContent: "space-between",
     marginTop: 6,
-    paddingHorizontal: 2,
+    paddingHorizontal: THUMB / 2,
   },
   end: {
     color: theme.mute,
-    flex: 1,
     fontSize: 10,
     fontWeight: "700",
-    textAlign: "center",
   },
 });

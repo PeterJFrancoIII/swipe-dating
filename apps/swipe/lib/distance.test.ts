@@ -4,13 +4,14 @@ import { describe, it } from "node:test";
 import {
   DISTANCE_FILTER_ANY,
   DISTANCE_FILTER_CHOICES,
+  DISTANCE_FILTER_MAX_MILES,
   DISTANCE_LABELS,
-  DISTANCE_SLIDER_STEPS,
   coarseRegionLabel,
   displayDistance,
-  distanceBandFromSliderIndex,
   distanceSliderIndex,
   distanceSliderLabel,
+  milesFromSliderIndex,
+  parseMaxDistanceMiles,
 } from "./distance.ts";
 
 describe("distance labels", () => {
@@ -19,6 +20,9 @@ describe("distance labels", () => {
       ...[1, 8, 9, 20, 21, undefined].map((value) => coarseRegionLabel(value)),
       ...DISTANCE_LABELS,
       displayDistance("Same city"),
+      distanceSliderLabel(1),
+      distanceSliderLabel(500),
+      distanceSliderLabel(null),
     ]) {
       assert.equal(/km|kilometer|\d+\.\d+/.test(label), false);
     }
@@ -29,23 +33,27 @@ describe("distance labels", () => {
     for (const choice of DISTANCE_FILTER_CHOICES) {
       assert.equal(/km|kilometer|\d+\.\d+/.test(choice.label), false);
     }
-    for (const step of DISTANCE_SLIDER_STEPS) {
-      assert.equal(/km|kilometer|\d+\.\d+/.test(step.label), false);
-      assert.equal(/km|kilometer|\d+\.\d+/.test(step.tick), false);
-    }
   });
 });
 
-describe("distance slider steps", () => {
-  it("maps a max band from left (closest) to right (any)", () => {
-    assert.equal(distanceSliderIndex("about_1_mile"), 0);
-    assert.equal(distanceSliderIndex("about_5_miles"), 1);
-    assert.equal(distanceSliderIndex(DISTANCE_FILTER_ANY), DISTANCE_SLIDER_STEPS.length - 1);
-    assert.equal(distanceSliderIndex(""), DISTANCE_SLIDER_STEPS.length - 1);
-    assert.equal(distanceBandFromSliderIndex(0), "about_1_mile");
-    assert.equal(distanceBandFromSliderIndex(2), "about_15_miles");
-    assert.equal(distanceBandFromSliderIndex(99), DISTANCE_FILTER_ANY);
-    assert.equal(distanceSliderLabel("farther"), "Farther");
-    assert.equal(distanceSliderLabel("unknown"), "Any distance");
+describe("distance slider miles", () => {
+  it("maps 1 through 500, then infinite", () => {
+    assert.equal(distanceSliderIndex(1), 0);
+    assert.equal(distanceSliderIndex(500), DISTANCE_FILTER_MAX_MILES - 1);
+    assert.equal(distanceSliderIndex(null), DISTANCE_FILTER_MAX_MILES);
+    assert.equal(milesFromSliderIndex(0), 1);
+    assert.equal(milesFromSliderIndex(249), 250);
+    assert.equal(milesFromSliderIndex(499), 500);
+    assert.equal(milesFromSliderIndex(500), null);
+    assert.equal(distanceSliderLabel(1), "1 mile");
+    assert.equal(distanceSliderLabel(47), "47 miles");
+    assert.equal(distanceSliderLabel(null), "Any distance");
+    assert.equal(parseMaxDistanceMiles(75), 75);
+    assert.equal(parseMaxDistanceMiles(0), null);
+    assert.equal(parseMaxDistanceMiles(null), null);
+    assert.equal(parseMaxDistanceMiles(undefined, DISTANCE_FILTER_ANY), null);
+    assert.equal(parseMaxDistanceMiles(undefined, "about_15_miles"), 15);
+    assert.equal(parseMaxDistanceMiles(null, "about_15_miles"), null);
+    assert.equal(parseMaxDistanceMiles(900), 500);
   });
 });
