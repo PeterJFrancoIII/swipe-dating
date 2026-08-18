@@ -1,20 +1,17 @@
 # Current task
 
-- **Task:** 2026-08-18-photo-multi-pick-duplicate
+- **Task:** 2026-08-18-profile-field-titles
 - **Status:** ready_for_review
-- **Authorization:** Owner 2026-08-18 17:27 ET — 3-pick upload sometimes stores a duplicate of the first.
-- **Review correction:** GPT 2026-08-18 18:15 ET — fail closed on PHAsset stage failure; do not collapse unidentified URI collisions.
+- **Authorization:** Owner 2026-08-18 18:21 ET — add titles to edit-profile text fields.
 
 ## GPT start here
 
-https://github.com/PeterJFrancoIII/swipe-dating/blob/review/photo-upload/.agent-memory/tasks/2026-08-18-photo-multi-pick-duplicate.md
+https://github.com/PeterJFrancoIII/swipe-dating/blob/review/photo-upload/.agent-memory/tasks/2026-08-18-profile-field-titles.md
 
 ## This slice
 
-- Library-id staging succeeds or throws. No picker-URI fallback.
-- Repeated picker URI without `assetId` fails visibly.
-- `npx tsc --noEmit && npm test` → **61 passed**, 0 failed.
-- Live A+B+C after rebuilt Getfkd client is still the owner acceptance test.
+- Profile settings shows titles above Display name, City or region, and About you.
+- Choice rows already had titles and were left alone.
 
 ## Review branches
 

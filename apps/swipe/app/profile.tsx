@@ -221,28 +221,40 @@ export default function ProfileScreen() {
                 </Pressable>
               ) : null}
             </View>
-            <TextInput
-              onChangeText={(display_name) => setData({ ...data, profile: { ...profile, display_name } })}
-              placeholder="Display name"
-              placeholderTextColor={theme.mute}
-              style={styles.input}
-              value={profile.display_name}
-            />
-            <TextInput
-              onChangeText={(home_region) => setData({ ...data, profile: { ...profile, home_region } })}
-              placeholder="City or region"
-              placeholderTextColor={theme.mute}
-              style={styles.input}
-              value={profile.home_region ?? ""}
-            />
-            <TextInput
-              multiline
-              onChangeText={(about) => setData({ ...data, profile: { ...profile, about } })}
-              placeholder="About you"
-              placeholderTextColor={theme.mute}
-              style={[styles.input, styles.about]}
-              value={profile.about}
-            />
+            <View style={styles.field}>
+              <Text style={styles.fieldTitle}>Display name</Text>
+              <TextInput
+                accessibilityLabel="Display name"
+                onChangeText={(display_name) => setData({ ...data, profile: { ...profile, display_name } })}
+                placeholder="What should other adults call you?"
+                placeholderTextColor={theme.mute}
+                style={styles.input}
+                value={profile.display_name}
+              />
+            </View>
+            <View style={styles.field}>
+              <Text style={styles.fieldTitle}>City or region</Text>
+              <TextInput
+                accessibilityLabel="City or region"
+                onChangeText={(home_region) => setData({ ...data, profile: { ...profile, home_region } })}
+                placeholder="Where you usually are"
+                placeholderTextColor={theme.mute}
+                style={styles.input}
+                value={profile.home_region ?? ""}
+              />
+            </View>
+            <View style={styles.field}>
+              <Text style={styles.fieldTitle}>About you</Text>
+              <TextInput
+                accessibilityLabel="About you"
+                multiline
+                onChangeText={(about) => setData({ ...data, profile: { ...profile, about } })}
+                placeholder="A short intro"
+                placeholderTextColor={theme.mute}
+                style={[styles.input, styles.about]}
+                value={profile.about}
+              />
+            </View>
             <ChoiceRow
               group="gender"
               mark={sectionMarks.gender}
@@ -547,6 +559,14 @@ const styles = StyleSheet.create({
     color: theme.muteDeep,
     fontSize: 13,
     fontWeight: "700",
+  },
+  field: {
+    gap: 6,
+  },
+  fieldTitle: {
+    color: theme.ink,
+    fontSize: 14,
+    fontWeight: "800",
   },
   input: {
     backgroundColor: theme.paper,
