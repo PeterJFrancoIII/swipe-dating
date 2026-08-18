@@ -296,6 +296,8 @@ export default function ChatScreen() {
         photos={[]}
         photoIndex={0}
         onPhoto={() => undefined}
+        synthetic={person.synthetic}
+        testing_banner={person.testing_banner}
       />
     </Screen>
   );

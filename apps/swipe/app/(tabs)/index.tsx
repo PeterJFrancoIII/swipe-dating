@@ -211,6 +211,8 @@ export default function SwipeScreen() {
               photos={candidate.photos}
               photoIndex={photo}
               onPhoto={setPhoto}
+              synthetic={candidate.synthetic}
+              testing_banner={candidate.testing_banner}
             />
           </>
         ) : (
@@ -220,7 +222,8 @@ export default function SwipeScreen() {
             </View>
             <Text style={styles.emptyTitle}>Nobody new right now.</Text>
             <Text style={styles.emptyCopy}>
-              Discovery only shows real members. Check back when someone else joins.
+              Check back when someone else joins. Cards marked FAKE are for internal
+              testing only.
             </Text>
             <Pressable onPress={() => router.push("/filters")} style={styles.secondary}>
               <Text style={styles.secondaryLabel}>Adjust settings</Text>

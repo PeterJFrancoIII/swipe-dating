@@ -74,6 +74,8 @@ export type Candidate = {
   photo_count: number;
   photo_url: string;
   photos: string[];
+  synthetic?: boolean;
+  testing_banner?: string;
 };
 
 export type Reach = {
@@ -161,6 +163,8 @@ export type ChatState = {
     smoking: string;
     drinking: string;
     drugs: string;
+    synthetic?: boolean;
+    testing_banner?: string;
     status?: string;
     remaining_ms?: number;
     expires_at?: string | null;

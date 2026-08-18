@@ -5,6 +5,7 @@ import { alignmentLabel } from "@/lib/alignment";
 import { mediaHeaders } from "@/lib/api";
 import { displayDistance } from "@/lib/distance";
 import { resolvedMediaUri } from "@/lib/hotDeck";
+import { testingBanner } from "@/lib/testingCard";
 import { theme } from "@/lib/theme";
 import type { Candidate } from "@/lib/types";
 
@@ -23,9 +24,15 @@ export function DatingCard({
 }) {
   const photo = candidate.photos[photoIndex] ?? candidate.photo_url;
   const score = alignmentLabel(candidate);
+  const fake = testingBanner(candidate);
   return (
     <View style={styles.card}>
       <View style={styles.surface}>
+        {fake ? (
+          <Text accessibilityRole="text" style={styles.fakeBanner}>
+            {fake}
+          </Text>
+        ) : null}
         {photo ? (
           <Image
             resizeMode="cover"
@@ -53,7 +60,7 @@ export function DatingCard({
             >
               <Text style={styles.navMark}>›</Text>
             </Pressable>
-            <Text style={styles.count}>
+            <Text style={[styles.count, fake ? styles.countBelowBanner : null]}>
               {photoIndex + 1} / {candidate.photo_count}
             </Text>
           </>
@@ -109,6 +116,8 @@ export function ProfileSheet({
   photos,
   photoIndex,
   onPhoto,
+  synthetic,
+  testing_banner,
 }: {
   visible: boolean;
   onClose: () => void;
@@ -126,8 +135,11 @@ export function ProfileSheet({
   photos: string[];
   photoIndex: number;
   onPhoto: (index: number) => void;
+  synthetic?: boolean;
+  testing_banner?: string;
 }) {
   const photo = photos[photoIndex];
+  const fake = testingBanner({ synthetic, testing_banner });
   return (
     <Modal animationType="slide" transparent visible={visible} onRequestClose={onClose}>
       <View style={styles.sheetBackdrop}>
@@ -175,6 +187,7 @@ export function ProfileSheet({
               ) : null}
             </View>
             <View style={styles.sheetCopy}>
+              {fake ? <Text style={styles.fakeBannerSheet}>{fake}</Text> : null}
               <View style={styles.badges}>
                 {boosted ? <Text style={styles.boost}>Boost</Text> : null}
                 {alignment ? <Text style={styles.align}>{alignment}</Text> : null}
@@ -266,6 +279,33 @@ const styles = StyleSheet.create({
     fontSize: 28,
     lineHeight: 28,
   },
+  fakeBanner: {
+    backgroundColor: "#F5C542",
+    color: "#1A1400",
+    fontSize: 11,
+    fontWeight: "800",
+    left: 0,
+    letterSpacing: 0.2,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    position: "absolute",
+    right: 0,
+    textAlign: "center",
+    top: 0,
+    zIndex: 12,
+  },
+  fakeBannerSheet: {
+    backgroundColor: "#F5C542",
+    borderRadius: 12,
+    color: "#1A1400",
+    fontSize: 12,
+    fontWeight: "800",
+    marginBottom: 12,
+    overflow: "hidden",
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    textAlign: "center",
+  },
   count: {
     backgroundColor: "rgba(0,0,0,0.34)",
     borderRadius: 999,
@@ -279,6 +319,9 @@ const styles = StyleSheet.create({
     right: 16,
     top: 16,
     zIndex: 8,
+  },
+  countBelowBanner: {
+    top: 46,
   },
   gradient: {
     backgroundColor: "rgba(7,7,9,0.72)",

@@ -28,6 +28,7 @@ export default function FiltersScreen() {
   const choices = catalogs ?? emptyCatalogs;
   const [values, setValues] = useState<FilterValues | null>(null);
   const [flash, setFlash] = useState<{ error?: string | null; notice?: string | null }>({});
+  const [sliderHeld, setSliderHeld] = useState(false);
 
   useEffect(() => {
     void api
@@ -59,7 +60,11 @@ export default function FiltersScreen() {
         <Text style={styles.topTitle}>Settings</Text>
         <View style={styles.spacer} />
       </View>
-      <ScrollView contentContainerStyle={styles.sheet}>
+      <ScrollView
+        contentContainerStyle={styles.sheet}
+        nestedScrollEnabled={false}
+        scrollEnabled={!sliderHeld}
+      >
         <Text style={styles.eyebrow}>LOOKING FOR</Text>
         <Text style={styles.title}>Show people who fit what you want.</Text>
         <Text style={styles.lede}>These are eligibility preferences, not algorithm-weight controls.</Text>
@@ -78,6 +83,7 @@ export default function FiltersScreen() {
           mark={sectionMarks.distance || "📍"}
           value={values.max_distance_miles}
           onChange={(max_distance_miles) => setValues({ ...values, max_distance_miles })}
+          onSlidingChange={setSliderHeld}
         />
         <ChoiceRow
           group="looking"

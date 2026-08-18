@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { PanResponder, StyleSheet, Text, View } from "react-native";
 
 import {
   DISTANCE_FILTER_MAX_MILES,
@@ -17,17 +17,25 @@ export function DistanceSlider({
   mark = "📍",
   value,
   onChange,
+  onSlidingChange,
 }: {
   mark?: string;
   value: number | null;
   onChange: (miles: number | null) => void;
+  onSlidingChange?: (held: boolean) => void;
 }) {
   const tone = tones.distance;
   const index = distanceSliderIndex(value);
   const label = distanceSliderLabel(value);
   const trackRef = useRef<View>(null);
   const track = useRef({ x: 0, width: 0 });
+  const valueRef = useRef(value);
+  const onChangeRef = useRef(onChange);
+  const onSlidingRef = useRef(onSlidingChange);
   const [width, setWidth] = useState(0);
+  valueRef.current = value;
+  onChangeRef.current = onChange;
+  onSlidingRef.current = onSlidingChange;
 
   const applyPageX = (pageX: number) => {
     const { x, width: span } = track.current;
@@ -35,8 +43,8 @@ export function DistanceSlider({
       return;
     }
     const next = milesFromSliderIndex(((pageX - x) / span) * DISTANCE_SLIDER_LAST);
-    if (next !== value) {
-      onChange(next);
+    if (next !== valueRef.current) {
+      onChangeRef.current(next);
     }
   };
 
@@ -46,6 +54,31 @@ export function DistanceSlider({
       setWidth(measured);
     });
   };
+
+  const pan = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onMoveShouldSetPanResponder: () => true,
+      onStartShouldSetPanResponderCapture: () => true,
+      onMoveShouldSetPanResponderCapture: () => true,
+      onPanResponderTerminationRequest: () => false,
+      onShouldBlockNativeResponder: () => true,
+      onPanResponderGrant: (event) => {
+        onSlidingRef.current?.(true);
+        measureTrack();
+        applyPageX(event.nativeEvent.pageX);
+      },
+      onPanResponderMove: (event) => {
+        applyPageX(event.nativeEvent.pageX);
+      },
+      onPanResponderRelease: () => {
+        onSlidingRef.current?.(false);
+      },
+      onPanResponderTerminate: () => {
+        onSlidingRef.current?.(false);
+      },
+    }),
+  ).current;
 
   return (
     <View style={[styles.section, { backgroundColor: tone.fill, borderColor: tone.border }]}>
@@ -78,17 +111,7 @@ export function DistanceSlider({
       >
         {label}
       </Text>
-      <View
-        style={styles.hit}
-        onLayout={measureTrack}
-        onStartShouldSetResponder={() => true}
-        onMoveShouldSetResponder={() => true}
-        onResponderGrant={(event) => {
-          measureTrack();
-          applyPageX(event.nativeEvent.pageX);
-        }}
-        onResponderMove={(event) => applyPageX(event.nativeEvent.pageX)}
-      >
+      <View style={styles.hit} onLayout={measureTrack} {...pan.panHandlers}>
         <View ref={trackRef} style={styles.track} onLayout={measureTrack}>
           <View style={[styles.rail, { backgroundColor: theme.line }]} />
           {width > 0 ? (

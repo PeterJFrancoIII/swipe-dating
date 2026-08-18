@@ -1,18 +1,18 @@
 # Current task
 
-- **Task:** 2026-08-18-getfkd-proximity
+- **Task:** 2026-08-18-fake-cards-and-slider
 - **Status:** ready_for_review
-- **Authorization:** Owner 2026-08-18 18:40 ET — Get Fk'd defaults to 1 mile and sonar/vibrates more intensely in Bluetooth range.
+- **Authorization:** Owner 2026-08-18 18:50 ET — populate mock cards with distinct fake info, label them FAKE for internal testing, and stop the distance slider from dragging the Settings page.
 
 ## GPT start here
 
-https://github.com/PeterJFrancoIII/swipe-dating/blob/review/photo-upload/.agent-memory/tasks/2026-08-18-getfkd-proximity.md
+https://github.com/PeterJFrancoIII/swipe-dating/blob/review/photo-upload/.agent-memory/tasks/2026-08-18-fake-cards-and-slider.md
 
 ## This slice
 
-- Entering Get Fk'd saves `max_distance_miles: 1`.
-- Native anonymous BLE advertise/scan while the mode is on. RSSI drives ding + warm haptic intensity.
-- No exact distance UI. Rebuild required.
+- Seed labeled fixture cards into the live deck.
+- Show **FAKE - For Internal System Testing Only** on Expo cards and profile sheets.
+- Lock Settings scroll while the distance slider is held.
 
 ## Review branches
 
