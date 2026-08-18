@@ -332,7 +332,14 @@ export const api = {
   profile: () => request<Record<string, unknown>>("/api/profile"),
   saveProfile: (body: Record<string, unknown>) =>
     request<Record<string, unknown>>("/api/profile", { method: "POST", body: JSON.stringify(body) }),
-  uploadPhotos: async (files: { uri: string; name: string; type: string }[]) => {
+  uploadPhotos: async (
+    files: { uri: string; name: string; type: string }[],
+    onProgress?: {
+      onStart?: (index: number, total: number) => void;
+      onDone?: (index: number, total: number, durationMs: number) => void;
+      onRecover?: () => void;
+    },
+  ) => {
     if (!files.length) {
       throw new ApiError(400, { error: "Choose photos, then tap Add photos.", code: "photo_empty" });
     }
@@ -345,18 +352,21 @@ export const api = {
     }
     try {
       let payload: Record<string, unknown> | null = null;
-      for (const file of files) {
+      for (const [index, file] of files.entries()) {
         if (__DEV__) {
           console.warn("getfkd photo part", file.uri, file.name, file.type);
         }
+        onProgress?.onStart?.(index, files.length);
         const form = new FormData();
         attachSessionField(form, sessionToken);
         await appendLocalFile(form, "photo", file);
+        const started = Date.now();
         payload = await request<Record<string, unknown>>("/api/profile/photos", {
           method: "POST",
           body: form,
           headers: { Accept: "application/json" },
         });
+        onProgress?.onDone?.(index, files.length, Date.now() - started);
       }
       const photos = payload?.photos;
       if (!Array.isArray(photos) || photos.length < 1) {
@@ -364,6 +374,7 @@ export const api = {
       }
       return payload;
     } catch (cause) {
+      onProgress?.onRecover?.();
       const recovered = await recoverStoredPhotos();
       if (recovered) {
         return recovered;

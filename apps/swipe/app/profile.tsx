@@ -16,6 +16,7 @@ import { useRouter } from "expo-router";
 
 import { AuthPhoto } from "@/components/AuthPhoto";
 import { ChoiceRow } from "@/components/ChoiceSheet";
+import { PhotoUploadMeter } from "@/components/PhotoUploadMeter";
 import { FeedbackButton } from "@/components/ReportBugButton";
 import { Screen, Toast } from "@/components/Screen";
 import { ApiError, api } from "@/lib/api";
@@ -25,6 +26,7 @@ import { preparePhotoUploads, profilePhotoPickerOptions } from "@/lib/photoUploa
 import { quizProgressLabel } from "@/lib/alignment";
 import { emptyCatalogs, useSession } from "@/lib/session";
 import { theme } from "@/lib/theme";
+import { usePhotoUploadProgress } from "@/lib/usePhotoUploadProgress";
 
 type ProfileFields = {
   display_name: string;
@@ -69,6 +71,7 @@ export default function ProfileScreen() {
   const [data, setData] = useState<ProfilePayload | null>(null);
   const [flash, setFlash] = useState<{ error?: string | null; notice?: string | null }>({});
   const [loading, setLoading] = useState(true);
+  const upload = usePhotoUploadProgress();
 
   async function reload() {
     const payload = (await api.profile()) as ProfilePayload;
@@ -105,10 +108,19 @@ export default function ProfileScreen() {
     if (picked.canceled || !picked.assets.length) {
       return;
     }
+    const assets = picked.assets.slice(0, remaining);
     try {
-      const payload = (await api.uploadPhotos(
-        await preparePhotoUploads(picked.assets.slice(0, remaining)),
-      )) as ProfilePayload;
+      upload.start(assets.length);
+      const prepared = await preparePhotoUploads(assets, {
+        onStart: (index) => upload.prepareStart(index),
+        onDone: (index) => upload.prepared(index),
+      });
+      const payload = (await api.uploadPhotos(prepared, {
+        onStart: (index) => upload.uploadStart(index),
+        onDone: (index, _total, durationMs) => upload.uploaded(index, durationMs),
+        onRecover: () => upload.recover(),
+      })) as ProfilePayload;
+      upload.done();
       setData(payload);
       setSelfPhotoUrl(payload.photos[0]?.url ?? "");
       setFlash({ notice: payload.notice || "Photos added." });
@@ -120,6 +132,8 @@ export default function ProfileScreen() {
             ? cause.message
             : "Upload failed.";
       setFlash({ error: message || "Upload failed." });
+    } finally {
+      upload.clear();
     }
   }
 
@@ -174,6 +188,7 @@ export default function ProfileScreen() {
             </Text>
             <FeedbackButton />
             <Text style={styles.sectionTitle}>Photos</Text>
+            {upload.progress ? <PhotoUploadMeter progress={upload.progress} /> : null}
             <View style={styles.photoGrid}>
               {data.photos.map((photo) => (
                 <View key={photo.slot} style={styles.photoSlot}>
@@ -196,7 +211,11 @@ export default function ProfileScreen() {
                 </View>
               ))}
               {emptySlots > 0 ? (
-                <Pressable onPress={() => void pickPhotos(emptySlots)} style={styles.addSlot}>
+                <Pressable
+                  disabled={Boolean(upload.progress)}
+                  onPress={() => void pickPhotos(emptySlots)}
+                  style={styles.addSlot}
+                >
                   <Text style={styles.addMark}>+</Text>
                   <Text style={styles.addLabel}>{emptySlots > 1 ? "Add photos" : "Add photo"}</Text>
                 </Pressable>

@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 
+import { PhotoUploadMeter } from "@/components/PhotoUploadMeter";
 import { Screen, Toast } from "@/components/Screen";
 import { ApiError, api } from "@/lib/api";
 import { signupErrorMessage } from "@/lib/signupErrors";
@@ -19,6 +20,8 @@ import { loadAuthedPhoto } from "@/lib/hotDeck";
 import { hydrateOnboardingPhotos, nextOnboardingStep, photosSatisfyRequirement } from "@/lib/onboardingStep";
 import { preparePhotoUploads, profilePhotoPickerOptions } from "@/lib/photoUpload";
 import { emptyCatalogs, useSession } from "@/lib/session";
+import type { PhotoUploadSnapshot } from "@/lib/uploadProgress";
+import { usePhotoUploadProgress } from "@/lib/usePhotoUploadProgress";
 import type { AlignmentQuestion, Choice, OnboardingValues } from "@/lib/types";
 import { theme } from "@/lib/theme";
 
@@ -87,6 +90,7 @@ export function OnboardingScreen() {
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [quizIndex, setQuizIndex] = useState(0);
   const [busy, setBusy] = useState(false);
+  const upload = usePhotoUploadProgress();
 
   useEffect(() => {
     setError(null);
@@ -228,6 +232,7 @@ export function OnboardingScreen() {
           <PhotoStep
             photos={photos}
             busy={busy}
+            uploadProgress={upload.progress}
             onAdd={() => {
               void (async () => {
                 try {
@@ -243,10 +248,20 @@ export function OnboardingScreen() {
                     return;
                   }
                   setBusy(true);
-                  const payload = (await api.uploadPhotos(await preparePhotoUploads(picked.assets))) as {
+                  upload.start(picked.assets.length);
+                  const prepared = await preparePhotoUploads(picked.assets, {
+                    onStart: (index) => upload.prepareStart(index),
+                    onDone: (index) => upload.prepared(index),
+                  });
+                  const payload = (await api.uploadPhotos(prepared, {
+                    onStart: (index) => upload.uploadStart(index),
+                    onDone: (index, _total, durationMs) => upload.uploaded(index, durationMs),
+                    onRecover: () => upload.recover(),
+                  })) as {
                     photos?: { slot: number; url: string }[];
                     photo_count?: number;
                   };
+                  upload.done();
                   setPhotos(hydrateOnboardingPhotos(payload.photos));
                   setError(null);
                 } catch (cause) {
@@ -269,6 +284,7 @@ export function OnboardingScreen() {
                         : "Photo upload failed.";
                   setError(message || "Photo upload failed.");
                 } finally {
+                  upload.clear();
                   setBusy(false);
                 }
               })();
@@ -526,12 +542,14 @@ function TextStep({
 function PhotoStep({
   photos,
   busy,
+  uploadProgress,
   onAdd,
   onRemove,
   onContinue,
 }: {
   photos: { slot: number; url: string }[];
   busy: boolean;
+  uploadProgress: PhotoUploadSnapshot | null;
   onAdd: () => void;
   onRemove: (slot: number) => void;
   onContinue: () => void;
@@ -541,8 +559,11 @@ function PhotoStep({
     <ScrollView contentContainerStyle={styles.body}>
       <Text style={styles.title}>Photos</Text>
       <Text style={styles.help}>
-        {busy ? "Uploading photos…" : `Add at least 2 photos. ${photos.length} added.`}
+        {busy
+          ? "Stay on this screen until the upload finishes."
+          : `Add at least 2 photos. ${photos.length} added.`}
       </Text>
+      {uploadProgress ? <PhotoUploadMeter progress={uploadProgress} /> : null}
       <View style={styles.photoGrid}>
         {photos.map((photo) => (
           <View key={photo.slot} style={styles.photoSlot}>

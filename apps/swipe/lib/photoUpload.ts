@@ -19,16 +19,22 @@ export function profilePhotoPickerOptions(remaining: number): ImagePicker.ImageP
   };
 }
 
-export async function preparePhotoUploads(assets: PickedPhoto[]): Promise<PhotoUploadPart[]> {
+export async function preparePhotoUploads(
+  assets: PickedPhoto[],
+  onProgress?: { onStart?: (index: number, total: number) => void; onDone?: (index: number, total: number) => void },
+): Promise<PhotoUploadPart[]> {
   const encoder = getfkdPhoto();
   const prepared = [];
+  const total = assets.length;
   for (const [index, asset] of assets.entries()) {
+    onProgress?.onStart?.(index, total);
     if (encoder) {
       const encoded = await encoder.encodeProfileHeic(asset.uri);
       prepared.push(heicUploadPart(encoded.uri, index));
-      continue;
+    } else {
+      prepared.push(photoUploadFallback(asset, index));
     }
-    prepared.push(photoUploadFallback(asset, index));
+    onProgress?.onDone?.(index, total);
   }
   return prepared;
 }

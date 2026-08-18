@@ -1,19 +1,18 @@
 # Current task
 
-- **Task:** 2026-08-18-dev-apple-bypass
+- **Task:** 2026-08-18-photo-upload-progress
 - **Status:** ready_for_review
-- **Authorization:** Owner 2026-08-18 16:36 ET — temporary Sign in with Apple bypass.
+- **Authorization:** Owner 2026-08-18 16:49 ET — show upload percent and remaining time.
 
 ## GPT start here
 
-https://github.com/PeterJFrancoIII/swipe-dating/blob/review/photo-upload/.agent-memory/tasks/2026-08-18-dev-apple-bypass.md
+https://github.com/PeterJFrancoIII/swipe-dating/blob/review/photo-upload/.agent-memory/tasks/2026-08-18-photo-upload-progress.md
 
 ## This slice
 
-- Metro `__DEV__` skips the Apple screen.
-- NAS `GETFKD_DEV_SKIP_APPLE=1` allows unbound finish for non-store clients only.
-- Store/preview still 401. Other ADR-0023 gates stay on.
-- Client tests **46 passed**. API signup tests **16 passed**.
+- Photos and Profile show percent + remaining-time copy during upload.
+- RN-fetch unchanged. Progress is encode + sequential POST, not byte-level.
+- `npx tsc --noEmit && npm test` → **52 passed**, 0 failed.
 
 ## Review branches
 
