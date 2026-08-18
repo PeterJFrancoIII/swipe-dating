@@ -1,19 +1,19 @@
 # Current task
 
-- **Task:** 2026-08-18-apple-sign-in-gate
+- **Task:** 2026-08-18-dev-apple-bypass
 - **Status:** ready_for_review
-- **Authorization:** Owner 2026-08-18 16:31 ET — unblock “Sign in with Apple required.” Do not relax NAS.
+- **Authorization:** Owner 2026-08-18 16:36 ET — temporary Sign in with Apple bypass.
 
 ## GPT start here
 
-https://github.com/PeterJFrancoIII/swipe-dating/blob/review/photo-upload/.agent-memory/tasks/2026-08-18-apple-sign-in-gate.md
+https://github.com/PeterJFrancoIII/swipe-dating/blob/review/photo-upload/.agent-memory/tasks/2026-08-18-dev-apple-bypass.md
 
 ## This slice
 
-- Photos already upload (prior reconcile slice).
-- Finish was 401 `apple_sign_in_required` because `__DEV__` hid `SignInScreen`.
-- iOS now shows Apple after the age gate. NAS stay fail-closed.
-- `npx tsc --noEmit && npm test` → **45 passed**, 0 failed.
+- Metro `__DEV__` skips the Apple screen.
+- NAS `GETFKD_DEV_SKIP_APPLE=1` allows unbound finish for non-store clients only.
+- Store/preview still 401. Other ADR-0023 gates stay on.
+- Client tests **46 passed**. API signup tests **16 passed**.
 
 ## Review branches
 

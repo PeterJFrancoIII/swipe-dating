@@ -34,7 +34,7 @@ function Gate() {
   if (!adultAccepted) {
     return <AgeGateScreen />;
   }
-  if (shouldShowAppleSignIn(appleBound, Platform.OS)) {
+  if (shouldShowAppleSignIn(appleBound, Platform.OS, { development: __DEV__ })) {
     return <SignInScreen />;
   }
   if (!onboardingComplete) {
