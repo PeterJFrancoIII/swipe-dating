@@ -5,8 +5,25 @@ public class GetfkdLocationModule: Module {
   public func definition() -> ModuleDefinition {
     Name("GetfkdLocation")
 
+    Events("onPeerSignal")
+
     AsyncFunction("requestReducedFix") { () -> [String: Any] in
       try await LocationAttestor.shared.requestReducedFix()
+    }
+
+    AsyncFunction("startProximityBroadcast") { () -> Bool in
+      ProximityRadioBox.shared.start { [weak self] rssi in
+        self?.sendEvent("onPeerSignal", ["rssi": rssi])
+      }
+      return true
+    }
+
+    AsyncFunction("stopProximityBroadcast") {
+      ProximityRadioBox.shared.stop()
+    }
+
+    AsyncFunction("playProximityCue") { (closeness: Double) in
+      ProximityRadioBox.shared.playCue(closeness: closeness)
     }
   }
 }

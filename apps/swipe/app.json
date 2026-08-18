@@ -21,6 +21,8 @@
         "ITSAppUsesNonExemptEncryption": false,
         "NSPhotoLibraryUsageDescription": "Add photos to your Get fk'd profile.",
         "NSLocationWhenInUseUsageDescription": "Get fk'd uses approximate on-device location to show a loose distance to other adults. Precise location is not used. Other people never see your coordinates.",
+        "NSBluetoothAlwaysUsageDescription": "Get fk'd uses Bluetooth only while Get Fk'd mode is on, to sense another adult who also turned the mode on nearby. The radio does not carry your name, photos, or profile.",
+        "NSBluetoothPeripheralUsageDescription": "Get fk'd uses Bluetooth only while Get Fk'd mode is on, to sense another adult who also turned the mode on nearby. The radio does not carry your name, photos, or profile.",
         "NSLocationDefaultAccuracyReduced": true,
         "LSApplicationCategoryType": "public.app-category.lifestyle",
         "NSDeclaredAgeRangeUsageDescription": "Get fk'd uses your Apple-declared age range to confirm you are 18 or older. The app fails closed if that range is not shared or is under 18.",

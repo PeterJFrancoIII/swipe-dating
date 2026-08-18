@@ -7,6 +7,9 @@ describe("Get Fk'd mode copy", () => {
   it("warns that location is only for mutual mode matches", () => {
     assert.match(GETFKD_ENTER_BODY, /location/i);
     assert.match(GETFKD_ENTER_BODY, /both/i);
+    assert.match(GETFKD_ENTER_BODY, /1 mile/i);
+    assert.match(GETFKD_ENTER_BODY, /Bluetooth/i);
+    assert.match(GETFKD_ENTER_BODY, /exact distance/i);
     assert.match(GETFKD_EXIT_BODY, /numbers/i);
   });
 

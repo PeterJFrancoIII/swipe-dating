@@ -2,6 +2,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 
 import { ApiError, api, setToken } from "@/lib/api";
+import { GETFKD_DEFAULT_MILES } from "@/lib/getfkdProximity";
 import { SESSION_TOKEN_KEY } from "@/lib/config";
 import { loadInstallId } from "@/lib/installId";
 import { isSessionRequired, signupErrorMessage } from "@/lib/signupErrors";
@@ -184,6 +185,15 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         const result = await api.setGetFkd(enabled);
         setGetFkdEnabledState(Boolean(result.get_fkd_enabled));
         applyAuth(result, setAdultAccepted, setOnboardingComplete, setDisplayName, setAppleBound);
+        if (result.get_fkd_enabled) {
+          try {
+            const filters = await api.filters();
+            const values = (filters.values ?? {}) as Record<string, unknown>;
+            await api.saveFilters({ ...values, max_distance_miles: GETFKD_DEFAULT_MILES });
+          } catch {
+            // Mode still turns on if the 1-mile default cannot be saved.
+          }
+        }
         return { dissolved: result.dissolved ?? [], notice: result.notice };
       },
       selfPhotoUrl,

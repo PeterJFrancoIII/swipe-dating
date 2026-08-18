@@ -1,2 +1,2 @@
-export { getfkdLocation } from "./src/GetfkdLocationModule";
-export type { LocationFix } from "./src/GetfkdLocationModule";
+export { getfkdLocation, listenForPeerSignals } from "./src/GetfkdLocationModule";
+export type { LocationFix, PeerSignal } from "./src/GetfkdLocationModule";
