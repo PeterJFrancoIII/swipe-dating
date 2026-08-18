@@ -2,7 +2,7 @@ import { useCallback, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useFocusEffect, useRouter } from "expo-router";
 
-import { SurfaceBang } from "@/components/ReportBugButton";
+import { ActionBang, SurfaceBang } from "@/components/ReportBugButton";
 import { Screen, Toast } from "@/components/Screen";
 import { surfaceHref } from "@/lib/surfaces";
 import { ApiError, api } from "@/lib/api";
@@ -30,9 +30,11 @@ export default function CommunityScreen() {
   return (
     <Screen>
       <View style={styles.topbar}>
-        <Pressable accessibilityLabel="Back to profile" onPress={() => router.back()} style={styles.back}>
-          <Text style={styles.backMark}>‹</Text>
-        </Pressable>
+        <ActionBang href={surfaceHref("community", "back")} label="Back from community">
+          <Pressable accessibilityLabel="Back to profile" onPress={() => router.back()} style={styles.back}>
+            <Text style={styles.backMark}>‹</Text>
+          </Pressable>
+        </ActionBang>
         <Text style={styles.topTitle}>Community review</Text>
         <SurfaceBang href={surfaceHref("community")} label="Community review" />
       </View>
@@ -70,53 +72,61 @@ export default function CommunityScreen() {
                     </Text>
                   </View>
                   <View style={styles.votes}>
-                    <Pressable
-                      onPress={async () => {
-                        const payload = await api.vote(item.id, reviewer.id, "suspicious");
-                        setCases(payload.cases);
-                        setFlash({ notice: payload.notice });
-                      }}
-                      style={styles.vote}
-                    >
-                      <Text style={styles.danger}>Bot-like</Text>
-                    </Pressable>
-                    <Pressable
-                      onPress={async () => {
-                        const payload = await api.vote(item.id, reviewer.id, "likely_human");
-                        setCases(payload.cases);
-                        setFlash({ notice: payload.notice });
-                      }}
-                      style={styles.vote}
-                    >
-                      <Text>Likely human</Text>
-                    </Pressable>
+                    <ActionBang href={surfaceHref("community", "vote", "bot")} label="Vote bot-like">
+                      <Pressable
+                        onPress={async () => {
+                          const payload = await api.vote(item.id, reviewer.id, "suspicious");
+                          setCases(payload.cases);
+                          setFlash({ notice: payload.notice });
+                        }}
+                        style={styles.vote}
+                      >
+                        <Text style={styles.danger}>Bot-like</Text>
+                      </Pressable>
+                    </ActionBang>
+                    <ActionBang href={surfaceHref("community", "vote", "human")} label="Vote likely human">
+                      <Pressable
+                        onPress={async () => {
+                          const payload = await api.vote(item.id, reviewer.id, "likely_human");
+                          setCases(payload.cases);
+                          setFlash({ notice: payload.notice });
+                        }}
+                        style={styles.vote}
+                      >
+                        <Text>Likely human</Text>
+                      </Pressable>
+                    </ActionBang>
                   </View>
                 </View>
               ))}
               <View style={styles.actions}>
                 {item.can_appeal ? (
-                  <Pressable
-                    onPress={async () => {
-                      const payload = await api.appeal(item.id);
-                      setCases(payload.cases);
-                      setFlash({ notice: payload.notice });
-                    }}
-                    style={styles.vote}
-                  >
-                    <Text>Appeal</Text>
-                  </Pressable>
+                  <ActionBang href={surfaceHref("community", "appeal")} label="Appeal">
+                    <Pressable
+                      onPress={async () => {
+                        const payload = await api.appeal(item.id);
+                        setCases(payload.cases);
+                        setFlash({ notice: payload.notice });
+                      }}
+                      style={styles.vote}
+                    >
+                      <Text>Appeal</Text>
+                    </Pressable>
+                  </ActionBang>
                 ) : null}
                 {item.can_adjudicate ? (
-                  <Pressable
-                    onPress={async () => {
-                      const payload = await api.adjudicate(item.id);
-                      setCases(payload.cases);
-                      setFlash({ notice: payload.notice });
-                    }}
-                    style={styles.primary}
-                  >
-                    <Text style={styles.primaryLabel}>Finish review</Text>
-                  </Pressable>
+                  <ActionBang href={surfaceHref("community", "adjudicate")} label="Finish review">
+                    <Pressable
+                      onPress={async () => {
+                        const payload = await api.adjudicate(item.id);
+                        setCases(payload.cases);
+                        setFlash({ notice: payload.notice });
+                      }}
+                      style={styles.primary}
+                    >
+                      <Text style={styles.primaryLabel}>Finish review</Text>
+                    </Pressable>
+                  </ActionBang>
                 ) : null}
               </View>
             </View>
@@ -125,9 +135,11 @@ export default function CommunityScreen() {
           <View style={styles.empty}>
             <Text style={styles.title}>No open cases.</Text>
             <Text style={styles.lede}>A private community review begins after a user files a report from Swipe or a match.</Text>
-            <Pressable onPress={() => router.replace("/")} style={styles.primary}>
-              <Text style={styles.primaryLabel}>Return to Swipe</Text>
-            </Pressable>
+            <ActionBang href={surfaceHref("community", "return-swipe")} label="Return to Swipe">
+              <Pressable onPress={() => router.replace("/")} style={styles.primary}>
+                <Text style={styles.primaryLabel}>Return to Swipe</Text>
+              </Pressable>
+            </ActionBang>
           </View>
         )}
         <View style={styles.policy}>

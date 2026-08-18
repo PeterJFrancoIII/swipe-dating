@@ -4,7 +4,7 @@ import { useRouter } from "expo-router";
 
 import { ChoiceRow } from "@/components/ChoiceSheet";
 import { DistanceSlider } from "@/components/DistanceSlider";
-import { SurfaceBang } from "@/components/ReportBugButton";
+import { ActionBang, SurfaceBang } from "@/components/ReportBugButton";
 import { surfaceHref } from "@/lib/surfaces";
 import { Screen, Toast } from "@/components/Screen";
 import { ApiError, api } from "@/lib/api";
@@ -56,9 +56,11 @@ export default function FiltersScreen() {
   return (
     <Screen>
       <View style={styles.topbar}>
-        <Pressable accessibilityLabel="Close settings" onPress={() => router.back()} style={styles.back}>
-          <Text style={styles.backMark}>‹</Text>
-        </Pressable>
+        <ActionBang href={surfaceHref("settings", "close")} label="Close settings">
+          <Pressable accessibilityLabel="Close settings" onPress={() => router.back()} style={styles.back}>
+            <Text style={styles.backMark}>‹</Text>
+          </Pressable>
+        </ActionBang>
         <Text style={styles.topTitle}>Settings</Text>
         <SurfaceBang href={surfaceHref("settings")} label="Settings" />
       </View>
@@ -145,6 +147,7 @@ export default function FiltersScreen() {
           <Text style={styles.noteTitle}>Ranking weights stay fixed</Text>
           <Text style={styles.lede}>Filters only change who is eligible, not how the remaining cards are scored.</Text>
         </View>
+        <ActionBang href={surfaceHref("settings", "save")} label="Save settings">
         <Pressable
           onPress={async () => {
             try {
@@ -168,6 +171,7 @@ export default function FiltersScreen() {
         >
           <Text style={styles.primaryLabel}>Save settings</Text>
         </Pressable>
+        </ActionBang>
       </ScrollView>
     </Screen>
   );

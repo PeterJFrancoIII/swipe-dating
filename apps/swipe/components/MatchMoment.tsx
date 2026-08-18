@@ -1,7 +1,8 @@
 import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
 
 import { AuthPhoto } from "@/components/AuthPhoto";
-import { ReportFab } from "@/components/ReportBugButton";
+import { ActionBang, ReportFab } from "@/components/ReportBugButton";
+import { surfaceHref } from "@/lib/surfaces";
 import { theme } from "@/lib/theme";
 import type { MatchedWith } from "@/lib/types";
 
@@ -32,12 +33,16 @@ export function MatchMoment({
               ? "This Get Fk'd match and chat disappear when either of you leaves the mode. Get a number if you want to stay in touch."
               : "No automatic message was sent. Say hi if you want to."}
           </Text>
-          <Pressable onPress={onChat} style={styles.primary}>
-            <Text style={styles.primaryLabel}>Say hi</Text>
-          </Pressable>
-          <Pressable onPress={onKeepSwiping} style={styles.secondary}>
-            <Text style={styles.secondaryLabel}>Keep swiping</Text>
-          </Pressable>
+          <ActionBang href={surfaceHref("match", "say-hi")} label="Say hi">
+            <Pressable onPress={onChat} style={styles.primary}>
+              <Text style={styles.primaryLabel}>Say hi</Text>
+            </Pressable>
+          </ActionBang>
+          <ActionBang href={surfaceHref("match", "keep-swiping")} label="Keep swiping">
+            <Pressable onPress={onKeepSwiping} style={styles.secondary}>
+              <Text style={styles.secondaryLabel}>Keep swiping</Text>
+            </Pressable>
+          </ActionBang>
         </View>
         <ReportFab />
       </View>

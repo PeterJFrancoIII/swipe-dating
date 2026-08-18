@@ -165,20 +165,24 @@ export default function SwipeScreen() {
                 <ScrollView style={styles.report} contentContainerStyle={styles.reportInner}>
                   <View style={styles.reportHead}>
                     <Text style={styles.reportTitle}>Report {candidate.display_name}</Text>
-                    <Pressable accessibilityLabel="Close" onPress={() => setReportOpen(false)}>
-                      <Text style={styles.reportClose}>Close</Text>
-                    </Pressable>
+                    <ActionBang href={surfaceHref("swipe", "report", "close")} label="Close report">
+                      <Pressable accessibilityLabel="Close" onPress={() => setReportOpen(false)}>
+                        <Text style={styles.reportClose}>Close</Text>
+                      </Pressable>
+                    </ActionBang>
                   </View>
                   <Text style={styles.reportHelp}>
                     Block, report, or both. Blocked people disappear from Discovery. They are not told.
                   </Text>
                   {reportOptions.map((option) => (
-                    <Pressable key={option.id} onPress={() => setReason(option.id)}>
-                      <Text style={[styles.reason, reason === option.id && styles.reasonOn]}>
-                        {reason === option.id ? "● " : "○ "}
-                        {option.label}
-                      </Text>
-                    </Pressable>
+                    <ActionBang key={option.id} href={surfaceHref("swipe", "report", option.id)} label={option.label}>
+                      <Pressable onPress={() => setReason(option.id)}>
+                        <Text style={[styles.reason, reason === option.id && styles.reasonOn]}>
+                          {reason === option.id ? "● " : "○ "}
+                          {option.label}
+                        </Text>
+                      </Pressable>
+                    </ActionBang>
                   ))}
                   <TextInput
                     onChangeText={setNote}
@@ -187,24 +191,30 @@ export default function SwipeScreen() {
                     style={styles.note}
                     value={note}
                   />
-                  <Pressable
-                    onPress={() => void run(() => api.blockCandidate(candidate.id))}
-                    style={styles.danger}
-                  >
-                    <Text style={styles.dangerLabel}>Block</Text>
-                  </Pressable>
-                  <Pressable
-                    onPress={() => void run(() => api.report(candidate.id, reason, note))}
-                    style={styles.danger}
-                  >
-                    <Text style={styles.dangerLabel}>Report</Text>
-                  </Pressable>
-                  <Pressable
-                    onPress={() => void run(() => api.report(candidate.id, reason, note, true))}
-                    style={styles.danger}
-                  >
-                    <Text style={styles.dangerLabel}>Report & Block</Text>
-                  </Pressable>
+                  <ActionBang href={surfaceHref("swipe", "report", "block")} label="Block candidate">
+                    <Pressable
+                      onPress={() => void run(() => api.blockCandidate(candidate.id))}
+                      style={styles.danger}
+                    >
+                      <Text style={styles.dangerLabel}>Block</Text>
+                    </Pressable>
+                  </ActionBang>
+                  <ActionBang href={surfaceHref("swipe", "report", "submit")} label="Report candidate">
+                    <Pressable
+                      onPress={() => void run(() => api.report(candidate.id, reason, note))}
+                      style={styles.danger}
+                    >
+                      <Text style={styles.dangerLabel}>Report</Text>
+                    </Pressable>
+                  </ActionBang>
+                  <ActionBang href={surfaceHref("swipe", "report", "report-block")} label="Report and block">
+                    <Pressable
+                      onPress={() => void run(() => api.report(candidate.id, reason, note, true))}
+                      style={styles.danger}
+                    >
+                      <Text style={styles.dangerLabel}>Report & Block</Text>
+                    </Pressable>
+                  </ActionBang>
                 </ScrollView>
               ) : null}
             </View>
@@ -239,9 +249,11 @@ export default function SwipeScreen() {
               Check back when someone else joins. Cards marked FAKE are for internal
               testing only.
             </Text>
-            <Pressable onPress={() => router.push("/filters")} style={styles.secondary}>
-              <Text style={styles.secondaryLabel}>Adjust settings</Text>
-            </Pressable>
+            <ActionBang href={surfaceHref("swipe", "empty", "settings")} label="Adjust settings">
+              <Pressable onPress={() => router.push("/filters")} style={styles.secondary}>
+                <Text style={styles.secondaryLabel}>Adjust settings</Text>
+              </Pressable>
+            </ActionBang>
           </View>
         )}
       </View>

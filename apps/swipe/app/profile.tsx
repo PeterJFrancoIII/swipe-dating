@@ -145,26 +145,30 @@ export default function ProfileScreen() {
     <Screen footer={false}>
       <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={styles.flex}>
         <View style={styles.topbar}>
-          <Pressable accessibilityLabel="Close profile" onPress={() => router.back()} style={styles.back}>
-            <Text style={styles.backMark}>‹</Text>
-          </Pressable>
+          <ActionBang href={surfaceHref("profile", "close")} label="Close profile">
+            <Pressable accessibilityLabel="Close profile" onPress={() => router.back()} style={styles.back}>
+              <Text style={styles.backMark}>‹</Text>
+            </Pressable>
+          </ActionBang>
           <Text style={styles.topTitle}>Profile settings</Text>
           <View style={styles.spacer} />
         </View>
         <Toast error={flash.error} notice={flash.notice} />
         {!data && !loading ? (
-          <Pressable
-            onPress={() => {
-              setLoading(true);
-              void reload().catch((cause) => {
-                setLoading(false);
-                setFlash({ error: cause instanceof ApiError ? cause.message : "Profile failed." });
-              });
-            }}
-            style={styles.primary}
-          >
-            <Text style={styles.primaryLabel}>Try again</Text>
-          </Pressable>
+          <ActionBang href={surfaceHref("profile", "retry")} label="Try again">
+            <Pressable
+              onPress={() => {
+                setLoading(true);
+                void reload().catch((cause) => {
+                  setLoading(false);
+                  setFlash({ error: cause instanceof ApiError ? cause.message : "Profile failed." });
+                });
+              }}
+              style={styles.primary}
+            >
+              <Text style={styles.primaryLabel}>Try again</Text>
+            </Pressable>
+          </ActionBang>
         ) : null}
         {profile && data ? (
           <ScrollView
@@ -199,32 +203,36 @@ export default function ProfileScreen() {
               {data.photos.map((photo) => (
                 <View key={photo.slot} style={styles.photoSlot}>
                   <AuthPhoto path={photo.url} style={styles.photo} />
-                  <Pressable
-                    onPress={async () => {
-                      try {
-                        const payload = (await api.removePhoto(photo.slot)) as ProfilePayload;
-                        setData(payload);
-                        setSelfPhotoUrl(payload.photos[0]?.url ?? "");
-                        setFlash({ notice: payload.notice || "Photo removed." });
-                      } catch (cause) {
-                        setFlash({ error: cause instanceof ApiError ? cause.message : "Remove failed." });
-                      }
-                    }}
-                    style={styles.photoRemove}
-                  >
-                    <Text style={styles.photoRemoveLabel}>Remove</Text>
-                  </Pressable>
+                  <ActionBang href={surfaceHref("profile", "photos", "remove")} label="Remove photo">
+                    <Pressable
+                      onPress={async () => {
+                        try {
+                          const payload = (await api.removePhoto(photo.slot)) as ProfilePayload;
+                          setData(payload);
+                          setSelfPhotoUrl(payload.photos[0]?.url ?? "");
+                          setFlash({ notice: payload.notice || "Photo removed." });
+                        } catch (cause) {
+                          setFlash({ error: cause instanceof ApiError ? cause.message : "Remove failed." });
+                        }
+                      }}
+                      style={styles.photoRemove}
+                    >
+                      <Text style={styles.photoRemoveLabel}>Remove</Text>
+                    </Pressable>
+                  </ActionBang>
                 </View>
               ))}
               {emptySlots > 0 ? (
-                <Pressable
-                  disabled={Boolean(upload.progress)}
-                  onPress={() => void pickPhotos(emptySlots)}
-                  style={styles.addSlot}
-                >
-                  <Text style={styles.addMark}>+</Text>
-                  <Text style={styles.addLabel}>{emptySlots > 1 ? "Add photos" : "Add photo"}</Text>
-                </Pressable>
+                <ActionBang href={surfaceHref("profile", "photos", "add")} label="Add photos">
+                  <Pressable
+                    disabled={Boolean(upload.progress)}
+                    onPress={() => void pickPhotos(emptySlots)}
+                    style={styles.addSlot}
+                  >
+                    <Text style={styles.addMark}>+</Text>
+                    <Text style={styles.addLabel}>{emptySlots > 1 ? "Add photos" : "Add photo"}</Text>
+                  </Pressable>
+                </ActionBang>
               ) : null}
             </View>
             <View style={styles.field}>
@@ -344,9 +352,11 @@ export default function ProfileScreen() {
                 onChange={(personality_tags) => setData({ ...data, profile: { ...profile, personality_tags } })}
               />
             ) : null}
-            <Pressable onPress={() => void save(profile)} style={styles.primary}>
-              <Text style={styles.primaryLabel}>Save profile</Text>
-            </Pressable>
+            <ActionBang href={surfaceHref("profile", "save")} label="Save profile">
+              <Pressable onPress={() => void save(profile)} style={styles.primary}>
+                <Text style={styles.primaryLabel}>Save profile</Text>
+              </Pressable>
+            </ActionBang>
             <View style={styles.box}>
               <Text style={styles.boxTitle}>Boost and Superlike</Text>
               <Text style={styles.help}>
@@ -357,70 +367,80 @@ export default function ProfileScreen() {
               <Text style={styles.boxTitle}>Legal and support</Text>
               <Text style={styles.help}>Drafts only — not in force until counsel approves them.</Text>
               {LEGAL_DOCS.map((doc) => (
-                <Pressable key={doc.slug} onPress={() => router.push(`/legal/${doc.slug}`)} style={styles.secondary}>
-                  <Text>{doc.title}</Text>
-                </Pressable>
+                <ActionBang key={doc.slug} href={surfaceHref("legal", doc.slug)} label={doc.title}>
+                  <Pressable onPress={() => router.push(`/legal/${doc.slug}`)} style={styles.secondary}>
+                    <Text>{doc.title}</Text>
+                  </Pressable>
+                </ActionBang>
               ))}
             </View>
             <View style={styles.box}>
               <Text style={styles.boxTitle}>Account</Text>
-              <Pressable
-                onPress={() => {
-                  void signOut().catch((cause) => {
-                    setFlash({ error: cause instanceof ApiError ? cause.message : "Sign out failed." });
-                  });
-                }}
-                style={styles.secondary}
-              >
-                <Text>Sign out</Text>
-              </Pressable>
+              <ActionBang href={surfaceHref("profile", "sign-out")} label="Sign out">
+                <Pressable
+                  onPress={() => {
+                    void signOut().catch((cause) => {
+                      setFlash({ error: cause instanceof ApiError ? cause.message : "Sign out failed." });
+                    });
+                  }}
+                  style={styles.secondary}
+                >
+                  <Text>Sign out</Text>
+                </Pressable>
+              </ActionBang>
             </View>
             <View style={styles.box}>
               <Text style={styles.boxTitle}>Your data</Text>
-              <Pressable
-                onPress={async () => {
-                  try {
-                    const payload = await api.exportAccount();
-                    await Share.share({ message: payload.export, title: "Get fk'd export" });
-                    setFlash({ notice: "Export ready." });
-                  } catch (cause) {
-                    setFlash({ error: cause instanceof ApiError ? cause.message : "Export failed." });
-                  }
-                }}
-                style={styles.secondary}
-              >
-                <Text>Export my data</Text>
-              </Pressable>
+              <ActionBang href={surfaceHref("profile", "export")} label="Export my data">
+                <Pressable
+                  onPress={async () => {
+                    try {
+                      const payload = await api.exportAccount();
+                      await Share.share({ message: payload.export, title: "Get fk'd export" });
+                      setFlash({ notice: "Export ready." });
+                    } catch (cause) {
+                      setFlash({ error: cause instanceof ApiError ? cause.message : "Export failed." });
+                    }
+                  }}
+                  style={styles.secondary}
+                >
+                  <Text>Export my data</Text>
+                </Pressable>
+              </ActionBang>
+              <ActionBang href={surfaceHref("profile", "delete")} label="Delete account">
+                <Pressable
+                  onPress={() => {
+                    Alert.alert("Delete account?", "This wipes your session on this device and on the server.", [
+                      { text: "Cancel", style: "cancel" },
+                      {
+                        text: "Delete",
+                        style: "destructive",
+                        onPress: () => {
+                          void deleteAccount()
+                            .then(() => setFlash({ notice: "Account deleted." }))
+                            .catch((cause) => {
+                              setFlash({ error: cause instanceof ApiError ? cause.message : "Delete failed." });
+                            });
+                        },
+                      },
+                    ]);
+                  }}
+                  style={styles.danger}
+                >
+                  <Text style={styles.dangerLabel}>Delete account</Text>
+                </Pressable>
+              </ActionBang>
+            </View>
+            <ActionBang href={surfaceHref("community")} label="Community review">
               <Pressable
                 onPress={() => {
-                  Alert.alert("Delete account?", "This wipes your session on this device and on the server.", [
-                    { text: "Cancel", style: "cancel" },
-                    {
-                      text: "Delete",
-                      style: "destructive",
-                      onPress: () => {
-                        void deleteAccount()
-                          .then(() => setFlash({ notice: "Account deleted." }))
-                          .catch((cause) => {
-                            setFlash({ error: cause instanceof ApiError ? cause.message : "Delete failed." });
-                          });
-                      },
-                    },
-                  ]);
+                  void refreshAuth();
+                  router.push("/community");
                 }}
-                style={styles.danger}
               >
-                <Text style={styles.dangerLabel}>Delete account</Text>
+                <Text style={styles.quiet}>Community review</Text>
               </Pressable>
-            </View>
-            <Pressable
-              onPress={() => {
-                void refreshAuth();
-                router.push("/community");
-              }}
-            >
-              <Text style={styles.quiet}>Community review</Text>
-            </Pressable>
+            </ActionBang>
           </ScrollView>
         ) : null}
       </KeyboardAvoidingView>

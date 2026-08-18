@@ -3,7 +3,8 @@ import { useEffect, useRef, useState } from "react";
 import { Animated, Easing, Modal, Pressable, StyleSheet, Text, View } from "react-native";
 
 import { GetFkdLogo } from "@/components/GetFkdLogo";
-import { ReportFab } from "@/components/ReportBugButton";
+import { ActionBang, ReportFab } from "@/components/ReportBugButton";
+import { surfaceHref } from "@/lib/surfaces";
 import {
   GETFKD_ENTER_BODY,
   GETFKD_ENTER_TITLE,
@@ -164,24 +165,34 @@ export function GetFkdModeButton({ size = 46 }: { size?: number }) {
             <Text style={styles.copy}>{prompt === "exit" ? GETFKD_EXIT_BODY : GETFKD_ENTER_BODY}</Text>
             {prompt === "enter" ? (
               <>
-                <Pressable disabled={busy} onPress={() => void apply(true)} style={styles.primary}>
-                  <Text style={styles.primaryLabel}>{busy ? "Turning on…" : "Enter Get Fk'd mode"}</Text>
-                </Pressable>
-                <Pressable disabled={busy} onPress={() => setPrompt(null)} style={styles.secondary}>
-                  <Text style={styles.secondaryLabel}>Not now</Text>
-                </Pressable>
+                <ActionBang href={surfaceHref("getfkd", "enter")} label="Enter Get Fk'd mode">
+                  <Pressable disabled={busy} onPress={() => void apply(true)} style={styles.primary}>
+                    <Text style={styles.primaryLabel}>{busy ? "Turning on…" : "Enter Get Fk'd mode"}</Text>
+                  </Pressable>
+                </ActionBang>
+                <ActionBang href={surfaceHref("getfkd", "not-now")} label="Not now">
+                  <Pressable disabled={busy} onPress={() => setPrompt(null)} style={styles.secondary}>
+                    <Text style={styles.secondaryLabel}>Not now</Text>
+                  </Pressable>
+                </ActionBang>
               </>
             ) : (
               <>
-                <Pressable disabled={busy} onPress={() => void apply(false)} style={styles.primary}>
-                  <Text style={styles.primaryLabel}>{busy ? "Leaving…" : "Leave and drop those matches"}</Text>
-                </Pressable>
-                <Pressable disabled={busy} onPress={() => void confirmExit(true)} style={styles.secondary}>
-                  <Text style={styles.secondaryLabel}>Leave and don't show this again</Text>
-                </Pressable>
-                <Pressable disabled={busy} onPress={() => setPrompt(null)} style={styles.secondary}>
-                  <Text style={styles.stayLabel}>Stay in mode</Text>
-                </Pressable>
+                <ActionBang href={surfaceHref("getfkd", "leave")} label="Leave Get Fk'd mode">
+                  <Pressable disabled={busy} onPress={() => void apply(false)} style={styles.primary}>
+                    <Text style={styles.primaryLabel}>{busy ? "Leaving…" : "Leave and drop those matches"}</Text>
+                  </Pressable>
+                </ActionBang>
+                <ActionBang href={surfaceHref("getfkd", "leave-silent")} label="Leave and don't show this again">
+                  <Pressable disabled={busy} onPress={() => void confirmExit(true)} style={styles.secondary}>
+                    <Text style={styles.secondaryLabel}>Leave and don't show this again</Text>
+                  </Pressable>
+                </ActionBang>
+                <ActionBang href={surfaceHref("getfkd", "stay")} label="Stay in mode">
+                  <Pressable disabled={busy} onPress={() => setPrompt(null)} style={styles.secondary}>
+                    <Text style={styles.stayLabel}>Stay in mode</Text>
+                  </Pressable>
+                </ActionBang>
               </>
             )}
           </View>

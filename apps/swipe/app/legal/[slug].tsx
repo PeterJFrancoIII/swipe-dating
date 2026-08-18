@@ -1,7 +1,7 @@
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 
-import { SurfaceBang } from "@/components/ReportBugButton";
+import { ActionBang, SurfaceBang } from "@/components/ReportBugButton";
 import { Screen } from "@/components/Screen";
 import { surfaceHref } from "@/lib/surfaces";
 import { LEGAL_DRAFT_BANNER, legalDoc } from "@/lib/legalDocs";
@@ -15,9 +15,11 @@ export default function LegalScreen() {
   return (
     <Screen>
       <View style={styles.topbar}>
-        <Pressable accessibilityLabel="Back" onPress={() => router.back()} style={styles.back}>
-          <Text style={styles.backMark}>‹</Text>
-        </Pressable>
+        <ActionBang href={surfaceHref("legal", "back")} label="Back from legal">
+          <Pressable accessibilityLabel="Back" onPress={() => router.back()} style={styles.back}>
+            <Text style={styles.backMark}>‹</Text>
+          </Pressable>
+        </ActionBang>
         <Text style={styles.topTitle}>{doc?.title ?? "Legal"}</Text>
         <SurfaceBang href={surfaceHref("legal", String(slug ?? "doc"))} label={doc?.title ?? "Legal"} />
       </View>

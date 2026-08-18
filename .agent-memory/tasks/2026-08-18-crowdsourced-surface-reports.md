@@ -9,14 +9,14 @@
 ## What
 
 - Governance: crowdsourced development is a core feature. Security stays admin-only.
-- Expo: contextual `!` marks open Bug or Feature Request and attach `getfkd://…` surface links.
-- API: persist kind + surface; `security_hold` is excluded from the daily community digest.
+- Expo: contextual `!` marks open Bug or Feature Request and attach `getfkd://…` surface links. Primary buttons, section heads, and option chips carry a local `!`; the floating `!` covers leftovers.
+- API: persist kind + surface; `security_hold` is excluded from the daily community digest. Sibling API edits are local-only until a dedicated commit + NAS deploy.
 
 ## Validation
 
 ```text
 cd apps/swipe && npx tsc --noEmit && npm test
-# tests 68, pass 68
+# tests 68, pass 68 (re-run after button coverage)
 
 cd /Users/computer/App Development/swipe-dating-web-repo
 uv run pytest tests/unit/test_system_reports.py tests/integration/test_in_app_errors.py

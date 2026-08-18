@@ -129,9 +129,12 @@ export default function ChatScreen() {
   return (
     <Screen footer={false}>
       <View style={styles.topbar}>
-        <Pressable accessibilityLabel="Back to Matches" onPress={() => router.back()} style={styles.back}>
-          <Text style={styles.backMark}>‹</Text>
-        </Pressable>
+        <ActionBang href={surfaceHref("chat", "back")} label="Back to Matches">
+          <Pressable accessibilityLabel="Back to Matches" onPress={() => router.back()} style={styles.back}>
+            <Text style={styles.backMark}>‹</Text>
+          </Pressable>
+        </ActionBang>
+        <ActionBang href={surfaceHref("chat", "profile")} label="Match profile">
         <Pressable onPress={() => setSheet(true)} style={styles.person}>
           <AuthPhoto fallback={person.display_name[0]} path={person.photo_url} style={styles.tiny} />
           <View>
@@ -142,10 +145,13 @@ export default function ChatScreen() {
             </Text>
           </View>
         </Pressable>
+        </ActionBang>
         <SurfaceBang href={surfaceHref("chat")} label="Chat" />
-        <Pressable accessibilityLabel="Conversation options" onPress={() => setMenu((open) => !open)} style={styles.icon}>
-          <Text>•••</Text>
-        </Pressable>
+        <ActionBang href={surfaceHref("chat", "menu")} label="Conversation options">
+          <Pressable accessibilityLabel="Conversation options" onPress={() => setMenu((open) => !open)} style={styles.icon}>
+            <Text>•••</Text>
+          </Pressable>
+        </ActionBang>
       </View>
       <Toast error={flash.error} notice={flash.notice} />
       {person.getfkd ? (
@@ -156,12 +162,16 @@ export default function ChatScreen() {
       {menu ? (
         <View style={styles.menu}>
           <Text style={styles.menuTitle}>Conversation options</Text>
-          <Pressable onPress={() => void run(() => api.unmatch(matchId))}>
-            <Text style={styles.menuAction}>Unmatch</Text>
-          </Pressable>
-          <Pressable onPress={() => void run(() => api.block(matchId))}>
-            <Text style={[styles.menuAction, styles.dangerText]}>Block</Text>
-          </Pressable>
+          <ActionBang href={surfaceHref("chat", "unmatch")} label="Unmatch">
+            <Pressable onPress={() => void run(() => api.unmatch(matchId))}>
+              <Text style={styles.menuAction}>Unmatch</Text>
+            </Pressable>
+          </ActionBang>
+          <ActionBang href={surfaceHref("chat", "block")} label="Block">
+            <Pressable onPress={() => void run(() => api.block(matchId))}>
+              <Text style={[styles.menuAction, styles.dangerText]}>Block</Text>
+            </Pressable>
+          </ActionBang>
           {chat.report_options.map((option) => (
             <Pressable key={option.id} onPress={() => setReason(option.id)}>
               <Text style={styles.reason}>
@@ -171,12 +181,16 @@ export default function ChatScreen() {
             </Pressable>
           ))}
           <TextInput onChangeText={setNote} placeholder="Optional note" style={styles.note} value={note} />
-          <Pressable onPress={() => void run(() => api.reportMatch(matchId, reason, note))}>
-            <Text style={[styles.menuAction, styles.dangerText]}>Report</Text>
-          </Pressable>
-          <Pressable onPress={() => void run(() => api.reportMatch(matchId, reason, note, true))}>
-            <Text style={[styles.menuAction, styles.dangerText]}>Report & Block</Text>
-          </Pressable>
+          <ActionBang href={surfaceHref("chat", "report")} label="Report match">
+            <Pressable onPress={() => void run(() => api.reportMatch(matchId, reason, note))}>
+              <Text style={[styles.menuAction, styles.dangerText]}>Report</Text>
+            </Pressable>
+          </ActionBang>
+          <ActionBang href={surfaceHref("chat", "report-block")} label="Report and block">
+            <Pressable onPress={() => void run(() => api.reportMatch(matchId, reason, note, true))}>
+              <Text style={[styles.menuAction, styles.dangerText]}>Report & Block</Text>
+            </Pressable>
+          </ActionBang>
         </View>
       ) : null}
       <View style={styles.context}>
@@ -217,9 +231,11 @@ export default function ChatScreen() {
       </ScrollView>
       {expired ? null : (
       <View style={styles.meetupBar}>
-        <Pressable onPress={() => setMeetup((open) => !open)} style={styles.meetupButton}>
-          <Text style={styles.meetupLabel}>Plan a meetup</Text>
-        </Pressable>
+        <ActionBang href={surfaceHref("chat", "meetup")} label="Plan a meetup">
+          <Pressable onPress={() => setMeetup((open) => !open)} style={styles.meetupButton}>
+            <Text style={styles.meetupLabel}>Plan a meetup</Text>
+          </Pressable>
+        </ActionBang>
         <Text style={styles.counter}>
           {person.message_count} / {person.message_limit}
         </Text>
@@ -231,10 +247,12 @@ export default function ChatScreen() {
           <Text style={styles.meetupTitle}>Keep the first plan simple.</Text>
           <Text style={styles.meetupHelp}>No location is shared by choosing an idea.</Text>
           {chat.meetup_suggestions.map((item) => (
-            <Pressable key={item.id} onPress={() => void run(() => api.meetup(matchId, item.id))} style={styles.meetupOption}>
-              <Text style={styles.meetupOptionTitle}>{item.title}</Text>
-              <Text style={styles.meetupHelp}>Send as a proposal</Text>
-            </Pressable>
+            <ActionBang key={item.id} href={surfaceHref("chat", "meetup", item.id)} label={item.title}>
+              <Pressable onPress={() => void run(() => api.meetup(matchId, item.id))} style={styles.meetupOption}>
+                <Text style={styles.meetupOptionTitle}>{item.title}</Text>
+                <Text style={styles.meetupHelp}>Send as a proposal</Text>
+              </Pressable>
+            </ActionBang>
           ))}
         </View>
       ) : null}
@@ -248,9 +266,11 @@ export default function ChatScreen() {
           <Text style={styles.limitTitle}>You reached the {person.message_limit}-message limit.</Text>
           <Text style={styles.meetupHelp}>Plan a meetup, use the one-time mutual extension, or end the match.</Text>
           {!person.extension_used ? (
-            <Pressable onPress={() => void run(() => api.extend(matchId))} style={styles.secondary}>
-              <Text>Extend this chat once</Text>
-            </Pressable>
+            <ActionBang href={surfaceHref("chat", "extend")} label="Extend this chat once">
+              <Pressable onPress={() => void run(() => api.extend(matchId))} style={styles.secondary}>
+                <Text>Extend this chat once</Text>
+              </Pressable>
+            </ActionBang>
           ) : null}
         </View>
       ) : (

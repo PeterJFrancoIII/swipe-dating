@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 
-import { SurfaceBang } from "@/components/ReportBugButton";
+import { ActionBang, SurfaceBang } from "@/components/ReportBugButton";
 import { Screen, Toast } from "@/components/Screen";
 import { surfaceHref } from "@/lib/surfaces";
 import { ApiError, api } from "@/lib/api";
@@ -66,9 +66,11 @@ export default function CompatibilityQuizScreen() {
   return (
     <Screen>
       <View style={styles.topbar}>
-        <Pressable accessibilityLabel="Close quiz" onPress={() => router.back()} style={styles.back}>
-          <Text style={styles.backMark}>‹</Text>
-        </Pressable>
+        <ActionBang href={surfaceHref("quiz", "close")} label="Close quiz">
+          <Pressable accessibilityLabel="Close quiz" onPress={() => router.back()} style={styles.back}>
+            <Text style={styles.backMark}>‹</Text>
+          </Pressable>
+        </ActionBang>
         <Text style={styles.topTitle}>Compatibility quiz</Text>
         <SurfaceBang href={surfaceHref("quiz")} label="Compatibility quiz" />
       </View>
@@ -84,39 +86,46 @@ export default function CompatibilityQuizScreen() {
             {question.answers.map((option) => {
               const selected = answers[question.id] === option.id;
               return (
-                <Pressable
-                  key={option.id}
-                  accessibilityRole="button"
-                  accessibilityState={{ selected }}
-                  disabled={saving}
-                  onPress={() => void choose(option.id)}
-                  style={[styles.option, selected && styles.optionOn]}
-                >
-                  <Text style={[styles.optionLabel, selected && styles.optionLabelOn]}>{option.label}</Text>
-                </Pressable>
+                <ActionBang key={option.id} href={surfaceHref("quiz", option.id)} label={option.label}>
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityState={{ selected }}
+                    disabled={saving}
+                    onPress={() => void choose(option.id)}
+                    style={[styles.option, selected && styles.optionOn]}
+                  >
+                    <Text style={[styles.optionLabel, selected && styles.optionLabelOn]}>{option.label}</Text>
+                  </Pressable>
+                </ActionBang>
               );
             })}
           </View>
           <View style={styles.nav}>
-            <Pressable
-              disabled={index === 0}
-              onPress={() => setIndex((current) => Math.max(0, current - 1))}
-              style={[styles.navButton, index === 0 && styles.navDisabled]}
-            >
-              <Text style={styles.navLabel}>Back</Text>
-            </Pressable>
-            <Pressable
-              disabled={saving}
-              onPress={() => void choose("skip")}
-              style={styles.navButton}
-            >
-              <Text style={styles.navLabel}>Skip</Text>
-            </Pressable>
+            <ActionBang href={surfaceHref("quiz", "back")} label="Quiz back" style={{ flex: 1 }}>
+              <Pressable
+                disabled={index === 0}
+                onPress={() => setIndex((current) => Math.max(0, current - 1))}
+                style={[styles.navButton, index === 0 && styles.navDisabled]}
+              >
+                <Text style={styles.navLabel}>Back</Text>
+              </Pressable>
+            </ActionBang>
+            <ActionBang href={surfaceHref("quiz", "skip")} label="Quiz skip" style={{ flex: 1 }}>
+              <Pressable
+                disabled={saving}
+                onPress={() => void choose("skip")}
+                style={styles.navButton}
+              >
+                <Text style={styles.navLabel}>Skip</Text>
+              </Pressable>
+            </ActionBang>
           </View>
           {index + 1 >= questions.length ? (
-            <Pressable onPress={() => router.back()} style={styles.done}>
-              <Text style={styles.doneLabel}>Done</Text>
-            </Pressable>
+            <ActionBang href={surfaceHref("quiz", "done")} label="Quiz done">
+              <Pressable onPress={() => router.back()} style={styles.done}>
+                <Text style={styles.doneLabel}>Done</Text>
+              </Pressable>
+            </ActionBang>
           ) : null}
         </View>
       ) : (

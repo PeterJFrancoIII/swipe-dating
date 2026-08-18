@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
-import { ReportFab, SurfaceBang } from "@/components/ReportBugButton";
+import { ActionBang, ReportFab, SurfaceBang } from "@/components/ReportBugButton";
 import { surfaceHref } from "@/lib/surfaces";
 import type { Choice } from "@/lib/types";
 import { theme, tones } from "@/lib/theme";
@@ -51,10 +51,12 @@ export function ChoiceRow({
       </View>
       {help ? <Text style={styles.help}>{help}</Text> : null}
       {needed ? <Text style={styles.needed}>Still needed to finish signup.</Text> : null}
-      <Pressable accessibilityRole="button" onPress={() => setOpen(true)} style={styles.picker}>
-        <Text style={styles.summary}>{summary}</Text>
-        <Text style={styles.chevron}>›</Text>
-      </Pressable>
+      <ActionBang href={surfaceHref(group, title, "open")} label={`${title} picker`}>
+        <Pressable accessibilityRole="button" onPress={() => setOpen(true)} style={styles.picker}>
+          <Text style={styles.summary}>{summary}</Text>
+          <Text style={styles.chevron}>›</Text>
+        </Pressable>
+      </ActionBang>
       <Modal animationType="fade" transparent visible={open} onRequestClose={() => setOpen(false)}>
         <Pressable style={styles.backdrop} onPress={() => setOpen(false)}>
           <Pressable style={[styles.panel, { borderColor: tone.border }]} onPress={() => undefined}>
@@ -77,38 +79,43 @@ export function ChoiceRow({
                   const on = selected.includes(option.id);
                   const capped = Boolean(limit && !on && selected.length >= limit);
                   return (
-                    <Pressable
+                    <ActionBang
                       key={option.id}
-                      disabled={capped}
-                      onPress={() => {
-                        if (!multiple) {
-                          onChange([option.id]);
-                          setOpen(false);
-                          return;
-                        }
-                        if (on) {
-                          onChange(selected.filter((id) => id !== option.id));
-                          return;
-                        }
-                        const next = [...selected, option.id];
-                        onChange(next);
-                        if (limit && next.length >= limit) {
-                          setOpen(false);
-                        }
-                      }}
-                      style={[
-                        styles.choice,
-                        {
-                          backgroundColor: on ? tone.checked : theme.paper,
-                          borderColor: on ? tone.accent : theme.line,
-                          opacity: capped ? 0.38 : 1,
-                        },
-                      ]}
+                      href={surfaceHref(group, title, option.id)}
+                      label={`${title}: ${option.label}`}
                     >
-                      <Text style={[styles.choiceText, { color: on ? tone.ink : theme.mute }]}>
-                        {option.icon} {option.label}
-                      </Text>
-                    </Pressable>
+                      <Pressable
+                        disabled={capped}
+                        onPress={() => {
+                          if (!multiple) {
+                            onChange([option.id]);
+                            setOpen(false);
+                            return;
+                          }
+                          if (on) {
+                            onChange(selected.filter((id) => id !== option.id));
+                            return;
+                          }
+                          const next = [...selected, option.id];
+                          onChange(next);
+                          if (limit && next.length >= limit) {
+                            setOpen(false);
+                          }
+                        }}
+                        style={[
+                          styles.choice,
+                          {
+                            backgroundColor: on ? tone.checked : theme.paper,
+                            borderColor: on ? tone.accent : theme.line,
+                            opacity: capped ? 0.38 : 1,
+                          },
+                        ]}
+                      >
+                        <Text style={[styles.choiceText, { color: on ? tone.ink : theme.mute }]}>
+                          {option.icon} {option.label}
+                        </Text>
+                      </Pressable>
+                    </ActionBang>
                   );
                 })}
               </View>

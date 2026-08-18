@@ -13,7 +13,7 @@ import {
 import * as ImagePicker from "expo-image-picker";
 
 import { PhotoUploadMeter } from "@/components/PhotoUploadMeter";
-import { SurfaceBang } from "@/components/ReportBugButton";
+import { ActionBang, SurfaceBang } from "@/components/ReportBugButton";
 import { Screen, Toast } from "@/components/Screen";
 import { surfaceHref } from "@/lib/surfaces";
 import { ApiError, api } from "@/lib/api";
@@ -483,23 +483,24 @@ function ChoiceStep({
           const on = selected.includes(option.id);
           const capped = Boolean(limit && !on && selected.length >= limit);
           return (
-            <Pressable
-              key={option.id}
-              disabled={capped}
-              onPress={() => {
-                if (!multiple) {
-                  onChange([option.id]);
-                  return;
-                }
-                onChange(on ? selected.filter((id) => id !== option.id) : [...selected, option.id]);
-              }}
-              style={[styles.option, on && styles.optionOn, capped && styles.navDisabled]}
-            >
-              <Text style={[styles.optionLabel, on && styles.optionLabelOn]}>
-                {option.icon ? `${option.icon}  ` : ""}
-                {option.label}
-              </Text>
-            </Pressable>
+            <ActionBang key={option.id} href={surfaceHref("onboarding", title, option.id)} label={`${title}: ${option.label}`}>
+              <Pressable
+                disabled={capped}
+                onPress={() => {
+                  if (!multiple) {
+                    onChange([option.id]);
+                    return;
+                  }
+                  onChange(on ? selected.filter((id) => id !== option.id) : [...selected, option.id]);
+                }}
+                style={[styles.option, on && styles.optionOn, capped && styles.navDisabled]}
+              >
+                <Text style={[styles.optionLabel, on && styles.optionLabelOn]}>
+                  {option.icon ? `${option.icon}  ` : ""}
+                  {option.label}
+                </Text>
+              </Pressable>
+            </ActionBang>
           );
         })}
       </View>
@@ -531,7 +532,10 @@ function TextStep({
 }) {
   return (
     <View style={styles.body}>
-      <Text style={styles.title}>{title}</Text>
+      <View style={styles.titleRow}>
+        <Text style={[styles.title, { flex: 1 }]}>{title}</Text>
+        <SurfaceBang href={surfaceHref("onboarding", title)} label={title} />
+      </View>
       <Text style={styles.help}>{help}</Text>
       <TextInput
         multiline={multiline}
@@ -541,13 +545,15 @@ function TextStep({
         style={[styles.input, multiline && styles.about]}
         value={value}
       />
-      <Pressable
-        disabled={!canContinue || busy}
-        onPress={onContinue}
-        style={[styles.submit, (!canContinue || busy) && styles.navDisabled]}
-      >
-        <Text style={styles.submitLabel}>Continue</Text>
-      </Pressable>
+      <ActionBang href={surfaceHref("onboarding", title, "continue")} label={`${title} continue`}>
+        <Pressable
+          disabled={!canContinue || busy}
+          onPress={onContinue}
+          style={[styles.submit, (!canContinue || busy) && styles.navDisabled]}
+        >
+          <Text style={styles.submitLabel}>Continue</Text>
+        </Pressable>
+      </ActionBang>
     </View>
   );
 }
@@ -570,7 +576,10 @@ function PhotoStep({
   const ready = photosSatisfyRequirement(photos);
   return (
     <ScrollView contentContainerStyle={styles.body}>
-      <Text style={styles.title}>Photos</Text>
+      <View style={styles.titleRow}>
+        <Text style={[styles.title, { flex: 1 }]}>Photos</Text>
+        <SurfaceBang href={surfaceHref("onboarding", "photos")} label="Onboarding photos" />
+      </View>
       <Text style={styles.help}>
         {busy
           ? "Stay on this screen until the upload finishes."
@@ -581,21 +590,27 @@ function PhotoStep({
         {photos.map((photo) => (
           <View key={photo.slot} style={styles.photoSlot}>
             <AuthPhoto path={photo.url} style={styles.photo} />
-            <Pressable onPress={() => onRemove(photo.slot)} style={styles.photoRemove}>
-              <Text style={styles.photoRemoveLabel}>Remove</Text>
-            </Pressable>
+            <ActionBang href={surfaceHref("onboarding", "photos", "remove")} label="Remove onboarding photo">
+              <Pressable onPress={() => onRemove(photo.slot)} style={styles.photoRemove}>
+                <Text style={styles.photoRemoveLabel}>Remove</Text>
+              </Pressable>
+            </ActionBang>
           </View>
         ))}
         {photos.length < 6 ? (
-          <Pressable disabled={busy} onPress={onAdd} style={styles.addSlot}>
-            <Text style={styles.addMark}>+</Text>
-            <Text style={styles.addLabel}>Add photos</Text>
-          </Pressable>
+          <ActionBang href={surfaceHref("onboarding", "photos", "add")} label="Add onboarding photos">
+            <Pressable disabled={busy} onPress={onAdd} style={styles.addSlot}>
+              <Text style={styles.addMark}>+</Text>
+              <Text style={styles.addLabel}>Add photos</Text>
+            </Pressable>
+          </ActionBang>
         ) : null}
       </View>
-      <Pressable disabled={!ready || busy} onPress={onContinue} style={[styles.submit, (!ready || busy) && styles.navDisabled]}>
-        <Text style={styles.submitLabel}>Continue</Text>
-      </Pressable>
+      <ActionBang href={surfaceHref("onboarding", "photos", "continue")} label="Photos continue">
+        <Pressable disabled={!ready || busy} onPress={onContinue} style={[styles.submit, (!ready || busy) && styles.navDisabled]}>
+          <Text style={styles.submitLabel}>Continue</Text>
+        </Pressable>
+      </ActionBang>
     </ScrollView>
   );
 }
@@ -619,14 +634,21 @@ function ContinueStep({
 }) {
   return (
     <View style={styles.body}>
-      <Text style={styles.title}>{title}</Text>
+      <View style={styles.titleRow}>
+        <Text style={[styles.title, { flex: 1 }]}>{title}</Text>
+        <SurfaceBang href={surfaceHref("onboarding", title)} label={title} />
+      </View>
       <Text style={styles.help}>{help}</Text>
-      <Pressable disabled={busy} onPress={onYes} style={styles.submit}>
-        <Text style={styles.submitLabel}>{yes}</Text>
-      </Pressable>
-      <Pressable disabled={busy} onPress={onNo} style={styles.secondary}>
-        <Text style={styles.secondaryLabel}>{no}</Text>
-      </Pressable>
+      <ActionBang href={surfaceHref("onboarding", title, "yes")} label={yes}>
+        <Pressable disabled={busy} onPress={onYes} style={styles.submit}>
+          <Text style={styles.submitLabel}>{yes}</Text>
+        </Pressable>
+      </ActionBang>
+      <ActionBang href={surfaceHref("onboarding", title, "no")} label={no}>
+        <Pressable disabled={busy} onPress={onNo} style={styles.secondary}>
+          <Text style={styles.secondaryLabel}>{no}</Text>
+        </Pressable>
+      </ActionBang>
     </View>
   );
 }
@@ -634,12 +656,16 @@ function ContinueStep({
 function NavRow({ busy, onSkip, onContinue }: { busy: boolean; onSkip: () => void; onContinue: () => void }) {
   return (
     <View style={styles.nav}>
-      <Pressable disabled={busy} onPress={onSkip} style={styles.secondary}>
-        <Text style={styles.secondaryLabel}>Skip</Text>
-      </Pressable>
-      <Pressable disabled={busy} onPress={onContinue} style={styles.submit}>
-        <Text style={styles.submitLabel}>Continue</Text>
-      </Pressable>
+      <ActionBang href={surfaceHref("onboarding", "skip")} label="Skip" style={{ flex: 1 }}>
+        <Pressable disabled={busy} onPress={onSkip} style={styles.secondary}>
+          <Text style={styles.secondaryLabel}>Skip</Text>
+        </Pressable>
+      </ActionBang>
+      <ActionBang href={surfaceHref("onboarding", "continue")} label="Continue" style={{ flex: 1 }}>
+        <Pressable disabled={busy} onPress={onContinue} style={styles.submit}>
+          <Text style={styles.submitLabel}>Continue</Text>
+        </Pressable>
+      </ActionBang>
     </View>
   );
 }
@@ -672,29 +698,37 @@ function QuizStep({
       <Text style={styles.help}>
         Question {index + 1} of {questions.length} · {answered}/{questions.length} answered
       </Text>
-      <Text style={styles.title}>{question.prompt}</Text>
+      <View style={styles.titleRow}>
+        <Text style={[styles.title, { flex: 1 }]}>{question.prompt}</Text>
+        <SurfaceBang href={surfaceHref("onboarding", "quiz")} label="Onboarding quiz" />
+      </View>
       <View style={styles.options}>
         {question.answers.map((option) => {
           const selected = answers[question.id] === option.id;
           return (
-            <Pressable
-              key={option.id}
-              disabled={busy}
-              onPress={() => onChoose(option.id)}
-              style={[styles.option, selected && styles.optionOn]}
-            >
-              <Text style={[styles.optionLabel, selected && styles.optionLabelOn]}>{option.label}</Text>
-            </Pressable>
+            <ActionBang key={option.id} href={surfaceHref("onboarding", "quiz", option.id)} label={option.label}>
+              <Pressable
+                disabled={busy}
+                onPress={() => onChoose(option.id)}
+                style={[styles.option, selected && styles.optionOn]}
+              >
+                <Text style={[styles.optionLabel, selected && styles.optionLabelOn]}>{option.label}</Text>
+              </Pressable>
+            </ActionBang>
           );
         })}
       </View>
       <View style={styles.nav}>
-        <Pressable disabled={busy || index === 0} onPress={onBack} style={styles.secondary}>
-          <Text style={styles.secondaryLabel}>Back</Text>
-        </Pressable>
-        <Pressable disabled={busy} onPress={() => onChoose("skip")} style={styles.secondary}>
-          <Text style={styles.secondaryLabel}>Skip</Text>
-        </Pressable>
+        <ActionBang href={surfaceHref("onboarding", "quiz", "back")} label="Quiz back" style={{ flex: 1 }}>
+          <Pressable disabled={busy || index === 0} onPress={onBack} style={styles.secondary}>
+            <Text style={styles.secondaryLabel}>Back</Text>
+          </Pressable>
+        </ActionBang>
+        <ActionBang href={surfaceHref("onboarding", "quiz", "skip")} label="Quiz skip" style={{ flex: 1 }}>
+          <Pressable disabled={busy} onPress={() => onChoose("skip")} style={styles.secondary}>
+            <Text style={styles.secondaryLabel}>Skip</Text>
+          </Pressable>
+        </ActionBang>
       </View>
     </ScrollView>
   );

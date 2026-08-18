@@ -35,6 +35,7 @@ Anything that does not directly support that sentence must be deleted, consolida
 | Skin Shop cosmetics | From Profile sheet; never affects rank, match, moderation, or safety |
 | Boost / Superlike | Disclosed paid or earned reach tools. Never buy moderation, age, or block/report. No host-node or blockchain path (ADR-0019) |
 | Sign in with Apple | After the 18+ gate; durable account across devices. No email/password. ADR-0020 |
+| Crowdsourced `!` reports | A `!` on every page, subpage, button, and section opens Bug or Feature Request and stores that surface's link. Daily agent compile; human review. Cybersecurity filings are admin-only and never enter the community queue (ADR-0025). |
 
 Required infrastructure (authentication, age assurance, payments, blocking, appeals, logging, security) is allowed. It must not become additional product surface or permanent tabs.
 

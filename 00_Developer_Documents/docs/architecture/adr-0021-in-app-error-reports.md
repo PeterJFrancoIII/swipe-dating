@@ -15,7 +15,7 @@ Ordinary dating photos and messages stay off the operator console (ADR-0020). A 
 - Title for error rows is always `User Submitted In-App Errors`.
 - A screenshot is required. An explanation is optional.
 - Auto-collect route, screen, app/build, platform, eligibility flags, and last API error code/path. Never store session tokens, passwords, or chat bodies.
-- Feedback ideas are text-only and live behind a Settings button.
+- Feature requests are text-only, include the surface link, and may be filed from any `!` mark (ADR-0025). Settings is one more surface, not the only idea entry.
 - The operator console lists, tags, and statuses these rows and can show the submitted screenshot only.
 
 ## Consequences
