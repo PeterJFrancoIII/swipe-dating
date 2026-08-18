@@ -16,6 +16,7 @@ import { Screen, Toast } from "@/components/Screen";
 import { ApiError, api } from "@/lib/api";
 import { signupErrorMessage } from "@/lib/signupErrors";
 import { loadAuthedPhoto } from "@/lib/hotDeck";
+import { hydrateOnboardingPhotos, nextOnboardingStep, photosSatisfyRequirement } from "@/lib/onboardingStep";
 import { preparePhotoUploads, profilePhotoPickerOptions } from "@/lib/photoUpload";
 import { emptyCatalogs, useSession } from "@/lib/session";
 import type { AlignmentQuestion, Choice, OnboardingValues } from "@/lib/types";
@@ -90,21 +91,8 @@ export function OnboardingScreen() {
   useEffect(() => {
     void api.onboarding().then((payload) => {
       setValues({ ...blank, ...payload.values });
-      setPhotos(payload.photos ?? []);
-      const firstGap = payload.missing_fields[0];
-      const gapStep: Record<string, Step> = {
-        gender: "sex",
-        location: "location",
-        name: "name",
-        bio: "bio",
-        smoking: "smoking",
-        drinking: "drinking",
-        drugs: "drugs",
-        photos: "photos",
-      };
-      if (firstGap && gapStep[firstGap]) {
-        setStep(gapStep[firstGap]);
-      }
+      setPhotos(hydrateOnboardingPhotos(payload.photos));
+      setStep(nextOnboardingStep(payload.missing_fields));
     });
   }, []);
 
@@ -258,7 +246,7 @@ export function OnboardingScreen() {
                     photos?: { slot: number; url: string }[];
                     photo_count?: number;
                   };
-                  setPhotos(payload.photos ?? []);
+                  setPhotos(hydrateOnboardingPhotos(payload.photos));
                   setError(null);
                 } catch (cause) {
                   const message =
@@ -277,7 +265,7 @@ export function OnboardingScreen() {
               setBusy(true);
               try {
                 const payload = (await api.removePhoto(slot)) as { photos?: { slot: number; url: string }[] };
-                setPhotos(payload.photos ?? []);
+                setPhotos(hydrateOnboardingPhotos(payload.photos));
               } catch (cause) {
                 setError(cause instanceof ApiError ? cause.message : "Remove failed.");
               } finally {
@@ -536,7 +524,7 @@ function PhotoStep({
   onRemove: (slot: number) => void;
   onContinue: () => void;
 }) {
-  const ready = photos.length >= 2;
+  const ready = photosSatisfyRequirement(photos);
   return (
     <ScrollView contentContainerStyle={styles.body}>
       <Text style={styles.title}>Photos</Text>

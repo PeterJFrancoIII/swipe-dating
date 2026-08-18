@@ -1,7 +1,7 @@
 # GPT Main review — photo upload (2026-08-18)
 
 - **ID:** 2026-08-18-gpt-photo-review
-- **Status:** ready_for_review
+- **Status:** ready_for_review (superseded ask: [2026-08-18-photo-timeout-ux.md](./2026-08-18-photo-timeout-ux.md))
 - **Architect:** Codex / GPT Main
 - **Implementer:** Cursor IDE Agent
 - **Owner request:** 2026-08-18 15:11 ET — publish a GPT handoff for review

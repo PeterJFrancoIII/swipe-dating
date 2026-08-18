@@ -8,6 +8,7 @@ import { payloadFromFailedResponse } from "@/lib/httpErrors";
 import { currentInstallId } from "@/lib/installId";
 import { appendNativeFilePart, type FormWithNativeAppend } from "@/lib/photoForm";
 import { photoAcceptHeader } from "@/lib/photoGeometry";
+import { FORM_UPLOAD_TIMEOUT_MESSAGE, FORM_UPLOAD_TIMEOUT_MS, withTimeout } from "@/lib/requestTimeout";
 import type {
   AuthState,
   Bootstrap,
@@ -102,24 +103,6 @@ function reactNativeFetch(input: string, init: RequestInit): Promise<Response> {
   return fetch(input, init);
 }
 
-async function withTimeout<T>(promise: Promise<T>, ms: number, message: string): Promise<T> {
-  let timer: ReturnType<typeof setTimeout> | undefined;
-  try {
-    return await Promise.race([
-      promise,
-      new Promise<T>((_, reject) => {
-        timer = setTimeout(() => {
-          reject(new ApiError(0, { error: message, code: "network" }));
-        }, ms);
-      }),
-    ]);
-  } finally {
-    if (timer) {
-      clearTimeout(timer);
-    }
-  }
-}
-
 async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   await ensureToken();
   let form = false;
@@ -154,7 +137,7 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
           : undefined,
     });
     response = form
-      ? await withTimeout(pending, 25_000, "Photo upload timed out. Try again.")
+      ? await withTimeout(pending, FORM_UPLOAD_TIMEOUT_MS, FORM_UPLOAD_TIMEOUT_MESSAGE)
       : await pending;
   } catch (cause) {
     const message = cause instanceof Error && cause.message ? cause.message : "Can't reach Get fk'd right now.";

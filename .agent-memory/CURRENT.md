@@ -1,21 +1,20 @@
 # Current task
 
-- **Task:** 2026-08-18-gpt-photo-review
+- **Task:** 2026-08-18-photo-timeout-ux
 - **Status:** ready_for_review
-- **Authorization:** Owner 2026-08-18 15:11 ET — publish a GPT handoff for review. Cursor does not self-accept.
+- **Authorization:** GPT Architect 2026-08-18 15:14 ET — Timeout / UX only. RN-fetch accepted. No URLSession.
 
 ## GPT start here
 
-https://github.com/PeterJFrancoIII/swipe-dating/blob/review/photo-upload/.agent-memory/tasks/2026-08-18-gpt-photo-review.md
+https://github.com/PeterJFrancoIII/swipe-dating/blob/review/photo-upload/.agent-memory/tasks/2026-08-18-photo-timeout-ux.md
 
-Evidence appendix: https://github.com/PeterJFrancoIII/swipe-dating/blob/review/photo-upload/.agent-memory/tasks/2026-08-16-photo-upload-handoff.md
+## This slice
 
-## Last verified slice (2026-08-17 19:22 ET)
-
-- Getfkd development client (`app.getfkd.ios`), not Expo Go
-- Transport unchanged: `request()` → `reactNativeFetch()` + FormData `{uri,name,type}`
-- NAS `POST /api/profile/photos` **200**; `photo_count: 2`
-- Wizard showed **Photo upload timed out** / **0 added** (25s form `Promise.race`)
+- Form timeout **90s**. Transport unchanged.
+- `missing_fields=[]` → `continue_extras`, not Sex. Photos always hydrate.
+- `npx tsc --noEmit && npm test` → **41 passed**, 0 failed.
+- Live E (relaunch): **Want to add more?** not Sex.
+- Live C this session: picker logged HEIC+JPEG; NAS **no POST**; timeout toast. Owner can retry on the open Photos step.
 
 ## Review branches
 
