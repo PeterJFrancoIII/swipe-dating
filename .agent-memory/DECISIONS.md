@@ -15,6 +15,13 @@ Architect-owned. Append only. Do not rewrite or delete prior entries.
 
 ## Decisions
 
+### AM-020 — Synthetic testing cards do not consume daily swipes
+- **Date:** 2026-08-19
+- **Status:** accepted (user instruction)
+- **Decision:** Labeled synthetic / FAKE testing cards do not consume the 30 free daily swipes on like, pass, or superlike, and undo must not refund a swipe that was never consumed. Real members still fail closed at `daily_swipe_limit`. Expo keeps Pass / Like / Superlike enabled on a testing card when remaining is 0.
+- **Rationale:** Owner: fake cards must not burn the 30 free daily swipes. AM-008 still applies to ordinary members.
+- **Consequences:** Client must not lock the deck solely because `swipes_remaining === 0` when the current card is synthetic. Superlike allotment is unchanged. No store submit.
+
 ### AM-019 — Photo and adult API routes must not mint sessions
 - **Date:** 2026-08-16
 - **Status:** accepted (user instruction)

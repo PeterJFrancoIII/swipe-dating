@@ -14,6 +14,7 @@ import { displayDistance } from "@/lib/distance";
 import { loadDiscoverPack, prefetchCandidatePhotos } from "@/lib/hotDeck";
 import { syncLooseLocation } from "@/lib/location";
 import { useSession } from "@/lib/session";
+import { deckActionsLocked, swipeReachLabel } from "@/lib/swipeQuota";
 import type { DiscoverState, MatchedWith } from "@/lib/types";
 import { theme } from "@/lib/theme";
 
@@ -77,7 +78,7 @@ export default function SwipeScreen() {
 
   const candidate = state?.candidate ?? null;
   const reach = state?.reach;
-  const outOfSwipes = reach?.swipes_remaining === 0;
+  const outOfSwipes = deckActionsLocked(reach?.swipes_remaining, candidate);
 
   return (
     <Screen padded={false} footer={false}>
@@ -92,11 +93,7 @@ export default function SwipeScreen() {
           ) : (
             <>
               <Text numberOfLines={1} style={styles.reachText}>
-                {outOfSwipes
-                  ? "Out of free swipes today"
-                  : `${reach?.swipes_remaining ?? "—"} swipe${
-                      (reach?.swipes_remaining ?? 0) === 1 ? "" : "s"
-                    } left`}{" "}
+                {swipeReachLabel(reach?.swipes_remaining, outOfSwipes)}{" "}
                 · {reach?.boosts ?? 0} Boost{(reach?.boosts ?? 0) === 1 ? "" : "s"}
               </Text>
               <ActionBang href={surfaceHref("swipe", "boost")} label="Boost">
