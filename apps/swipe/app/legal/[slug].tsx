@@ -1,0 +1,82 @@
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { useLocalSearchParams, useRouter } from "expo-router";
+
+import { ActionBang, SurfaceBang } from "@/components/ReportBugButton";
+import { Screen } from "@/components/Screen";
+import { surfaceHref } from "@/lib/surfaces";
+import { legalBanner, legalDoc } from "@/lib/legalDocs";
+import { isInternalDogfoodBuild } from "@/lib/storeBuild";
+import { theme } from "@/lib/theme";
+
+export default function LegalScreen() {
+  const router = useRouter();
+  const { slug } = useLocalSearchParams<{ slug: string }>();
+  const doc = legalDoc(String(slug ?? ""));
+
+  return (
+    <Screen>
+      <View style={styles.topbar}>
+        <ActionBang href={surfaceHref("legal", "back")} label="Back from legal">
+          <Pressable accessibilityLabel="Back" onPress={() => router.back()} style={styles.back}>
+            <Text style={styles.backMark}>‹</Text>
+          </Pressable>
+        </ActionBang>
+        <Text style={styles.topTitle}>{doc?.title ?? "Legal"}</Text>
+        <SurfaceBang href={surfaceHref("legal", String(slug ?? "doc"))} label={doc?.title ?? "Legal"} />
+      </View>
+      <ScrollView contentContainerStyle={styles.page}>
+        <Text style={styles.banner}>{legalBanner(isInternalDogfoodBuild())}</Text>
+        <Text style={styles.body}>{doc?.body ?? "That page is not available."}</Text>
+      </ScrollView>
+    </Screen>
+  );
+}
+
+const styles = StyleSheet.create({
+  topbar: {
+    alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  back: {
+    alignItems: "center",
+    backgroundColor: theme.paper,
+    borderColor: theme.line,
+    borderRadius: 14,
+    borderWidth: 1,
+    height: 38,
+    justifyContent: "center",
+    width: 38,
+  },
+  backMark: {
+    fontSize: 30,
+    lineHeight: 30,
+  },
+  topTitle: {
+    fontSize: 14,
+    fontWeight: "800",
+  },
+  spacer: {
+    width: 38,
+  },
+  page: {
+    gap: 16,
+    paddingBottom: 40,
+    paddingTop: 12,
+  },
+  banner: {
+    backgroundColor: theme.errorBg,
+    borderColor: "#F3A0B4",
+    borderRadius: 14,
+    borderWidth: 1,
+    color: theme.errorInk,
+    fontSize: 13,
+    lineHeight: 18,
+    padding: 12,
+  },
+  body: {
+    color: theme.ink,
+    fontSize: 15,
+    lineHeight: 22,
+  },
+});

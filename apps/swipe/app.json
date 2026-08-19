@@ -1,0 +1,117 @@
+{
+  "expo": {
+    "name": "Getfkd",
+    "slug": "getfkd",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "getfkd",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "app.getfkd.ios",
+      "buildNumber": "8",
+      "usesAppleSignIn": true,
+      "entitlements": {
+        "com.apple.developer.declared-age-range": true,
+        "com.apple.developer.applesignin": ["Default"]
+      },
+      "infoPlist": {
+        "CFBundleDisplayName": "Getfkd",
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSPhotoLibraryUsageDescription": "Add photos to your Get fk'd profile.",
+        "NSLocationWhenInUseUsageDescription": "Get fk'd uses approximate on-device location to show a loose distance to other adults. Precise location is not used. Other people never see your coordinates.",
+        "NSBluetoothAlwaysUsageDescription": "Get fk'd uses Bluetooth only while Get Fk'd mode is on, to sense another adult who also turned the mode on nearby. The radio does not carry your name, photos, or profile.",
+        "NSBluetoothPeripheralUsageDescription": "Get fk'd uses Bluetooth only while Get Fk'd mode is on, to sense another adult who also turned the mode on nearby. The radio does not carry your name, photos, or profile.",
+        "NSLocationDefaultAccuracyReduced": true,
+        "LSApplicationCategoryType": "public.app-category.lifestyle",
+        "NSDeclaredAgeRangeUsageDescription": "Get fk'd uses your Apple-declared age range to confirm you are 18 or older. The app fails closed if that range is not shared or is under 18.",
+        "NSAppTransportSecurity": {
+          "NSAllowsLocalNetworking": true
+        }
+      },
+      "privacyManifests": {
+        "NSPrivacyAccessedAPITypes": [
+          {
+            "NSPrivacyAccessedAPIType": "NSPrivacyAccessedAPICategoryUserDefaults",
+            "NSPrivacyAccessedAPITypeReasons": [
+              "CA92.1"
+            ]
+          },
+          {
+            "NSPrivacyAccessedAPIType": "NSPrivacyAccessedAPICategoryFileTimestamp",
+            "NSPrivacyAccessedAPITypeReasons": [
+              "C617.1"
+            ]
+          },
+          {
+            "NSPrivacyAccessedAPIType": "NSPrivacyAccessedAPICategorySystemBootTime",
+            "NSPrivacyAccessedAPITypeReasons": [
+              "35F9.1"
+            ]
+          },
+          {
+            "NSPrivacyAccessedAPIType": "NSPrivacyAccessedAPICategoryDiskSpace",
+            "NSPrivacyAccessedAPITypeReasons": [
+              "E174.1"
+            ]
+          }
+        ]
+      }
+    },
+    "android": {
+      "package": "app.getfkd.android",
+      "adaptiveIcon": {
+        "backgroundColor": "#FFF0F4",
+        "foregroundImage": "./assets/images/android-icon-foreground.png",
+        "backgroundImage": "./assets/images/android-icon-background.png",
+        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false,
+      "permissions": []
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/images/favicon.png"
+    },
+    "plugins": [
+      "expo-dev-client",
+      "expo-router",
+      "expo-apple-authentication",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Get fk'd uses approximate on-device location to show a loose distance to other adults. Precise location is not used."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Add photos to your Get fk'd profile."
+        }
+      ],
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/images/splash-icon.png",
+          "resizeMode": "contain",
+          "backgroundColor": "#FFF0F4"
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "extra": {
+      "apiUrl": "https://getfkd.sentineldefensetechnologies.co.za",
+      "privacyPolicyUrl": "https://getfkd.sentineldefensetechnologies.co.za/legal/privacy",
+      "supportUrl": "https://getfkd.sentineldefensetechnologies.co.za/legal/support",
+      "router": {},
+      "eas": {
+        "projectId": "422a8c39-c301-42ed-92fd-5045233465d2"
+      }
+    },
+    "owner": "sentinel-defense-technologies"
+  }
+}
