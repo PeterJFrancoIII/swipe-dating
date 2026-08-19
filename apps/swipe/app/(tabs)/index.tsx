@@ -242,10 +242,7 @@ export default function SwipeScreen() {
               <Text style={styles.emptyHeart}>♡</Text>
             </View>
             <Text style={styles.emptyTitle}>Nobody new right now.</Text>
-            <Text style={styles.emptyCopy}>
-              Check back when someone else joins. Cards marked FAKE are for internal
-              testing only.
-            </Text>
+            <Text style={styles.emptyCopy}>Check back when someone else joins, or widen Settings.</Text>
             <ActionBang href={surfaceHref("swipe", "empty", "settings")} label="Adjust settings">
               <Pressable onPress={() => router.push("/filters")} style={styles.secondary}>
                 <Text style={styles.secondaryLabel}>Adjust settings</Text>

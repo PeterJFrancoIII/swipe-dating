@@ -7,6 +7,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ApiError, api } from "@/lib/api";
 import { diagnosticContext, screenName } from "@/lib/diagnostics";
 import { SECURITY_HOLD_NOTICE } from "@/lib/securityFilter";
+import { isInternalDogfoodBuild } from "@/lib/storeBuild";
 import { surfaceFromRoute, surfaceTag, withSurfaceLine, type SurfaceRef } from "@/lib/surfaces";
 import { theme } from "@/lib/theme";
 
@@ -192,7 +193,7 @@ export function SurfaceBang({
   size?: "page" | "section" | "button";
 }) {
   const report = useContext(ReportContext);
-  if (!report) {
+  if (!report || !isInternalDogfoodBuild()) {
     return null;
   }
   return (
@@ -219,6 +220,9 @@ export function ActionBang({
   children: ReactNode;
   style?: StyleProp<ViewStyle>;
 }) {
+  if (!isInternalDogfoodBuild()) {
+    return <View style={style}>{children}</View>;
+  }
   return (
     <View style={[styles.actionWrap, style]}>
       {children}
@@ -241,7 +245,7 @@ export function ReportFab({
   const report = useContext(ReportContext);
   const insets = useSafeAreaInsets();
   const pathname = usePathname();
-  if (!report) {
+  if (!report || !isInternalDogfoodBuild()) {
     return null;
   }
   const surface = href && label ? { href, label } : surfaceFromRoute(pathname || "/", screenName(pathname || "/"));
@@ -266,7 +270,7 @@ export function ReportBugButton() {
 export function FeedbackButton() {
   const report = useContext(ReportContext);
   const pathname = usePathname();
-  if (!report) {
+  if (!report || !isInternalDogfoodBuild()) {
     return null;
   }
   const surface = surfaceFromRoute(pathname || "/", "Profile");

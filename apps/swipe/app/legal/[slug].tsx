@@ -4,7 +4,8 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { ActionBang, SurfaceBang } from "@/components/ReportBugButton";
 import { Screen } from "@/components/Screen";
 import { surfaceHref } from "@/lib/surfaces";
-import { LEGAL_DRAFT_BANNER, legalDoc } from "@/lib/legalDocs";
+import { legalBanner, legalDoc } from "@/lib/legalDocs";
+import { isInternalDogfoodBuild } from "@/lib/storeBuild";
 import { theme } from "@/lib/theme";
 
 export default function LegalScreen() {
@@ -24,7 +25,7 @@ export default function LegalScreen() {
         <SurfaceBang href={surfaceHref("legal", String(slug ?? "doc"))} label={doc?.title ?? "Legal"} />
       </View>
       <ScrollView contentContainerStyle={styles.page}>
-        <Text style={styles.banner}>{LEGAL_DRAFT_BANNER}</Text>
+        <Text style={styles.banner}>{legalBanner(isInternalDogfoodBuild())}</Text>
         <Text style={styles.body}>{doc?.body ?? "That page is not available."}</Text>
       </ScrollView>
     </Screen>

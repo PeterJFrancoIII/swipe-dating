@@ -1,19 +1,18 @@
 # Current task
 
-- **Task:** 2026-08-19-briefing-execution
+- **Task:** 2026-08-19-store-review-prep
 - **Status:** ready_for_review
-- **Authorization:** Owner 2026-08-19 ~18:04 ET — “Let's get it all done, step by step.”
+- **Authorization:** Owner 2026-08-19 18:21 ET — do everything possible so the app can pass Apple review today.
 
 ## GPT start here
 
-https://github.com/PeterJFrancoIII/swipe-dating/blob/review/photo-upload/.agent-memory/tasks/2026-08-19-briefing-execution.md
+https://github.com/PeterJFrancoIII/swipe-dating/blob/review/photo-upload/.agent-memory/tasks/2026-08-19-store-review-prep.md
 
 ## This slice
 
-- Synthetic/testing cards do not burn the 30 free daily swipes.
-- Isolated API domain commit + NAS staging deploy of the working dogfood tree.
-- First daily community compile.
-- Do not merge PR 11. Do not self-accept.
+- Store IPA hides FAKE/`!` QA chrome. Sample cards stay.
+- Legal copy is operational, not a counsel stamp.
+- EAS production **build** 8 only. No submit.
 
 ## Review branches
 

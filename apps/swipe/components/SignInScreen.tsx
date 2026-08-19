@@ -5,6 +5,7 @@ import { ActionBang, SurfaceBang } from "@/components/ReportBugButton";
 import { Screen, Toast } from "@/components/Screen";
 import { surfaceHref } from "@/lib/surfaces";
 import { useSession } from "@/lib/session";
+import { isInternalDogfoodBuild } from "@/lib/storeBuild";
 import { theme } from "@/lib/theme";
 
 export function SignInScreen() {
@@ -16,7 +17,9 @@ export function SignInScreen() {
       const available = await AppleAuthentication.isAvailableAsync();
       if (!available) {
         setError(
-          "Sign in with Apple is not available. On the Simulator, sign into an Apple ID in Settings, then try again.",
+          isInternalDogfoodBuild()
+            ? "Sign in with Apple is not available. On the Simulator, sign into an Apple ID in Settings, then try again."
+            : "Sign in with Apple is required and is not available on this device.",
         );
         return;
       }
@@ -35,7 +38,9 @@ export function SignInScreen() {
         return;
       }
       setError(
-        "Sign in with Apple failed. On the Simulator, sign into an Apple ID in Settings, then try again.",
+        isInternalDogfoodBuild()
+          ? "Sign in with Apple failed. On the Simulator, sign into an Apple ID in Settings, then try again."
+          : "Sign in with Apple failed. Try again.",
       );
     }
   }
@@ -65,7 +70,7 @@ export function SignInScreen() {
             </Pressable>
           </ActionBang>
           <Text style={styles.fine}>
-            This is the account. The live API will not let you into Swipe until Apple is bound.
+            Swipe opens after Sign in with Apple. There is no email or password.
           </Text>
         </View>
       </View>

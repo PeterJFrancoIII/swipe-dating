@@ -4,20 +4,22 @@ export type LegalDoc = {
   body: string;
 };
 
+export const OPERATOR_CONTACT = "peterjfrancoiii@icloud.com";
+
 export const LEGAL_DRAFT_BANNER =
   "Draft — not in force. Counsel has not approved this text. It is shown so you can read the intended rules before any public launch.";
 
-export const OPERATOR_CONTACT = "peterjfrancoiii@icloud.com";
+export const LEGAL_STORE_BANNER = `Adults 18+ only. Questions: ${OPERATOR_CONTACT}`;
 
 export const LEGAL_DOCS: LegalDoc[] = [
   {
     slug: "privacy",
     title: "Privacy Policy",
-    body: `Get fk'd is an adults-only (18+) dating app operated as a draft service by Peter Franco. Contact: ${OPERATOR_CONTACT}.
+    body: `Get fk'd is an adults-only (18+) dating app operated by Peter Franco. Contact: ${OPERATOR_CONTACT}.
 
 We do not sell dating, sexuality, location, message, or photo data for ads. We do not use that data to train advertising models. We do not show exact peer location, coordinates, or live distance.
 
-What this build may hold to run the service:
+What this version holds to run the service:
 • Account and session identifiers (a device session token bound to Sign in with Apple; no email/password)
 • Apple user identifier (sub) after Sign in with Apple; email only if Apple shares it on first grant
 • Adult-eligibility signals from Apple Declared Age Range (fail closed when 18+ cannot be established)
@@ -26,7 +28,7 @@ What this build may hold to run the service:
 • A reduced-accuracy GPS sample long enough to verify it and replace it with a 1-mile randomized cell; peers see only a rounded mile band
 • Coarse city/region labels you type
 
-What we do not collect in this build:
+What we do not collect in this version:
 • Precise GPS shared with other users
 • Stored raw coordinates after the cell is saved
 • Advertising identifiers for tracking
@@ -36,11 +38,9 @@ How it is used: to show you other adults, create mutual matches, deliver message
 
 Children: no one under 18 may use Get fk'd. There is no parental-consent path. If we learn an account is under 18, it is removed.
 
-Your intended rights (to be completed by counsel before a public launch): access, correction, deletion, and export. Use Profile → Export my data or Delete account, or email ${OPERATOR_CONTACT}.
+Your rights in this version: access, correction, deletion, and export. Use Profile → Export my data or Delete account, or email ${OPERATOR_CONTACT}.
 
-Third parties: Apple may process Declared Age Range and Sign in with Apple on the device. Hosting for this draft API is on the operator's own equipment, reached over HTTPS. No analytics SDK is bundled in this client. The operator console does not show ordinary profiles, photos, or messages.
-
-This text is a draft for review and App Store URL fields. It is not a counsel-approved policy.`,
+Third parties: Apple may process Declared Age Range and Sign in with Apple on the device. Hosting is on the operator's own equipment, reached over HTTPS. No analytics SDK is bundled in this client. The operator console does not show ordinary profiles, photos, or messages.`,
   },
   {
     slug: "terms",
@@ -53,7 +53,7 @@ Block, report, age assurance, and the free daily swipe allotment are never paywa
 
 This version does not sell Boosts, Superlikes, or any other digital item. There are no in-app purchases.
 
-Operator contact for this draft: Peter Franco, ${OPERATOR_CONTACT}. Governing law and liability language are placeholders until counsel approves a public version.`,
+Operator contact: Peter Franco, ${OPERATOR_CONTACT}.`,
   },
   {
     slug: "community",
@@ -75,10 +75,14 @@ Account: Profile → Export my data or Delete account.
 
 Operator email: ${OPERATOR_CONTACT}
 
-This build is not a staffed 24/7 desk. For anyone who appears under 18, CSAM, or non-consensual intimate imagery, email ${OPERATOR_CONTACT} with the word URGENT in the subject. The operator will escalate. Public CyberTipline filing is a human action, not an automated in-app send.`,
+This version is not a staffed 24/7 desk. For anyone who appears under 18, CSAM, or non-consensual intimate imagery, email ${OPERATOR_CONTACT} with the word URGENT in the subject.`,
   },
 ];
 
 export function legalDoc(slug: string): LegalDoc | undefined {
   return LEGAL_DOCS.find((doc) => doc.slug === slug);
+}
+
+export function legalBanner(internal: boolean): string {
+  return internal ? LEGAL_DRAFT_BANNER : LEGAL_STORE_BANNER;
 }

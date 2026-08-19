@@ -396,12 +396,12 @@ export default function ProfileScreen() {
             <View style={styles.box}>
               <Text style={styles.boxTitle}>Boost and Superlike</Text>
               <Text style={styles.help}>
-                {data.boosts} Boosts · {data.superlikes} Superlikes. This version does not sell reach. App Store purchases are not available yet.
+                {data.boosts} Boosts · {data.superlikes} Superlikes. This version does not sell Boosts, Superlikes, or any other digital item.
               </Text>
             </View>
             <View style={styles.box}>
               <Text style={styles.boxTitle}>Legal and support</Text>
-              <Text style={styles.help}>Drafts only — not in force until counsel approves them.</Text>
+              <Text style={styles.help}>Privacy, terms, support, and community rules for this version.</Text>
               {LEGAL_DOCS.map((doc) => (
                 <ActionBang key={doc.slug} href={surfaceHref("legal", doc.slug)} label={doc.title}>
                   <Pressable onPress={() => router.push(`/legal/${doc.slug}`)} style={styles.secondary}>
