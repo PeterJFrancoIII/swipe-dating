@@ -36,6 +36,25 @@ Maximize review-pass chance. Do **not** `eas submit`, do **not** click Submit fo
 - API `src/swipe_dating/web/legal_pages.py` + NAS deploy of working tree
 - `.agent-memory/CURRENT.md` and this task
 
+## Validation
+
+```text
+cd apps/swipe && npx tsc --noEmit && npm test
+# tests 76, pass 76
+
+uv run pytest tests/integration/test_mobile_api.py::test_legal_privacy_page_is_public
+# 1 passed
+
+eas build --profile production --platform ios --non-interactive
+# FINISHED c6bdb507-5122-4aa0-bdd9-02c9bd9c4afd
+# IPA: https://expo.dev/artifacts/eas/q2H1_4eGJILsvo8zqAi5LGu729j10jQ8HU8Anh-WoZM.ipa
+
+GET /legal/privacy → 200 Adults 18+ only (no "not in force")
+GET /api/health → 200
+```
+
+Did not run eas submit. Did not click Submit for Review.
+
 ## Forbidden
 
 - `eas submit` / App Store Connect Submit
