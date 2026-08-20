@@ -76,21 +76,25 @@ Version 0.1.0 does not sell anything in-app yet. This is an operator promise, no
 Primary URL for every form: `https://getfkd.sentineldefensetechnologies.co.za/app`  
 Also paste the future App Store URL. Do not mark the product “live on the App Store” until that URL resolves.
 
-| Site | Submit | Status 2026-08-20 ~19:30 ET |
+| Site | Submit | Status 2026-08-20 ~19:40 ET |
 |---|---|---|
-| Canonical listing | https://getfkd.sentineldefensetechnologies.co.za/app | **Live.** Photos + full copy + App Store link + contributor offer. |
+| Canonical listing | https://getfkd.sentineldefensetechnologies.co.za/app | **Live.** HTTP 200. Photos + full copy + App Store link + contributor offer. |
 | GitHub repo | https://github.com/PeterJFrancoIII/swipe-dating | **Updated.** Homepage → `/app`. |
 | Launching Next | https://www.launchingnext.com/thanks/?i=145881 | **Submitted.** Did not pay $99 expedite. |
 | Hacker News Show HN | https://news.ycombinator.com/item?id=49381635 | **Posted** as Viper117. Title: Show HN: Getfkd – adults-only dating (swipe, match, meet tonight). URL is `/app`. |
-| Uneed | https://www.uneed.best/edit/waiting-line/48268 | **Draft in waiting line** (product Getfkd, signed in as PeterJFrancoIII). Logo upload attempted; schedule a free launch when the checklist is green. Do not buy “100+ directories.” |
-| BetaList | https://betalist.com/submissions/183589 | **Draft ready.** Copy + topics (Dating, etc.) + images saved. Publish is paid-only ($39 Lite / $99 / $299). Did not pay. |
-| Product Hunt | https://www.producthunt.com/posts/new/submission | **Draft in progress** named Getfkd Dating. Tagline/description/App Store link filled. Still needs a selected launch tag before Images. |
-| Tiny Startups | https://www.tinystartups.com/submit | Form filled (Social, US, screenshots uploaded). Free submit blocked on **email verification**. Did not buy upgrades. |
-| Indie Hackers | https://www.indiehackers.com/product/getfkd | **Live product page.** Name, tagline, website, motivation, founder tags saved. Start date still incomplete in their checklist. |
-| Fazier | https://fazier.com/submit | Still signed out in Safari. Free plan wants a homepage/footer badge. |
-| AlternativeTo | (add-software URL 404) | Old `/software/new/` is gone. |
-| Microlaunch / Peerlist | — | Not opened this pass. |
-| Startup Stash | https://startupstash.com/add-listing/ | Email asaf@startupstash.com — owner sends. |
+| SaaSHub | https://www.saashub.com/getfkd | **Submitted, pending approval.** Tagline + description + GitHub + App Store URL + logo + 3 screenshots. Categories Dating / Dating Apps / Social Network. Competitors Tinder, Bumble, Hinge, Badoo, Feeld. Manage: `/manage/getfkd`. Did not pay $75 Priority+. |
+| Indie Hackers | https://www.indiehackers.com/product/getfkd | **Live product page.** HTTP 200. Start date still incomplete in their checklist. |
+| Uneed | https://www.uneed.best/edit/waiting-line/48268 | **Draft in waiting line** as PeterJFrancoIII. Fast-track opened a $14.99 checkout — **left unpaid** and returned to the draft. Do not buy “100+ directories.” |
+| BetaList | https://betalist.com/submissions/183589 | **Draft ready.** Publish is paid-only ($39 Lite / $99 / $299). Did not pay. |
+| Product Hunt | https://www.producthunt.com/posts/new/submission | **Draft in progress** (Getfkd Dating). Dating launch tag applied via the picker; Images step is open. One gallery image already on the draft. **Do not click Launch** until the owner is ready (one-shot launch). |
+| Tiny Startups | https://www.tinystartups.com/submit | Form filled. Free submit still blocked on **email verification**. Old magic link expired. Did not buy upgrades. |
+| Fazier | https://fazier.com/launch | Signed in with Google (`peterjfrancoiii@gmail.com`). Free launch form opened. Product link filled. Still needs 3 real comments + a homepage/footer badge. Did not pay Lite/Premium. Did not fake comments. Did not add a badge to `/app`. |
+| Startup Stash | https://startupstash.com/add-listing/ | Email filled (`peterjfrancoiii@icloud.com`). Submit blocked on **reCAPTCHA** (human). |
+| AlternativeTo | `/software/new/` 404 | Still no add-software URL. Sign-in required to suggest apps. |
+| Microlaunch | https://microlaunch.net/ | New Launch did not open a free form (Signup / Premium). Did not pay. |
+| Peerlist | https://peerlist.io/launches/new | **404.** Homepage needs Log in / Create Profile. |
+| StackShare | https://stackshare.io/create | That URL is another product named Create, not a listing form. Sign-in required. |
+| Betabound | https://betabound.com/submit-unsolicited/ | Login required. |
 | App Store scrape sites | AppAdvice / AppShopper | Wait until `id6803669203` stops 404ing. |
 
 Do not buy paid “submit to 250 directories” spam services. Do not create fake accounts. Do not claim store-live or counsel sign-off.

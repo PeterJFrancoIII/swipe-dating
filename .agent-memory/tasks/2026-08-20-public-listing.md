@@ -57,14 +57,18 @@ gh repo edit … homepage=/app
 POST https://www.launchingnext.com/submit/ → 302 Location: /thanks/?i=145881
 # title: Submission Received | Launching Next
 
-# Safari session 2026-08-20 ~19:30 ET (owner signed in)
-# HN: https://news.ycombinator.com/item?id=49381635 posted as Viper117
-# Uneed: https://www.uneed.best/edit/waiting-line/48268 draft Getfkd
-# BetaList: https://betalist.com/submissions/183589 draft ready; publish is paid $39+
-# Product Hunt: posts/new/submission draft Getfkd Dating; launch tag still required
-# Tiny Startups: form filled; free submit blocked on email verify
-# Indie Hackers: fields+logo filled; submit click did not navigate
-# Fazier: still signed out
+# Safari retry 2026-08-20 ~19:40 ET (JS from Apple Events on)
+# SaaSHub: https://www.saashub.com/getfkd HTTP 200 pending approval
+#   details updated; logo + 3 screenshots; free queue (not $75)
+# PH: Dating launch tag applied; Images step open; do not Launch
+# Uneed: Fast-track $14.99 checkout opened; left unpaid; draft remains 48268
+# Fazier: Google sign-in as peterjfrancoiii@gmail.com; /launch form; link filled
+#   still needs 3 comments + badge; no fake comments; no paid plan
+# Tiny: still email-verify blocked
+# Startup Stash: email filled; recaptcha needs human
+# Microlaunch/Peerlist/StackShare/Betabound/AlternativeTo: no free complete submit
+# Canonical /app HTTP 200; IH HTTP 200; Launching Next thanks HTTP 200
+# HN curl 429 (rate limit); post id 49381635 unchanged
 # No paid upgrades purchased
 ```
 
