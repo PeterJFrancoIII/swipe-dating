@@ -86,7 +86,7 @@ Also paste the future App Store URL. Do not mark the product “live on the App 
 | BetaList | https://betalist.com/submissions/183589 | **Draft ready.** Copy + topics (Dating, etc.) + images saved. Publish is paid-only ($39 Lite / $99 / $299). Did not pay. |
 | Product Hunt | https://www.producthunt.com/posts/new/submission | **Draft in progress** named Getfkd Dating. Tagline/description/App Store link filled. Still needs a selected launch tag before Images. |
 | Tiny Startups | https://www.tinystartups.com/submit | Form filled (Social, US, screenshots uploaded). Free submit blocked on **email verification**. Did not buy upgrades. |
-| Indie Hackers | https://www.indiehackers.com/products/new | Name/tagline/URL/logo filled. Submit click did not leave the form. Needs one more owner click on SUBMIT PRODUCT. |
+| Indie Hackers | https://www.indiehackers.com/product/getfkd | **Live product page.** Name, tagline, website, motivation, founder tags saved. Start date still incomplete in their checklist. |
 | Fazier | https://fazier.com/submit | Still signed out in Safari. Free plan wants a homepage/footer badge. |
 | AlternativeTo | (add-software URL 404) | Old `/software/new/` is gone. |
 | Microlaunch / Peerlist | — | Not opened this pass. |
