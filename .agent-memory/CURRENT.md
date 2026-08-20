@@ -1,15 +1,18 @@
 # Current task
 
-- **Task:** 2026-08-20-asc-submit
+- **Task:** 2026-08-20-public-listing
 - **Status:** ready_for_review
-- **Authorization:** Owner 2026-08-20 16:57 ET — send listing + IPA 12 to Apple for review. Owner 2026-08-20 17:52 ET — commit to GitHub for Main GPT Sol 5.6 review. Owner 2026-08-20 17:55 ET — supplied App Review contact phone. Owner 2026-08-20 17:59 ET — publish after approval and verify listing URLs.
+- **Authorization:** Owner 2026-08-20 18:54 ET — list Getfkd on every website possible (App Store link, photos, full copy, Get Fk'd, in-development, contributor lifetime / latecomer discount).
+
+Prior task `2026-08-20-asc-submit` remains `ready_for_review` (do not self-accept). Do not merge PR 11.
 
 ## GPT Sol 5.6 start here
 
-`.agent-memory/tasks/2026-08-20-asc-submit.md`
+New: `.agent-memory/tasks/2026-08-20-public-listing.md`  
+Prior: `.agent-memory/tasks/2026-08-20-asc-submit.md`
 
 Review PR 12: https://github.com/PeterJFrancoIII/swipe-dating/pull/12  
-Branch: `review/asc-first-pass-submit`. Do **not** merge PR 11. Do **not** mark `accepted` unless the listing + evidence match. Do **not** write `approvals/`.
+Branch: `review/asc-first-pass-submit`. Do **not** merge PR 11. Do **not** mark `accepted` unless the listing + evidence match. Do **not** write `approvals/`. Live public page: https://getfkd.sentineldefensetechnologies.co.za/app
 
 ## Store IPA 12
 
