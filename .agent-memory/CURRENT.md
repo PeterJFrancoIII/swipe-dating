@@ -16,5 +16,6 @@ Branch: `review/asc-first-pass-submit`. Do **not** merge PR 11. Do **not** mark 
 - EAS build: `713f97cc-bc96-4ddd-9a25-c4b9a3d98955`
 - EAS submission: `2ee79949-92ff-4469-bf05-7fb2e07cb224` (finished)
 - ASC App ID: `6803669203`
-- App Store: version 0.1.0 / build 12 **WAITING_FOR_REVIEW**, release **AFTER_APPROVAL** (will publish when Apple approves; not live yet)
+- App Store: version 0.1.0 / build 12 **WAITING_FOR_REVIEW**, release **AFTER_APPROVAL**
+- Listing copy (2026-08-20 18:25 ET): subtitle **Casual adult dating**; keywords 100/100; description rewritten for conversion (not indexed for US search)
 - TestFlight 0.1.0 (12): internal in beta testing

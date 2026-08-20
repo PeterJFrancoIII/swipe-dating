@@ -1,5 +1,5 @@
 Name: Getfkd
-Subtitle: Adult dating
+Subtitle: Casual adult dating
 Bundle ID: app.getfkd.ios
 SKU: getfkd-ios
 Primary category: Lifestyle

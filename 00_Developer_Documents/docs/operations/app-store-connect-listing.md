@@ -19,7 +19,7 @@ Operator contact: `peterjfrancoiii@icloud.com`
 | Field | Value |
 |---|---|
 | Name | Getfkd |
-| Subtitle | Adult dating |
+| Subtitle | Casual adult dating |
 | Bundle ID | app.getfkd.ios |
 | SKU | getfkd-ios |
 | Primary category | Lifestyle (or Social Networking if Apple’s form fits better) |
@@ -31,23 +31,15 @@ Operator contact: `peterjfrancoiii@icloud.com`
 
 Promotional text (170):
 
-> Adults-only dating. Swipe, match, and talk. Block and report stay free.
+> Adults-only dating with heat. Swipe singles, match, flirt, and plan a real night out. Optional Get Fk'd nearby. 18+ only. Block and report stay free.
 
 Description:
 
-> Getfkd is an adults-only (18+) dating app. The in-app name is Get fk'd.
->
-> Swipe people who fit what you are looking for. A match appears only after mutual interest. Chat is limited and points toward meeting in public.
->
-> Block, report, age checks, and the free daily swipe allotment are never paywalled. The app does not show exact peer location or live distance.
->
-> This version has no in-app purchases.
->
-> You must be 18 or older. There is no parental-consent path.
+See `app-store-connect-upload/03-description.txt` (conversion copy; Apple does not index the long description for US search).
 
-Keywords (100 chars):
+Keywords (100 chars, hidden; no repeats of name/subtitle):
 
-> dating,adults,swipe,match,meet,18+
+> singles,match,swipe,chat,meet,flirt,local,nearby,romance,hookup,lgbtq,gay,lesbian,bi,crush,spark,hot
 
 ## Screenshots (you take these on a device)
 

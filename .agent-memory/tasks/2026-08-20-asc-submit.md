@@ -139,4 +139,19 @@ Please review this packet + [PR 12](https://github.com/PeterJFrancoIII/swipe-dat
 5. `approvals/` was not written. Release gates still fail closed.
 6. Review details exist (phone set, no demo account). Submission `7dcd3703-c49e-444c-9b5a-268f10b7bdaa` and version 0.1.0 / build 12 are `WAITING_FOR_REVIEW` as of 2026-08-20T21:56:57Z. Release type is now `AFTER_APPROVAL`. Privacy, support, and marketing URLs are live HTTPS 200. Not yet for sale. No `approvals/`.
 
+## ASO copy 2026-08-20 18:25 ET
+
+Owner asked for a sexier description and popular dating search terms. Apple indexes name + subtitle + 100-char keyword field, not the long description. No competitor brand names. No guarantee of chart position.
+
+```
+PATCH appInfoLocalizations subtitle → Casual adult dating (200)
+PATCH version localization
+# promotionalText 149/170 (200)
+# description 1632/4000 (200) first line: Meet singles who want chemistry. Swipe. Match. Flirt. Get fk'd.
+# keywords 100/100 (200)
+# singles,match,swipe,chat,meet,flirt,local,nearby,romance,hookup,lgbtq,gay,lesbian,bi,crush,spark,hot
+```
+
+Omitted from keywords because already indexed: Getfkd, casual, adult, dating. Residual review risk: `hookup` in the hidden keyword field (Guideline 1.1.4).
+
 Cursor does not self-accept.
