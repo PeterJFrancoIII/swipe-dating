@@ -17,5 +17,5 @@ Branch: `review/asc-first-pass-submit`. Do **not** merge PR 11. Do **not** mark 
 - EAS submission: `2ee79949-92ff-4469-bf05-7fb2e07cb224` (finished)
 - ASC App ID: `6803669203`
 - App Store: version 0.1.0 / build 12 **WAITING_FOR_REVIEW**, release **AFTER_APPROVAL**
-- Listing copy (2026-08-20 18:38 ET): subtitle **Swipe, match, meet tonight**; keywords rebuilt from US iTunes dating SERPs (dropped hookup/romance/crush/spark/adult)
+- Listing copy (2026-08-20 18:44 ET): people-first — keywords lead with hookup/fwb/nsa/adult; description opens on hook up / casual tonight. No competitor brands.
 - TestFlight 0.1.0 (12): internal in beta testing

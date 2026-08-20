@@ -31,15 +31,15 @@ Operator contact: `peterjfrancoiii@icloud.com`
 
 Promotional text (170):
 
-> Swipe, match, meet tonight. Adults-only dating with heat. Optional Get Fk'd nearby. 18+ only. Block and report stay free.
+> Hook up, flirt, or find something casual tonight. Swipe, match, meet. Adults 18+. Optional Get Fk'd nearby. Block and report stay free.
 
 Description:
 
 See `app-store-connect-upload/03-description.txt` (conversion copy; Apple does not index the long description for US search).
 
-Keywords (85/100 chars, hidden; no repeats of name/subtitle):
+Keywords (98/100 chars, hidden; people-first; no competitor brands):
 
-> dating,date,casual,singles,chat,flirt,local,nearby,lgbtq,gay,lesbian,bi,queer,college
+> hookup,fwb,nsa,adult,dating,date,casual,singles,flirt,local,nearby,gay,lesbian,bi,lgbtq,queer,chat
 
 ## Screenshots (you take these on a device)
 

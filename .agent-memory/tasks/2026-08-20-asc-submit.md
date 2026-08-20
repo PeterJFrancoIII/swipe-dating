@@ -175,4 +175,13 @@ PATCH keywords → dating,date,casual,singles,chat,flirt,local,nearby,lgbtq,gay,
 
 Canvas: dating-app-store-queries.canvas.tsx. No competitor names used.
 
+## People-first copy 2026-08-20 18:44 ET
+
+Owner: take the people’s side against Apple’s sanitized vocabulary. Keywords and description now lead with the words people type (hookup, FWB, NSA, adult). No competitor brands. No sex/porn/xxx tokens (those classify the app as a porn viewer, which is a product lie). Residual Guideline 1.1.4 / “objectionable keyword” rejection risk is accepted by the owner.
+
+```
+PATCH keywords → hookup,fwb,nsa,adult,dating,date,casual,singles,flirt,local,nearby,gay,lesbian,bi,lgbtq,queer,chat (98/100)
+# desc first line: Hook up. Flirt. Find something casual. Or don’t — you set the pace. Swipe, match, meet tonight. Get fk'd.
+```
+
 Cursor does not self-accept.
