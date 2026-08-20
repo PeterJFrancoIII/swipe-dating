@@ -1,4 +1,4 @@
-Name: Getfkd
+Name: Getfkd Dating: Date & Chat
 Subtitle: Swipe, match, meet tonight
 Bundle ID: app.getfkd.ios
 SKU: getfkd-ios

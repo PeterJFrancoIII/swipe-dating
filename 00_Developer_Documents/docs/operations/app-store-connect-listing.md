@@ -18,7 +18,7 @@ Operator contact: `peterjfrancoiii@icloud.com`
 
 | Field | Value |
 |---|---|
-| Name | Getfkd |
+| Name | Getfkd Dating: Date & Chat |
 | Subtitle | Swipe, match, meet tonight |
 | Bundle ID | app.getfkd.ios |
 | SKU | getfkd-ios |
@@ -31,15 +31,15 @@ Operator contact: `peterjfrancoiii@icloud.com`
 
 Promotional text (170):
 
-> Hook up, flirt, or find something casual tonight. Swipe, match, meet. Adults 18+. Optional Get Fk'd nearby. Block and report stay free.
+> Dating, date, and chat — plus hookup, FWB, or something casual tonight. Adults 18+. Optional Get Fk'd nearby.
 
 Description:
 
 See `app-store-connect-upload/03-description.txt` (conversion copy; Apple does not index the long description for US search).
 
-Keywords (98/100 chars, hidden; people-first; no competitor brands):
+Keywords (89/100 chars, hidden; spice only — dating/date/chat live in the name):
 
-> hookup,fwb,nsa,adult,dating,date,casual,singles,flirt,local,nearby,gay,lesbian,bi,lgbtq,queer,chat
+> hookup,fwb,nsa,adult,casual,singles,flirt,local,nearby,gay,lesbian,bi,lgbtq,queer,college
 
 ## Screenshots (you take these on a device)
 

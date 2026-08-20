@@ -184,4 +184,17 @@ PATCH keywords → hookup,fwb,nsa,adult,dating,date,casual,singles,flirt,local,n
 # desc first line: Hook up. Flirt. Find something casual. Or don’t — you set the pace. Swipe, match, meet tonight. Get fk'd.
 ```
 
+## Giant formula + spice 2026-08-20 18:47 ET
+
+Owner: match the giants’ dating vocabulary and keep the people’s spice. Apple does not dictate dating. Store name uses the same high-weight tokens as Tinder/Hinge/Bumble (Dating / Date / Chat) without their trademarks. Keywords no longer repeat those tokens.
+
+```
+PATCH appInfoLocalizations name → Getfkd Dating: Date & Chat (26/30, 200)
+# subtitle unchanged: Swipe, match, meet tonight
+PATCH keywords → hookup,fwb,nsa,adult,casual,singles,flirt,local,nearby,gay,lesbian,bi,lgbtq,queer,college (89/100)
+# desc first line: Dating. Date. Chat. Then hook up if you both want. Swipe, match, meet tonight. Get fk'd.
+```
+
+Home-screen `CFBundleDisplayName` remains Getfkd (IPA 12). No competitor brand names.
+
 Cursor does not self-accept.
