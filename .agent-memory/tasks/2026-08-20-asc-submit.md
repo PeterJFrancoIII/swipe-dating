@@ -38,7 +38,7 @@ eas submit:status --platform ios --non-interactive
 # TestFlight 0.1.0 (12): internal in beta testing, external ready for beta submission
 ```
 
-IPA is in Connect. Public API + iris filled most of the listing. **Submit for Review** is blocked on App Store Review contact phone (`+` country code). `approvals/` not written. Release gates still fail closed. Not self-accepted.
+IPA is in Connect. Public API + iris filled most of the listing. Owner supplied the review contact phone at 2026-08-20 17:55 ET. Review details created; submission PATCH `submitted: true` returned 200. Version and submission are `WAITING_FOR_REVIEW`. `approvals/` not written. Release gates still fail closed. Not self-accepted.
 
 ## Applied 2026-08-20 17:29 ET
 
@@ -54,7 +54,7 @@ IPA is in Connect. Public API + iris filled most of the listing. **Submit for Re
 - Availability: all 175 territories, new territories on
 - App Privacy published (no tracking; linked User Content / Photos / Chat / User ID / Coarse Location / Sensitive Info → App Functionality)
 - Build export compliance: `usesNonExemptEncryption` false
-- Review submission `7dcd3703-c49e-444c-9b5a-268f10b7bdaa` created, **not submitted** — missing `appStoreReviewDetail.contactPhone`
+- Review submission `7dcd3703-c49e-444c-9b5a-268f10b7bdaa` created, **not submitted** — missing `appStoreReviewDetail.contactPhone` (resolved 17:56 ET)
 
 ## Privacy alignment 2026-08-20 17:46 ET
 
@@ -65,9 +65,33 @@ Republished App Privacy to match Apple category meanings + the iOS privacy manif
 - Kept linked App Functionality: Name, Other User Content, Photos, User ID, Coarse Location, Sensitive Info
 - No tracking
 
-## Still needed (human)
+## Submit 2026-08-20 17:56 ET
 
-Owner review contact phone in `+1 …` form. Then create review details and PATCH `submitted: true`.
+Owner-supplied `+` country-code review phone (digits not stored in repo).
+
+```
+POST /v1/appStoreReviewDetails → 201
+# contactFirstName Peter, contactLastName Franco
+# contactEmail peterjfrancoiii@icloud.com
+# demoAccountRequired false
+# notes from 07-review-notes.txt (2398 chars)
+# contactPhone set (starts with +)
+
+POST /v1/reviewSubmissionItems → 201
+# submission 7dcd3703-c49e-444c-9b5a-268f10b7bdaa
+# version 4b71401d-f929-4379-a7a5-3c2c211d7115
+
+PATCH /v1/reviewSubmissions/7dcd3703-c49e-444c-9b5a-268f10b7bdaa submitted=true → 200
+# submittedDate 2026-08-20T21:56:57.028Z
+# state WAITING_FOR_REVIEW
+
+GET /v1/appStoreVersions/4b71401d-f929-4379-a7a5-3c2c211d7115
+# versionString 0.1.0
+# appStoreState WAITING_FOR_REVIEW
+# releaseType MANUAL
+```
+
+`eas submit:status` still showed App Store Live/In review/Pending release none immediately after (EAS lag; ASC API is the source of truth). Phone number was not written to git.
 
 ## Local verification 2026-08-20 17:55 ET
 
@@ -85,6 +109,6 @@ Please review this packet + [PR 12](https://github.com/PeterJFrancoIII/swipe-dat
 3. UniFFI deletions and `golden-master/` were **not** committed.
 4. PR 11 was **not** merged.
 5. `approvals/` was not written. Release gates still fail closed.
-6. Submit for Review is still correctly blocked on `contactPhone`.
+6. Review details exist (phone set, no demo account). Submission `7dcd3703-c49e-444c-9b5a-268f10b7bdaa` and version 0.1.0 / build 12 are `WAITING_FOR_REVIEW` as of 2026-08-20T21:56:57Z. Manual release. No `approvals/`.
 
 Cursor does not self-accept.
