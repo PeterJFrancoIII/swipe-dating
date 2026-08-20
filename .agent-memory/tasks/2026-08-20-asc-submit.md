@@ -165,4 +165,14 @@ PATCH version localization description/keywords/promotionalText (200)
 # desc first line: Swipe, match, meet tonight. Get fk'd.
 ```
 
+## Query research 2026-08-20 18:38 ET
+
+US iTunes software search + AppTweak 2025 dating downloads + Apple search rules. Web language (hookup) is not store language: hookup/FWB/adult dating return 0 apps. romance/crush/spark/adult open the wrong category. meet tonight already maps to casual dating.
+
+```
+PATCH keywords → dating,date,casual,singles,chat,flirt,local,nearby,lgbtq,gay,lesbian,bi,queer,college (85/100)
+```
+
+Canvas: dating-app-store-queries.canvas.tsx. No competitor names used.
+
 Cursor does not self-accept.

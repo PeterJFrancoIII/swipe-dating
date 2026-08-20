@@ -37,9 +37,9 @@ Description:
 
 See `app-store-connect-upload/03-description.txt` (conversion copy; Apple does not index the long description for US search).
 
-Keywords (99/100 chars, hidden; no repeats of name/subtitle):
+Keywords (85/100 chars, hidden; no repeats of name/subtitle):
 
-> dating,adult,casual,singles,chat,flirt,local,nearby,romance,hookup,lgbtq,gay,lesbian,bi,crush,spark
+> dating,date,casual,singles,chat,flirt,local,nearby,lgbtq,gay,lesbian,bi,queer,college
 
 ## Screenshots (you take these on a device)
 
