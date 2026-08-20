@@ -93,6 +93,34 @@ GET /v1/appStoreVersions/4b71401d-f929-4379-a7a5-3c2c211d7115
 
 `eas submit:status` still showed App Store Live/In review/Pending release none immediately after (EAS lag; ASC API is the source of truth). Phone number was not written to git.
 
+## Publish + URL audit 2026-08-20 17:59 ET
+
+Owner: publish the app and fill/correct URLs. The binary cannot go live while `WAITING_FOR_REVIEW`. Release type changed so Apple publishes it on approval.
+
+```
+PATCH /v1/appStoreVersions/4b71401d-f929-4379-a7a5-3c2c211d7115
+# releaseType MANUAL → AFTER_APPROVAL (200)
+# appStoreState still WAITING_FOR_REVIEW
+
+PATCH appInfoLocalizations e09dd158-2ed6-402e-abf6-e2416ae86be8
+# privacyPolicyUrl https://getfkd.sentineldefensetechnologies.co.za/legal/privacy (200)
+
+PATCH appStoreVersionLocalizations 5d0801e0-b810-424e-ba69-cd6cf39c8b8a
+# supportUrl https://getfkd.sentineldefensetechnologies.co.za/legal/support (200)
+# marketingUrl https://getfkd.sentineldefensetechnologies.co.za/ (200)
+# whatsNew locked (409 STATE_ERROR) — first version, not a URL
+```
+
+Live GET (HTTP 200, TLS ok, no “draft / not in force”):
+
+- `/legal/privacy`
+- `/legal/terms`
+- `/legal/support`
+- `/legal/community`
+- `/` (marketing)
+
+Terms and community are not App Store listing fields; they are on the host and in-app. `privacyChoicesUrl` left empty (no separate CCPA page). Not live on the App Store. No `approvals/`.
+
 ## Local verification 2026-08-20 17:55 ET
 
 ```
@@ -109,6 +137,6 @@ Please review this packet + [PR 12](https://github.com/PeterJFrancoIII/swipe-dat
 3. UniFFI deletions and `golden-master/` were **not** committed.
 4. PR 11 was **not** merged.
 5. `approvals/` was not written. Release gates still fail closed.
-6. Review details exist (phone set, no demo account). Submission `7dcd3703-c49e-444c-9b5a-268f10b7bdaa` and version 0.1.0 / build 12 are `WAITING_FOR_REVIEW` as of 2026-08-20T21:56:57Z. Manual release. No `approvals/`.
+6. Review details exist (phone set, no demo account). Submission `7dcd3703-c49e-444c-9b5a-268f10b7bdaa` and version 0.1.0 / build 12 are `WAITING_FOR_REVIEW` as of 2026-08-20T21:56:57Z. Release type is now `AFTER_APPROVAL`. Privacy, support, and marketing URLs are live HTTPS 200. Not yet for sale. No `approvals/`.
 
 Cursor does not self-accept.

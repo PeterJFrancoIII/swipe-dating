@@ -10,6 +10,7 @@ https://getfkd.sentineldefensetechnologies.co.za/legal/terms
 Community rules:
 https://getfkd.sentineldefensetechnologies.co.za/legal/community
 
-Marketing URL: (leave blank)
+Marketing URL:
+https://getfkd.sentineldefensetechnologies.co.za/
 
 Contact: peterjfrancoiii@icloud.com
