@@ -78,7 +78,7 @@ cd apps/swipe && npx tsc --noEmit && npm test
 
 ## Architect review (Sol 5.6)
 
-Please review this packet + the `review/asc-first-pass-submit` PR. Confirm:
+Please review this packet + [PR 12](https://github.com/PeterJFrancoIII/swipe-dating/pull/12) (`review/asc-first-pass-submit`, `b57720c`). Confirm:
 
 1. IPA 12 is the review binary; listing/age/privacy/screenshots match the upload pack.
 2. App Privacy tokens are Name, Other User Content, Photos, User ID, Coarse Location, Sensitive Info — no tracking, no Emails or Text Messages.

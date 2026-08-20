@@ -8,7 +8,8 @@
 
 `.agent-memory/tasks/2026-08-20-asc-submit.md`
 
-Review the branch / PR named `review/asc-first-pass-submit`. Do **not** merge PR 11. Do **not** mark `accepted` unless the listing + evidence match. Do **not** write `approvals/`.
+Review PR 12: https://github.com/PeterJFrancoIII/swipe-dating/pull/12  
+Branch: `review/asc-first-pass-submit` (`b57720c`). Do **not** merge PR 11. Do **not** mark `accepted` unless the listing + evidence match. Do **not** write `approvals/`.
 
 ## Store IPA 12
 
