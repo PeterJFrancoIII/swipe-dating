@@ -154,4 +154,15 @@ PATCH version localization
 
 Omitted from keywords because already indexed: Getfkd, casual, adult, dating. Residual review risk: `hookup` in the hidden keyword field (Guideline 1.1.4).
 
+## Subtitle theme 2026-08-20 18:30 ET
+
+Owner chose “Swipe, match, meet tonight”. Rebuilt keywords so swipe/match/meet/tonight are not repeated; dating/adult/casual moved into the keyword field.
+
+```
+PATCH appInfoLocalizations subtitle → Swipe, match, meet tonight (200)
+PATCH version localization description/keywords/promotionalText (200)
+# keywords 99/100 dating,adult,casual,singles,chat,flirt,local,nearby,romance,hookup,lgbtq,gay,lesbian,bi,crush,spark
+# desc first line: Swipe, match, meet tonight. Get fk'd.
+```
+
 Cursor does not self-accept.

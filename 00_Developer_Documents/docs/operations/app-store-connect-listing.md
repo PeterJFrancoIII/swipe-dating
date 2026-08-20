@@ -19,7 +19,7 @@ Operator contact: `peterjfrancoiii@icloud.com`
 | Field | Value |
 |---|---|
 | Name | Getfkd |
-| Subtitle | Casual adult dating |
+| Subtitle | Swipe, match, meet tonight |
 | Bundle ID | app.getfkd.ios |
 | SKU | getfkd-ios |
 | Primary category | Lifestyle (or Social Networking if Apple’s form fits better) |
@@ -31,15 +31,15 @@ Operator contact: `peterjfrancoiii@icloud.com`
 
 Promotional text (170):
 
-> Adults-only dating with heat. Swipe singles, match, flirt, and plan a real night out. Optional Get Fk'd nearby. 18+ only. Block and report stay free.
+> Swipe, match, meet tonight. Adults-only dating with heat. Optional Get Fk'd nearby. 18+ only. Block and report stay free.
 
 Description:
 
 See `app-store-connect-upload/03-description.txt` (conversion copy; Apple does not index the long description for US search).
 
-Keywords (100 chars, hidden; no repeats of name/subtitle):
+Keywords (99/100 chars, hidden; no repeats of name/subtitle):
 
-> singles,match,swipe,chat,meet,flirt,local,nearby,romance,hookup,lgbtq,gay,lesbian,bi,crush,spark,hot
+> dating,adult,casual,singles,chat,flirt,local,nearby,romance,hookup,lgbtq,gay,lesbian,bi,crush,spark
 
 ## Screenshots (you take these on a device)
 

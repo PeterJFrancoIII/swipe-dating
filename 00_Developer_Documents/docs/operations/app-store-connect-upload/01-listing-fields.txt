@@ -1,5 +1,5 @@
 Name: Getfkd
-Subtitle: Casual adult dating
+Subtitle: Swipe, match, meet tonight
 Bundle ID: app.getfkd.ios
 SKU: getfkd-ios
 Primary category: Lifestyle
