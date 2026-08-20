@@ -1,20 +1,19 @@
 # Current task
 
-- **Task:** 2026-08-19-store-review-prep
+- **Task:** 2026-08-20-asc-submit
 - **Status:** ready_for_review
-- **Authorization:** Owner 2026-08-19 18:21 ET — do everything possible so the app can pass Apple review today.
+- **Authorization:** Owner 2026-08-20 16:57 ET — send listing + IPA 12 to Apple for review. Owner 2026-08-20 17:52 ET — commit to GitHub for Main GPT Sol 5.6 review.
 
-## GPT start here
+## GPT Sol 5.6 start here
 
-https://github.com/PeterJFrancoIII/swipe-dating/blob/review/photo-upload/.agent-memory/tasks/2026-08-19-store-review-prep.md
+`.agent-memory/tasks/2026-08-20-asc-submit.md`
 
-## This slice
+Review the branch / PR named `review/asc-first-pass-submit`. Do **not** merge PR 11. Do **not** mark `accepted` unless the listing + evidence match. Do **not** write `approvals/`.
 
-- Store IPA hides FAKE/`!` QA chrome. Sample cards stay.
-- Legal copy is operational, not a counsel stamp.
-- EAS production **build** 8 only. No submit.
+## Store IPA 12
 
-## Review branches
-
-- https://github.com/PeterJFrancoIII/swipe-dating/pull/11
-- https://github.com/PeterJFrancoIII/swipe-dating-web/pull/2
+- EAS build: `713f97cc-bc96-4ddd-9a25-c4b9a3d98955`
+- EAS submission: `2ee79949-92ff-4469-bf05-7fb2e07cb224` (finished)
+- ASC App ID: `6803669203`
+- App Store: listing filled; review **not** submitted (needs contact phone)
+- TestFlight 0.1.0 (12): internal in beta testing

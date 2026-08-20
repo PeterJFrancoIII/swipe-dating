@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 
+import { LegalLinks } from "@/components/LegalLinks";
 import { PhotoUploadMeter } from "@/components/PhotoUploadMeter";
 import { ActionBang, SurfaceBang } from "@/components/ReportBugButton";
 import { Screen, Toast } from "@/components/Screen";
@@ -20,6 +21,8 @@ import { ApiError, api } from "@/lib/api";
 import { signupErrorMessage } from "@/lib/signupErrors";
 import { loadAuthedPhoto } from "@/lib/hotDeck";
 import { hydrateOnboardingPhotos, nextOnboardingStep, photosSatisfyRequirement } from "@/lib/onboardingStep";
+import { ugcRejection } from "@/lib/ugcFilter";
+import { confirmPhotoPolicy } from "@/lib/photoConsentPrompt";
 import {
   assertIdentifiablePicks,
   isPhotoPickIdentityError,
@@ -57,6 +60,7 @@ type Step =
   | "smoking"
   | "drinking"
   | "drugs"
+  | "rules"
   | "photos"
   | "continue_extras"
   | "turn_ons"
@@ -66,7 +70,7 @@ type Step =
   | "continue_quiz"
   | "quiz";
 
-const REQUIRED: Step[] = ["sex", "location", "name", "bio", "smoking", "drinking", "drugs", "photos"];
+const REQUIRED: Step[] = ["sex", "location", "name", "bio", "smoking", "drinking", "drugs", "rules", "photos"];
 
 function AuthPhoto({ path, style }: { path: string; style: object }) {
   const [uri, setUri] = useState("");
@@ -104,13 +108,18 @@ export function OnboardingScreen() {
     void api.onboarding().then((payload) => {
       setValues({ ...blank, ...payload.values });
       setPhotos(hydrateOnboardingPhotos(payload.photos));
-      setStep(nextOnboardingStep(payload.missing_fields));
+      const next = nextOnboardingStep(payload.missing_fields);
+      setStep(next === "photos" ? "rules" : next);
     });
   }, [setError]);
 
   const requiredIndex = REQUIRED.indexOf(step);
   const progress =
-    requiredIndex >= 0 ? `Age confirmed · ${requiredIndex + 2} of 9` : step === "quiz" ? "Compatibility quiz" : "Optional";
+    requiredIndex >= 0
+      ? `Age confirmed · ${requiredIndex + 2} of ${REQUIRED.length + 1}`
+      : step === "quiz"
+        ? "Compatibility quiz"
+        : "Optional";
 
   async function persist(next: OnboardingValues, enter: boolean) {
     setBusy(true);
@@ -180,7 +189,14 @@ export function OnboardingScreen() {
             onChange={(display_name) => setOne("display_name", display_name)}
             canContinue={Boolean(values.display_name.trim())}
             busy={busy}
-            onContinue={() => void saveAndGo(values, "bio")}
+            onContinue={() => {
+              const blocked = ugcRejection(values.display_name);
+              if (blocked) {
+                setError(blocked);
+                return;
+              }
+              void saveAndGo(values, "bio");
+            }}
           />
         ) : null}
         {step === "bio" ? (
@@ -193,7 +209,14 @@ export function OnboardingScreen() {
             multiline
             canContinue={Boolean(values.about.trim())}
             busy={busy}
-            onContinue={() => void saveAndGo(values, "smoking")}
+            onContinue={() => {
+              const blocked = ugcRejection(values.about);
+              if (blocked) {
+                setError(blocked);
+                return;
+              }
+              void saveAndGo(values, "smoking");
+            }}
           />
         ) : null}
         {step === "smoking" ? (
@@ -231,9 +254,12 @@ export function OnboardingScreen() {
             onChange={(next) => {
               const updated = { ...values, drugs: next[0] ?? "" };
               setValues(updated);
-              void saveAndGo(updated, "photos");
+              void saveAndGo(updated, "rules");
             }}
           />
+        ) : null}
+        {step === "rules" ? (
+          <RulesStep busy={busy} onAgree={() => setStep("photos")} />
         ) : null}
         {step === "photos" ? (
           <PhotoStep
@@ -243,6 +269,9 @@ export function OnboardingScreen() {
             onAdd={() => {
               void (async () => {
                 try {
+                  if (!(await confirmPhotoPolicy())) {
+                    return;
+                  }
                   const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
                   if (!permission.granted) {
                     setError("Photo library access is needed to add photos.");
@@ -558,6 +587,28 @@ function TextStep({
   );
 }
 
+function RulesStep({ busy, onAgree }: { busy: boolean; onAgree: () => void }) {
+  return (
+    <ScrollView contentContainerStyle={styles.body}>
+      <View style={styles.titleRow}>
+        <Text style={[styles.title, { flex: 1 }]}>Community rules</Text>
+        <SurfaceBang href={surfaceHref("onboarding", "rules")} label="Community rules" />
+      </View>
+      <Text style={styles.help}>
+        Adults 18+ only. No one under 18, no CSAM, no non-consensual intimate images, no stalking, and no exact
+        location sharing. Block and report stay free. You agree to the Terms, Privacy Policy, and Community
+        Rules before you post photos or a bio.
+      </Text>
+      <LegalLinks />
+      <ActionBang href={surfaceHref("onboarding", "rules", "agree")} label="I agree and continue">
+        <Pressable disabled={busy} onPress={onAgree} style={styles.submit}>
+          <Text style={styles.submitLabel}>I agree and continue</Text>
+        </Pressable>
+      </ActionBang>
+    </ScrollView>
+  );
+}
+
 function PhotoStep({
   photos,
   busy,
@@ -583,7 +634,7 @@ function PhotoStep({
       <Text style={styles.help}>
         {busy
           ? "Stay on this screen until the upload finishes."
-          : `Add at least 2 photos. ${photos.length} added.`}
+          : `Add at least 2 photos of you. No one under 18. No non-consensual intimate images. ${photos.length} added.`}
       </Text>
       {uploadProgress ? <PhotoUploadMeter progress={uploadProgress} /> : null}
       <View style={styles.photoGrid}>

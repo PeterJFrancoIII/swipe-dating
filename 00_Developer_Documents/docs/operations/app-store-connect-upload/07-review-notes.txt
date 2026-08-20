@@ -1,0 +1,29 @@
+FIRST-PASS
+- Review on a device that can share Apple Declared Age Range 18+ (iOS 26+). If age cannot be shared, the app stays on a finished age-check screen on purpose. That is not a crash.
+- No demo user/password. Use Sign in with Apple.
+- Leave Get Fk'd OFF. Ordinary swipe, photos, chat, and meetup work with it off.
+- The deck includes sample adults so review is not empty.
+- No IAP. Boost/Superlike appear only when granted. Zero allotment hides or disables the control; it does not offer a purchase.
+
+Getfkd is an adults-only (18+) dating app. In-app name: Get fk'd. Store listing name: Getfkd.
+
+SIGN IN: After the 18+ gate, Sign in with Apple. No email/password. Sign out keeps the Apple-linked account. Delete account wipes it (Profile → Delete account; in-app; permanent).
+
+AGE: Entitlement com.apple.developer.declared-age-range; ageGates 18. Fail closed if declined, unavailable, or under 18. No parental-consent bypass. No birthday workaround on store builds.
+
+WALKTHROUGH
+1. Continue with Apple age. Privacy, Terms, Community Rules, and Support are linked first.
+2. Sign in with Apple.
+3. Onboarding: gender + smoking/drinking/drugs. Agree to Community rules. Photo policy, then photos.
+4. Swipe: Pass / Superlike (if granted) / Like. Card tap opens the full profile. Report includes Appears under 18 and Non-consensual intimate images.
+5. Matches: message, Plan a meetup (meet in public), Block/Report.
+6. Profile: Safety box, export, delete.
+7. Optional only: Get Fk'd logo → read confirm → enter. Bluetooth is requested only after confirm. Leave from the same control.
+
+GET FK'D: Optional, off by default. 1-mile discovery. Foreground Bluetooth only; radio carries no name/photos/profile. Ambient sonar, no lock-screen/background cues, no exact distance. Mutual mode match only. Exit dissolves those chats. RSSI is not uploaded.
+
+SAFETY / 1.2: Block and report are free. Under-18 and NCII reports are treated as urgent; also email peterjfrancoiii@icloud.com with URGENT. Underage/CSAM/trafficking text is filtered before post. Photos: you only; no one under 18; no NCII; EXIF not requested. Adult sexual content between consenting 18+ users is allowed. Dating app, not a porn viewer.
+
+LOCATION: Coarse region / mile band only. No exact peer coordinates.
+
+HOST: https://getfkd.sentineldefensetechnologies.co.za (Privacy and Support on that host). Contact: peterjfrancoiii@icloud.com

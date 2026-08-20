@@ -1,16 +1,28 @@
-import { useEffect, useRef } from "react";
-import { Vibration } from "react-native";
+import { useEffect, useRef, useState } from "react";
+import { AppState, Vibration } from "react-native";
 
-import { closenessFromRssi, hapticIntensity, shouldEmitProximityCue } from "@/lib/getfkdProximity";
+import {
+  closenessFromRssi,
+  hapticIntensity,
+  proximityRadioShouldRun,
+  shouldEmitProximityCue,
+} from "@/lib/getfkdProximity";
 import { useSession } from "@/lib/session";
 import { getfkdLocation, listenForPeerSignals } from "getfkd-location";
 
 export function GetFkdProximityHost() {
   const { getFkdEnabled } = useSession();
   const lastCueAt = useRef(0);
+  const [appState, setAppState] = useState(AppState.currentState);
+  const radioOn = proximityRadioShouldRun(getFkdEnabled, appState);
 
   useEffect(() => {
-    if (!getFkdEnabled) {
+    const sub = AppState.addEventListener("change", setAppState);
+    return () => sub.remove();
+  }, []);
+
+  useEffect(() => {
+    if (!radioOn) {
       void getfkdLocation()?.stopProximityBroadcast?.();
       return;
     }
@@ -33,7 +45,7 @@ export function GetFkdProximityHost() {
       stopListening();
       void getfkdLocation()?.stopProximityBroadcast?.();
     };
-  }, [getFkdEnabled]);
+  }, [radioOn]);
 
   return null;
 }

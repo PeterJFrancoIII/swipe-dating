@@ -10,7 +10,7 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "app.getfkd.ios",
-      "buildNumber": "8",
+      "buildNumber": "12",
       "usesAppleSignIn": true,
       "entitlements": {
         "com.apple.developer.declared-age-range": true,
@@ -19,18 +19,67 @@
       "infoPlist": {
         "CFBundleDisplayName": "Getfkd",
         "ITSAppUsesNonExemptEncryption": false,
-        "NSPhotoLibraryUsageDescription": "Add photos to your Get fk'd profile.",
-        "NSLocationWhenInUseUsageDescription": "Get fk'd uses approximate on-device location to show a loose distance to other adults. Precise location is not used. Other people never see your coordinates.",
-        "NSBluetoothAlwaysUsageDescription": "Get fk'd uses Bluetooth only while Get Fk'd mode is on, to sense another adult who also turned the mode on nearby. The radio does not carry your name, photos, or profile.",
-        "NSBluetoothPeripheralUsageDescription": "Get fk'd uses Bluetooth only while Get Fk'd mode is on, to sense another adult who also turned the mode on nearby. The radio does not carry your name, photos, or profile.",
+        "NSPhotoLibraryUsageDescription": "Get fk'd asks for photos you pick for your profile. It does not need ongoing access to your full library.",
+        "NSLocationWhenInUseUsageDescription": "Get fk'd uses approximate on-device location to show a loose distance band to other adults. Precise location is unused. Other people never see your coordinates. You can choose Not now and still swipe.",
+        "NSBluetoothAlwaysUsageDescription": "Get fk'd uses Bluetooth only after you turn Get Fk'd mode on. It senses another adult who also turned the mode on nearby. Cues play only while the app is open. The radio does not carry your name, photos, or profile. Bluetooth is not used for background tracking.",
+        "NSBluetoothPeripheralUsageDescription": "Get fk'd uses Bluetooth only after you turn Get Fk'd mode on. It senses another adult who also turned the mode on nearby. Cues play only while the app is open. The radio does not carry your name, photos, or profile. Bluetooth is not used for background tracking.",
         "NSLocationDefaultAccuracyReduced": true,
         "LSApplicationCategoryType": "public.app-category.lifestyle",
-        "NSDeclaredAgeRangeUsageDescription": "Get fk'd uses your Apple-declared age range to confirm you are 18 or older. The app fails closed if that range is not shared or is under 18.",
-        "NSAppTransportSecurity": {
-          "NSAllowsLocalNetworking": true
-        }
+        "NSDeclaredAgeRangeUsageDescription": "Get fk'd uses your Apple-declared age range to confirm you are 18 or older. The app fails closed if that range is not shared or is under 18."
       },
       "privacyManifests": {
+        "NSPrivacyTracking": false,
+        "NSPrivacyTrackingDomains": [],
+        "NSPrivacyCollectedDataTypes": [
+          {
+            "NSPrivacyCollectedDataType": "NSPrivacyCollectedDataTypeUserID",
+            "NSPrivacyCollectedDataTypeLinked": true,
+            "NSPrivacyCollectedDataTypeTracking": false,
+            "NSPrivacyCollectedDataTypePurposes": [
+              "NSPrivacyCollectedDataTypePurposeAppFunctionality"
+            ]
+          },
+          {
+            "NSPrivacyCollectedDataType": "NSPrivacyCollectedDataTypeName",
+            "NSPrivacyCollectedDataTypeLinked": true,
+            "NSPrivacyCollectedDataTypeTracking": false,
+            "NSPrivacyCollectedDataTypePurposes": [
+              "NSPrivacyCollectedDataTypePurposeAppFunctionality"
+            ]
+          },
+          {
+            "NSPrivacyCollectedDataType": "NSPrivacyCollectedDataTypeCoarseLocation",
+            "NSPrivacyCollectedDataTypeLinked": true,
+            "NSPrivacyCollectedDataTypeTracking": false,
+            "NSPrivacyCollectedDataTypePurposes": [
+              "NSPrivacyCollectedDataTypePurposeAppFunctionality"
+            ]
+          },
+          {
+            "NSPrivacyCollectedDataType": "NSPrivacyCollectedDataTypePhotosorVideos",
+            "NSPrivacyCollectedDataTypeLinked": true,
+            "NSPrivacyCollectedDataTypeTracking": false,
+            "NSPrivacyCollectedDataTypePurposes": [
+              "NSPrivacyCollectedDataTypePurposeAppFunctionality"
+            ]
+          },
+          {
+            "NSPrivacyCollectedDataType": "NSPrivacyCollectedDataTypeOtherUserContent",
+            "NSPrivacyCollectedDataTypeLinked": true,
+            "NSPrivacyCollectedDataTypeTracking": false,
+            "NSPrivacyCollectedDataTypePurposes": [
+              "NSPrivacyCollectedDataTypePurposeAppFunctionality"
+            ]
+          },
+          {
+            "NSPrivacyCollectedDataType": "NSPrivacyCollectedDataTypeSensitiveInfo",
+            "NSPrivacyCollectedDataTypeLinked": true,
+            "NSPrivacyCollectedDataTypeTracking": false,
+            "NSPrivacyCollectedDataTypePurposes": [
+              "NSPrivacyCollectedDataTypePurposeAppFunctionality"
+            ]
+          }
+        ],
         "NSPrivacyAccessedAPITypes": [
           {
             "NSPrivacyAccessedAPIType": "NSPrivacyAccessedAPICategoryUserDefaults",
@@ -82,13 +131,13 @@
       [
         "expo-location",
         {
-          "locationWhenInUsePermission": "Get fk'd uses approximate on-device location to show a loose distance to other adults. Precise location is not used."
+          "locationWhenInUsePermission": "Get fk'd uses approximate on-device location to show a loose distance band to other adults. Precise location is unused. You can choose Not now and still swipe."
         }
       ],
       [
         "expo-image-picker",
         {
-          "photosPermission": "Add photos to your Get fk'd profile."
+          "photosPermission": "Get fk'd asks for photos you pick for your profile. It does not need ongoing access to your full library."
         }
       ],
       [

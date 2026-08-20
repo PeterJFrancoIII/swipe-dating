@@ -22,7 +22,11 @@ final class ProximityRadioBox: NSObject, CBCentralManagerDelegate, CBPeripheralM
     self.emit = emit
     DispatchQueue.main.async {
       if self.central == nil {
-        self.central = CBCentralManager(delegate: self, queue: .main)
+        self.central = CBCentralManager(
+          delegate: self,
+          queue: .main,
+          options: [CBCentralManagerOptionShowPowerAlertKey: true]
+        )
       }
       if self.peripheral == nil {
         self.peripheral = CBPeripheralManager(delegate: self, queue: .main)
@@ -36,6 +40,7 @@ final class ProximityRadioBox: NSObject, CBCentralManagerDelegate, CBPeripheralM
     DispatchQueue.main.async {
       self.central?.stopScan()
       self.peripheral?.stopAdvertising()
+      self.player?.stop()
       self.emit = nil
     }
   }
@@ -43,6 +48,9 @@ final class ProximityRadioBox: NSObject, CBCentralManagerDelegate, CBPeripheralM
   func playCue(closeness: Double) {
     let intensity = max(0.12, min(1, closeness))
     DispatchQueue.main.async {
+      guard UIApplication.shared.applicationState == .active else {
+        return
+      }
       self.playDing(closeness: intensity)
       self.playHaptic(closeness: intensity)
     }
@@ -62,6 +70,9 @@ final class ProximityRadioBox: NSObject, CBCentralManagerDelegate, CBPeripheralM
     advertisementData: [String: Any],
     rssi RSSI: NSNumber
   ) {
+    guard UIApplication.shared.applicationState == .active else {
+      return
+    }
     let rssi = RSSI.intValue
     guard rssi < 0, rssi > -120 else {
       return
@@ -135,6 +146,9 @@ final class ProximityRadioBox: NSObject, CBCentralManagerDelegate, CBPeripheralM
       data.append(Data(bytes: &value, count: 2))
     }
     do {
+      let session = AVAudioSession.sharedInstance()
+      try session.setCategory(.ambient, mode: .default, options: [.mixWithOthers])
+      try session.setActive(true)
       player = try AVAudioPlayer(data: data)
       player?.volume = Float(0.35 + closeness * 0.65)
       player?.prepareToPlay()

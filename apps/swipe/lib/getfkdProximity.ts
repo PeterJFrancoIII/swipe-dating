@@ -1,7 +1,11 @@
 export const GETFKD_DEFAULT_MILES = 1;
 
 export const GETFKD_ENTER_PROXIMITY =
-  "Discovery starts at 1 mile. If another adult also has Get Fk'd on and is within Bluetooth range, your phone will sonar-ding and vibrate more warmly the closer you get. No exact distance or direction is shown.";
+  "Discovery starts at 1 mile. If another adult also has Get Fk'd on and is within Bluetooth range, your phone will sonar-ding and vibrate more warmly the closer you get while this app is open. The Bluetooth radio does not carry your name, photos, or profile. No exact distance or direction is shown.";
+
+export function proximityRadioShouldRun(enabled: boolean, appState: string): boolean {
+  return enabled === true && appState === "active";
+}
 
 export function closenessFromRssi(rssi: number): number {
   if (!Number.isFinite(rssi)) {

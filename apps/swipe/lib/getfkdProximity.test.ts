@@ -6,6 +6,7 @@ import {
   applyGetFkdDiscoveryMiles,
   closenessFromRssi,
   hapticIntensity,
+  proximityRadioShouldRun,
   shouldEmitProximityCue,
   sonarIntervalMs,
 } from "./getfkdProximity.ts";
@@ -31,5 +32,12 @@ describe("Get Fk'd proximity cues", () => {
 
   it("does not use kilometer copy in the intensity math", () => {
     assert.equal(/km|kilometer/.test(String(closenessFromRssi(-50))), false);
+  });
+
+  it("runs the Bluetooth radio only while the mode is on and the app is open", () => {
+    assert.equal(proximityRadioShouldRun(true, "active"), true);
+    assert.equal(proximityRadioShouldRun(true, "background"), false);
+    assert.equal(proximityRadioShouldRun(true, "inactive"), false);
+    assert.equal(proximityRadioShouldRun(false, "active"), false);
   });
 });

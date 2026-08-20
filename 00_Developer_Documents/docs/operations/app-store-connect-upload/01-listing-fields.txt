@@ -1,0 +1,11 @@
+Name: Getfkd
+Subtitle: Adult dating
+Bundle ID: app.getfkd.ios
+SKU: getfkd-ios
+Primary category: Lifestyle
+Secondary category: (none, or Social Networking if the form requires one)
+Copyright: 2026 Peter Franco
+In-app name: Get fk'd
+Version: 0.1.0
+Build: 12
+Whats New: Adults-only dating. Swipe, match, and talk. Block and report stay free.

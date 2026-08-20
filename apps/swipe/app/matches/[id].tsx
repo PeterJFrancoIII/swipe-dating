@@ -12,6 +12,8 @@ import { ApiError, api } from "@/lib/api";
 import { displayDistance } from "@/lib/distance";
 import { useLiveChat } from "@/lib/chatLive";
 import { formatRemaining, isExpired, statusLabel } from "@/lib/matchTime";
+import { mergeSafetyReportOptions } from "@/lib/reportOptions";
+import { ugcRejection } from "@/lib/ugcFilter";
 import type { ChatState } from "@/lib/types";
 import { theme } from "@/lib/theme";
 
@@ -38,7 +40,7 @@ export default function ChatScreen() {
   const [menu, setMenu] = useState(false);
   const [meetup, setMeetup] = useState(false);
   const [sheet, setSheet] = useState(false);
-  const [reason, setReason] = useState("scam");
+  const [reason, setReason] = useState("under_18");
   const [note, setNote] = useState("");
 
   const [peerTyping, setPeerTyping] = useState(false);
@@ -162,6 +164,10 @@ export default function ChatScreen() {
       {menu ? (
         <View style={styles.menu}>
           <Text style={styles.menuTitle}>Conversation options</Text>
+          <Text style={styles.meetupHelp}>
+            Appears under 18 and Non-consensual intimate images are at the top. For those reasons also email
+            peterjfrancoiii@icloud.com with URGENT in the subject.
+          </Text>
           <ActionBang href={surfaceHref("chat", "unmatch")} label="Unmatch">
             <Pressable onPress={() => void run(() => api.unmatch(matchId))}>
               <Text style={styles.menuAction}>Unmatch</Text>
@@ -172,7 +178,7 @@ export default function ChatScreen() {
               <Text style={[styles.menuAction, styles.dangerText]}>Block</Text>
             </Pressable>
           </ActionBang>
-          {chat.report_options.map((option) => (
+          {mergeSafetyReportOptions(chat.report_options).map((option) => (
             <Pressable key={option.id} onPress={() => setReason(option.id)}>
               <Text style={styles.reason}>
                 {reason === option.id ? "● " : "○ "}
@@ -245,7 +251,10 @@ export default function ChatScreen() {
         <View style={styles.meetupSheet}>
           <Text style={styles.eyebrow}>MEET OFFLINE</Text>
           <Text style={styles.meetupTitle}>Keep the first plan simple.</Text>
-          <Text style={styles.meetupHelp}>No location is shared by choosing an idea.</Text>
+          <Text style={styles.meetupHelp}>
+            No location is shared by choosing an idea. Meet in public. Tell a friend. You can block or leave at any
+            time.
+          </Text>
           {chat.meetup_suggestions.map((item) => (
             <ActionBang key={item.id} href={surfaceHref("chat", "meetup", item.id)} label={item.title}>
               <Pressable onPress={() => void run(() => api.meetup(matchId, item.id))} style={styles.meetupOption}>
@@ -293,6 +302,11 @@ export default function ChatScreen() {
               onPress={() => {
                 const body = text.trim();
                 if (!body) {
+                  return;
+                }
+                const blocked = ugcRejection(body);
+                if (blocked) {
+                  setFlash({ error: blocked });
                   return;
                 }
                 setText("");

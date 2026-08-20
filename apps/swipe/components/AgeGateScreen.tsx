@@ -10,10 +10,13 @@ import {
 } from "react-native";
 
 import { GetFkdLogo } from "@/components/GetFkdLogo";
+import { LegalLinks } from "@/components/LegalLinks";
 import { ActionBang, SurfaceBang } from "@/components/ReportBugButton";
 import { Screen, Toast } from "@/components/Screen";
 import { surfaceHref } from "@/lib/surfaces";
+import { appleAgeFailureCopy, type AppleAgeFailureReason } from "@/lib/appleAgeResult";
 import { useSession } from "@/lib/session";
+import { isInternalDogfoodBuild } from "@/lib/storeBuild";
 import { theme } from "@/lib/theme";
 
 const ROW = 48;
@@ -83,7 +86,9 @@ export function AgeGateScreen() {
   const [month, setMonth] = useState("01");
   const [day, setDay] = useState("01");
   const [year, setYear] = useState(defaultYear);
-  const allowBirthday = __DEV__;
+  const [closedReason, setClosedReason] = useState<AppleAgeFailureReason | null>(null);
+  const allowBirthday = isInternalDogfoodBuild();
+  const closed = closedReason ? appleAgeFailureCopy(closedReason) : null;
 
   useEffect(() => {
     setYear(defaultYear);
@@ -93,15 +98,11 @@ export function AgeGateScreen() {
     const { requestAdultAgeRange } = await import("@/lib/appleAge");
     const result = await requestAdultAgeRange();
     if (!result.ok) {
-      const message =
-        result.reason === "adult_only"
-          ? "You must be at least 18 years old to continue."
-          : result.reason === "apple_age_declined"
-            ? "Age sharing was declined. Get fk'd cannot open without an 18+ Apple age range."
-            : "Apple age range is unavailable on this device. Get fk'd fails closed.";
-      setError(message);
+      setClosedReason(result.reason);
+      setError(null);
       return;
     }
+    setClosedReason(null);
     await acceptAdult({ assurance: "declared_age_range", lower_bound: result.lowerBound });
   }
 
@@ -118,7 +119,7 @@ export function AgeGateScreen() {
           <Text style={styles.lede}>
             {allowBirthday
               ? "Development build: enter your birth date. Store and preview builds use Apple Declared Age Range and fail closed if 18+ cannot be established."
-              : "Share an 18+ age range from Apple. Eligibility fails closed if you decline or Apple cannot confirm you are an adult. There is no parental-consent bypass."}
+              : "Share an 18+ age range from Apple. If this device cannot share that range, Get fk'd stays closed on purpose. That is the age check, not a crash. There is no parental-consent bypass."}
           </Text>
           <View style={styles.boundaries}>
             {["Adults 18+", "No exact location", "Block and report stay free"].map((item) => (
@@ -130,8 +131,11 @@ export function AgeGateScreen() {
         </View>
         <View style={styles.card}>
           <Text style={styles.step}>AGE CHECK</Text>
-          <Text style={styles.cardTitle}>{allowBirthday ? "Enter your birth date" : "Confirm you are 18+"}</Text>
-          {allowBirthday ? <Text style={styles.help}>Roll month, day, and year. The order is MM-DD-YYYY.</Text> : null}
+          <Text style={styles.cardTitle}>
+            {closed ? closed.title : allowBirthday ? "Enter your birth date" : "Confirm you are 18+"}
+          </Text>
+          {closed ? <Text style={styles.help}>{closed.body}</Text> : null}
+          {allowBirthday && !closed ? <Text style={styles.help}>Roll month, day, and year. The order is MM-DD-YYYY.</Text> : null}
           <Toast error={error} />
           {allowBirthday ? (
             <View style={styles.wheels}>
@@ -152,16 +156,18 @@ export function AgeGateScreen() {
                 <Text style={styles.buttonLabel}>Enter Get fk'd</Text>
               </Pressable>
             </ActionBang>
-          ) : (
-            <ActionBang href={surfaceHref("age-gate", "apple-age")} label="Continue with Apple age">
+          ) : closed?.retry === false ? null : (
+            <ActionBang href={surfaceHref("age-gate", "apple-age")} label={closed ? "Try again" : "Continue with Apple age"}>
               <Pressable accessibilityRole="button" onPress={() => void continueWithApple()} style={styles.button}>
-                <Text style={styles.buttonLabel}>Continue with Apple age</Text>
+                <Text style={styles.buttonLabel}>{closed ? "Try again" : "Continue with Apple age"}</Text>
               </Pressable>
             </ActionBang>
           )}
           <Text style={styles.fine}>
-            There is no parental-consent bypass. Eligibility fails closed when adult age cannot be established.
+            There is no parental-consent bypass. Eligibility fails closed when adult age cannot be established. That is
+            the age check, not a crash.
           </Text>
+          <LegalLinks preface="Read these before you continue. Contact is on Support." />
         </View>
       </View>
     </Screen>

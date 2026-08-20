@@ -24,6 +24,8 @@ import { ApiError, api } from "@/lib/api";
 import { useCommitSave } from "@/lib/autosave";
 import { signupErrorMessage } from "@/lib/signupErrors";
 import { LEGAL_DOCS } from "@/lib/legalDocs";
+import { ugcRejection } from "@/lib/ugcFilter";
+import { confirmPhotoPolicy } from "@/lib/photoConsentPrompt";
 import { assertIdentifiablePicks, preparePhotoUploads, profilePhotoPickerOptions } from "@/lib/photoUpload";
 import { quizProgressLabel } from "@/lib/alignment";
 import { emptyCatalogs, useSession } from "@/lib/session";
@@ -79,6 +81,10 @@ export default function ProfileScreen() {
     () => profileRef.current,
     async (next) => {
       try {
+        const blocked = ugcRejection(next.display_name) ?? ugcRejection(next.about);
+        if (blocked) {
+          throw new Error(blocked);
+        }
         const payload = (await api.saveProfile(next)) as ProfilePayload;
         profileRef.current = payload.profile;
         setData(payload);
@@ -127,6 +133,9 @@ export default function ProfileScreen() {
   );
 
   async function pickPhotos(remaining: number) {
+    if (!(await confirmPhotoPolicy())) {
+      return;
+    }
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permission.granted) {
       setFlash({ error: "Photo library access is needed to add photos." });
@@ -396,7 +405,16 @@ export default function ProfileScreen() {
             <View style={styles.box}>
               <Text style={styles.boxTitle}>Boost and Superlike</Text>
               <Text style={styles.help}>
-                {data.boosts} Boosts · {data.superlikes} Superlikes. This version does not sell Boosts, Superlikes, or any other digital item.
+                {data.boosts} granted Boosts · {data.superlikes} granted Superlikes. This version does not sell Boosts,
+                Superlikes, or any other digital item. There is no purchase button.
+              </Text>
+            </View>
+            <View style={styles.box}>
+              <Text style={styles.boxTitle}>Safety</Text>
+              <Text style={styles.help}>
+                Block and report stay free on every card and chat. Use Appears under 18 or Non-consensual intimate
+                images for urgent cases. Meet in public. Tell a friend. Questions: Support. For under-18 or NCII,
+                email peterjfrancoiii@icloud.com with URGENT in the subject.
               </Text>
             </View>
             <View style={styles.box}>
@@ -446,7 +464,10 @@ export default function ProfileScreen() {
               <ActionBang href={surfaceHref("profile", "delete")} label="Delete account">
                 <Pressable
                   onPress={() => {
-                    Alert.alert("Delete account?", "This wipes your session on this device and on the server.", [
+                    Alert.alert(
+                      "Delete account?",
+                      "This permanently deletes your Get fk'd account and the data we hold for it on this device and the server. You can create a new account later with Sign in with Apple.",
+                      [
                       { text: "Cancel", style: "cancel" },
                       {
                         text: "Delete",

@@ -9,7 +9,13 @@ describe("Get Fk'd mode copy", () => {
     assert.match(GETFKD_ENTER_BODY, /both/i);
     assert.match(GETFKD_ENTER_BODY, /1 mile/i);
     assert.match(GETFKD_ENTER_BODY, /Bluetooth/i);
+    assert.match(GETFKD_ENTER_BODY, /does not carry your name/i);
+    assert.match(GETFKD_ENTER_BODY, /while this app is open/i);
     assert.match(GETFKD_ENTER_BODY, /exact distance/i);
+    assert.match(GETFKD_ENTER_BODY, /requested only after you confirm/i);
+    assert.match(GETFKD_ENTER_BODY, /no lock-screen or background cues/i);
+    assert.match(GETFKD_ENTER_BODY, /^Optional\./);
+    assert.match(GETFKD_ENTER_BODY, /work with this off/i);
     assert.match(GETFKD_EXIT_BODY, /numbers/i);
   });
 

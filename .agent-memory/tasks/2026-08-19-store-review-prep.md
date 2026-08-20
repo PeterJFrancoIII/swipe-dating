@@ -55,6 +55,19 @@ GET /api/health → 200
 
 Did not run eas submit. Did not click Submit for Review.
 
+## Remaining for a full review packet (human)
+
+Binary work for IPA 8 is done. Full review still needs:
+
+1. You `eas submit --platform ios --id c6bdb507-5122-4aa0-bdd9-02c9bd9c4afd` and click Submit for Review.
+2. 6.7" screenshots (1290×2796): Age gate, Swipe, Matches, chat, Profile.
+3. App Store Connect listing paste from `docs/operations/app-store-connect-listing.md` (updated 2026-08-19; do not paste the old “draft / not in force” sentence).
+4. Privacy nutrition + 17+ questionnaire from that same doc.
+5. Device walkthrough on iOS 26+ (Declared Age Range).
+6. Optional next IPA (owner must authorize): hide Get Fk'd BLE on store — release gates still say it is unavailable to real users.
+
+`approvals/` stays empty. Do not merge PR 11.
+
 ## Forbidden
 
 - `eas submit` / App Store Connect Submit
