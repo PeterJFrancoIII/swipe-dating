@@ -76,24 +76,21 @@ Version 0.1.0 does not sell anything in-app yet. This is an operator promise, no
 Primary URL for every form: `https://getfkd.sentineldefensetechnologies.co.za/app`  
 Also paste the future App Store URL. Do not mark the product “live on the App Store” until that URL resolves.
 
-| Site | Submit | Status 2026-08-20 ~19:05 ET |
+| Site | Submit | Status 2026-08-20 ~19:30 ET |
 |---|---|---|
-| Canonical listing | https://getfkd.sentineldefensetechnologies.co.za/app | **Live.** Photos + full copy + App Store link + contributor offer. NAS deploy after listing-page add. |
-| GitHub repo | https://github.com/PeterJFrancoIII/swipe-dating | **Updated.** Homepage → `/app`. Description includes 18+, Get Fk'd, in-development, lifetime helpers. Topics: dating, ios, expo, react-native, getfkd. |
-| Launching Next | https://www.launchingnext.com/submit/ | **Submitted.** Receipt `https://www.launchingnext.com/thanks/?i=145881` (“Submission Received”). Did **not** pay the $99 expedite. |
-| Uneed | https://www.uneed.best/submit-a-tool | Preview filled (Getfkd + `/app`). **Owner must create/save an account** to publish. |
-| Fazier | https://fazier.com/submit | Blocked on Google/email login. Free plan also wants a homepage/footer badge. |
-| Tiny Startups | https://www.tinystartups.com/submit | Needs owner login. |
-| Product Hunt | https://www.producthunt.com/posts/new | Needs owner login. Launch after Apple publishes if you want a store-live day. |
-| BetaList | https://betalist.com/submit | Needs owner login / may be paid. |
-| AlternativeTo | (add-software URL 404) | Needs owner login; old `/software/new/` is gone. |
-| Indie Hackers | https://www.indiehackers.com/products/new | Needs owner login. |
-| Microlaunch | https://microlaunch.net/ | Needs owner login. |
-| Peerlist Launchpad | https://peerlist.io/ | Needs owner login. |
-| Startup Stash | https://startupstash.com/add-listing/ | Email asaf@startupstash.com — owner sends, do not spoof. |
-| KillerStartups | https://killerstartups.com/submit-startup/ | Newsletter/captcha embed, not a product listing. Skipped. |
-| AllStartups.info | https://www.allstartups.info/Startups/Submit | TLS cert expired. Skipped. |
-| Hacker News Show HN | https://news.ycombinator.com/submit | Owner posts as self. |
-| App Store scrape sites | AppAdvice / AppShopper / Sensor Tower | Wait until `id6803669203` stops 404ing. |
+| Canonical listing | https://getfkd.sentineldefensetechnologies.co.za/app | **Live.** Photos + full copy + App Store link + contributor offer. |
+| GitHub repo | https://github.com/PeterJFrancoIII/swipe-dating | **Updated.** Homepage → `/app`. |
+| Launching Next | https://www.launchingnext.com/thanks/?i=145881 | **Submitted.** Did not pay $99 expedite. |
+| Hacker News Show HN | https://news.ycombinator.com/item?id=49381635 | **Posted** as Viper117. Title: Show HN: Getfkd – adults-only dating (swipe, match, meet tonight). URL is `/app`. |
+| Uneed | https://www.uneed.best/edit/waiting-line/48268 | **Draft in waiting line** (product Getfkd, signed in as PeterJFrancoIII). Logo upload attempted; schedule a free launch when the checklist is green. Do not buy “100+ directories.” |
+| BetaList | https://betalist.com/submissions/183589 | **Draft ready.** Copy + topics (Dating, etc.) + images saved. Publish is paid-only ($39 Lite / $99 / $299). Did not pay. |
+| Product Hunt | https://www.producthunt.com/posts/new/submission | **Draft in progress** named Getfkd Dating. Tagline/description/App Store link filled. Still needs a selected launch tag before Images. |
+| Tiny Startups | https://www.tinystartups.com/submit | Form filled (Social, US, screenshots uploaded). Free submit blocked on **email verification**. Did not buy upgrades. |
+| Indie Hackers | https://www.indiehackers.com/products/new | Name/tagline/URL/logo filled. Submit click did not leave the form. Needs one more owner click on SUBMIT PRODUCT. |
+| Fazier | https://fazier.com/submit | Still signed out in Safari. Free plan wants a homepage/footer badge. |
+| AlternativeTo | (add-software URL 404) | Old `/software/new/` is gone. |
+| Microlaunch / Peerlist | — | Not opened this pass. |
+| Startup Stash | https://startupstash.com/add-listing/ | Email asaf@startupstash.com — owner sends. |
+| App Store scrape sites | AppAdvice / AppShopper | Wait until `id6803669203` stops 404ing. |
 
 Do not buy paid “submit to 250 directories” spam services. Do not create fake accounts. Do not claim store-live or counsel sign-off.

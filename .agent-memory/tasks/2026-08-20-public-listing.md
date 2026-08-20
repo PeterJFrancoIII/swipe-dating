@@ -56,6 +56,16 @@ gh repo edit … homepage=/app
 # Launching Next
 POST https://www.launchingnext.com/submit/ → 302 Location: /thanks/?i=145881
 # title: Submission Received | Launching Next
+
+# Safari session 2026-08-20 ~19:30 ET (owner signed in)
+# HN: https://news.ycombinator.com/item?id=49381635 posted as Viper117
+# Uneed: https://www.uneed.best/edit/waiting-line/48268 draft Getfkd
+# BetaList: https://betalist.com/submissions/183589 draft ready; publish is paid $39+
+# Product Hunt: posts/new/submission draft Getfkd Dating; launch tag still required
+# Tiny Startups: form filled; free submit blocked on email verify
+# Indie Hackers: fields+logo filled; submit click did not navigate
+# Fazier: still signed out
+# No paid upgrades purchased
 ```
 
 ## Files (this repo)
