@@ -77,7 +77,8 @@ POST https://www.launchingnext.com/submit/ → 302 Location: /thanks/?i=145881
 #   https://www.producthunt.com/products/getfkd-dating?launch=getfkd-dating
 #   dashboard TIME UNTIL LAUNCH ~7h from 20:00 ET
 # Fazier live https://fazier.com/launches/getfkd-dating HTTP 200
-# Tiny: Resend verification link clicked; submit still blocked
+# Tiny: ABANDONED 2026-08-20 20:05 ET — owner said verification link is broken; do not retry
+#   /api/me still emailVerified:false for PeterJFrancoIII@gmail.com
 # Startup Stash: form send error
 # No paid upgrades purchased
 ```

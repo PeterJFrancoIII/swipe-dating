@@ -87,7 +87,7 @@ Also paste the future App Store URL. Do not mark the product “live on the App 
 | Uneed | https://www.uneed.best/edit/waiting-line/48268 | **Draft in waiting line** as PeterJFrancoIII. Fast-track opened a $14.99 checkout — **left unpaid** and returned to the draft. Do not buy “100+ directories.” |
 | BetaList | https://betalist.com/submissions/183589 | **Draft ready.** Publish is paid-only ($39 Lite / $99 / $299). Did not pay. |
 | Product Hunt | https://www.producthunt.com/products/getfkd-dating?launch=getfkd-dating | **Scheduled.** Goes live **Fri Aug 21, 2026 at 12:00 AM PT**. Pre-launch dashboard: `/products/getfkd-dating/getfkd-dating/prelaunch`. Edit: `/posts/getfkd-dating/edit`. |
-| Tiny Startups | https://www.tinystartups.com/submit | Form filled. **Resend verification** clicked on `/profile/edit`. Free submit still blocked until the owner opens the new email. Did not buy upgrades. |
+| Tiny Startups | https://www.tinystartups.com/submit | **Abandoned.** Owner 2026-08-20 20:05 ET: verification link is broken. Do not retry. Signed-in account still `emailVerified: false` on `/api/me` (`PeterJFrancoIII@gmail.com`). Did not pay. |
 | Fazier | https://fazier.com/launches/getfkd-dating | **Live (HTTP 200).** Official launched badge added to `/app` and verified. 3 comments posted. Scheduled free launch; skipped $39/$49/$79 upsells. |
 | Startup Stash | https://startupstash.com/add-listing/ | Email filled. Contact form returned **send error** (stale recaptcha / newsletter-only field). Owner can retry captcha or email hello@startupstash.com. |
 | AlternativeTo | `/software/new/` 404 | Still no add-software URL. Sign-in required to suggest apps. |
