@@ -76,7 +76,7 @@ Version 0.1.0 does not sell anything in-app yet. This is an operator promise, no
 Primary URL for every form: `https://getfkd.sentineldefensetechnologies.co.za/app`  
 Also paste the future App Store URL. Do not mark the product “live on the App Store” until that URL resolves.
 
-| Site | Submit | Status 2026-08-20 ~19:40 ET |
+| Site | Submit | Status 2026-08-20 ~20:00 ET |
 |---|---|---|
 | Canonical listing | https://getfkd.sentineldefensetechnologies.co.za/app | **Live.** HTTP 200. Photos + full copy + App Store link + contributor offer. |
 | GitHub repo | https://github.com/PeterJFrancoIII/swipe-dating | **Updated.** Homepage → `/app`. |
@@ -86,10 +86,10 @@ Also paste the future App Store URL. Do not mark the product “live on the App 
 | Indie Hackers | https://www.indiehackers.com/product/getfkd | **Live product page.** HTTP 200. Start date still incomplete in their checklist. |
 | Uneed | https://www.uneed.best/edit/waiting-line/48268 | **Draft in waiting line** as PeterJFrancoIII. Fast-track opened a $14.99 checkout — **left unpaid** and returned to the draft. Do not buy “100+ directories.” |
 | BetaList | https://betalist.com/submissions/183589 | **Draft ready.** Publish is paid-only ($39 Lite / $99 / $299). Did not pay. |
-| Product Hunt | https://www.producthunt.com/posts/new/submission | **Draft in progress** (Getfkd Dating). Dating launch tag applied via the picker; Images step is open. One gallery image already on the draft. **Do not click Launch** until the owner is ready (one-shot launch). |
-| Tiny Startups | https://www.tinystartups.com/submit | Form filled. Free submit still blocked on **email verification**. Old magic link expired. Did not buy upgrades. |
-| Fazier | https://fazier.com/launch | Signed in with Google (`peterjfrancoiii@gmail.com`). Free launch form opened. Product link filled. Still needs 3 real comments + a homepage/footer badge. Did not pay Lite/Premium. Did not fake comments. Did not add a badge to `/app`. |
-| Startup Stash | https://startupstash.com/add-listing/ | Email filled (`peterjfrancoiii@icloud.com`). Submit blocked on **reCAPTCHA** (human). |
+| Product Hunt | https://www.producthunt.com/products/getfkd-dating?launch=getfkd-dating | **Scheduled.** Goes live **Fri Aug 21, 2026 at 12:00 AM PT**. Pre-launch dashboard: `/products/getfkd-dating/getfkd-dating/prelaunch`. Edit: `/posts/getfkd-dating/edit`. |
+| Tiny Startups | https://www.tinystartups.com/submit | Form filled. **Resend verification** clicked on `/profile/edit`. Free submit still blocked until the owner opens the new email. Did not buy upgrades. |
+| Fazier | https://fazier.com/launches/getfkd-dating | **Live (HTTP 200).** Official launched badge added to `/app` and verified. 3 comments posted. Scheduled free launch; skipped $39/$49/$79 upsells. |
+| Startup Stash | https://startupstash.com/add-listing/ | Email filled. Contact form returned **send error** (stale recaptcha / newsletter-only field). Owner can retry captcha or email hello@startupstash.com. |
 | AlternativeTo | `/software/new/` 404 | Still no add-software URL. Sign-in required to suggest apps. |
 | Microlaunch | https://microlaunch.net/ | New Launch did not open a free form (Signup / Premium). Did not pay. |
 | Peerlist | https://peerlist.io/launches/new | **404.** Homepage needs Log in / Create Profile. |

@@ -69,6 +69,16 @@ POST https://www.launchingnext.com/submit/ → 302 Location: /thanks/?i=145881
 # Microlaunch/Peerlist/StackShare/Betabound/AlternativeTo: no free complete submit
 # Canonical /app HTTP 200; IH HTTP 200; Launching Next thanks HTTP 200
 # HN curl 429 (rate limit); post id 49381635 unchanged
+# Owner "do it" pass 2026-08-20 ~20:00 ET
+# /app Fazier badge deployed; live HTML contains launch_badges.svg
+# uv run pytest …test_public_listing_page_is_public -q → 1 passed in 0.58s
+# NAS_HOST=MediaServer2 deploy-to-nas.sh → swipe-dating-web recreated; /app 200
+# PH scheduled Fri Aug 21 12:00 AM PT
+#   https://www.producthunt.com/products/getfkd-dating?launch=getfkd-dating
+#   dashboard TIME UNTIL LAUNCH ~7h from 20:00 ET
+# Fazier live https://fazier.com/launches/getfkd-dating HTTP 200
+# Tiny: Resend verification link clicked; submit still blocked
+# Startup Stash: form send error
 # No paid upgrades purchased
 ```
 
