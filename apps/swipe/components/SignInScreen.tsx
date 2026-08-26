@@ -1,6 +1,7 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { GetFkdLogo } from "@/components/GetFkdLogo";
+import { LegalLinks } from "@/components/LegalLinks";
 import { ActionBang, SurfaceBang } from "@/components/ReportBugButton";
 import { Screen, Toast } from "@/components/Screen";
 import { surfaceHref } from "@/lib/surfaces";
@@ -70,8 +71,9 @@ export function SignInScreen() {
             </Pressable>
           </ActionBang>
           <Text style={styles.fine}>
-            Swipe opens after Sign in with Apple. There is no email or password.
+            Swipe opens after Sign in with Apple. There is no email or password. Delete account is in Profile.
           </Text>
+          <LegalLinks preface="Privacy, terms, community rules, and support are public before you create the account." />
         </View>
       </View>
     </Screen>

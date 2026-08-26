@@ -1,5 +1,6 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback, useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { useFocusEffect, useRouter } from "expo-router";
 
 import { DatingCard, ProfileSheet } from "@/components/DatingCard";
@@ -13,8 +14,14 @@ import { ApiError, api } from "@/lib/api";
 import { displayDistance } from "@/lib/distance";
 import { loadDiscoverPack, prefetchCandidatePhotos } from "@/lib/hotDeck";
 import { syncLooseLocation } from "@/lib/location";
+import {
+  LOCATION_CONSENT_BODY,
+  LOCATION_CONSENT_TITLE,
+  LOCATION_EXPLAINED_KEY,
+  locationConsentShouldPrompt,
+} from "@/lib/locationConsent";
 import { useSession } from "@/lib/session";
-import { deckActionsLocked, swipeReachLabel } from "@/lib/swipeQuota";
+import { deckActionsLocked, grantedBoostCaption, grantedInventoryAvailable, swipeReachLabel } from "@/lib/swipeQuota";
 import type { DiscoverState, MatchedWith } from "@/lib/types";
 import { theme } from "@/lib/theme";
 
@@ -25,23 +32,40 @@ export default function SwipeScreen() {
   const [photo, setPhoto] = useState(0);
   const [sheet, setSheet] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
-  const [reason, setReason] = useState(reportOptions[0]?.id ?? "scam");
+  const [reason, setReason] = useState(reportOptions[0]?.id ?? "under_18");
   const [note, setNote] = useState("");
   const [flash, setFlash] = useState<{ error?: string | null; notice?: string | null }>({});
   const [matchMoment, setMatchMoment] = useState<MatchedWith | null>(null);
+  const [loadFailed, setLoadFailed] = useState(false);
 
   const load = useCallback(async (index = 0) => {
     const next = await loadDiscoverPack(index);
     setState(next);
     setPhoto(next.candidate?.photo_index ?? 0);
+    setLoadFailed(false);
   }, []);
 
   useFocusEffect(
     useCallback(() => {
       void (async () => {
+        const stored = await AsyncStorage.getItem(LOCATION_EXPLAINED_KEY);
+        if (locationConsentShouldPrompt(stored)) {
+          const allowed = await new Promise<boolean>((resolve) => {
+            Alert.alert(LOCATION_CONSENT_TITLE, LOCATION_CONSENT_BODY, [
+              { text: "Not now", style: "cancel", onPress: () => resolve(false) },
+              { text: "Continue", onPress: () => resolve(true) },
+            ]);
+          });
+          if (!allowed) {
+            await load(0);
+            return;
+          }
+          await AsyncStorage.setItem(LOCATION_EXPLAINED_KEY, "1");
+        }
         await syncLooseLocation();
         await load(0);
       })().catch((cause) => {
+        setLoadFailed(true);
         setFlash({ error: cause instanceof ApiError ? cause.message : "Discover failed." });
       });
     }, [load]),
@@ -79,6 +103,8 @@ export default function SwipeScreen() {
   const candidate = state?.candidate ?? null;
   const reach = state?.reach;
   const outOfSwipes = deckActionsLocked(reach?.swipes_remaining, candidate);
+  const hasGrantedBoost = !reach?.boost_active && grantedInventoryAvailable(reach?.boosts);
+  const superlikeLocked = outOfSwipes || !grantedInventoryAvailable(reach?.superlikes);
 
   return (
     <Screen padded={false} footer={false}>
@@ -88,19 +114,21 @@ export default function SwipeScreen() {
         <View style={styles.reach}>
           {reach?.boost_active ? (
             <Text numberOfLines={1} style={styles.reachText}>
-              Boost on · {Math.floor((reach.boost_remaining_ms || 0) / 60000)} min left
+              Granted Boost on · {Math.floor((reach.boost_remaining_ms || 0) / 60000)} min left
             </Text>
           ) : (
             <>
               <Text numberOfLines={1} style={styles.reachText}>
-                {swipeReachLabel(reach?.swipes_remaining, outOfSwipes)}{" "}
-                · {reach?.boosts ?? 0} Boost{(reach?.boosts ?? 0) === 1 ? "" : "s"}
+                {swipeReachLabel(reach?.swipes_remaining, outOfSwipes)}
+                {grantedBoostCaption(reach?.boosts)}
               </Text>
-              <ActionBang href={surfaceHref("swipe", "boost")} label="Boost">
-                <Pressable onPress={() => void run(() => api.boost())} style={styles.secondary}>
-                  <Text style={styles.secondaryLabel}>Boost</Text>
-                </Pressable>
-              </ActionBang>
+              {hasGrantedBoost ? (
+                <ActionBang href={surfaceHref("swipe", "boost")} label="Use granted Boost">
+                  <Pressable onPress={() => void run(() => api.boost())} style={styles.secondary}>
+                    <Text style={styles.secondaryLabel}>Use granted Boost</Text>
+                  </Pressable>
+                </ActionBang>
+              ) : null}
             </>
           )}
         </View>
@@ -134,9 +162,9 @@ export default function SwipeScreen() {
                   <ActionBang href={surfaceHref("swipe", "deck", "superlike")} label="Superlike">
                     <Pressable
                       accessibilityLabel={`Superlike ${candidate.display_name}`}
-                      disabled={outOfSwipes}
+                      disabled={superlikeLocked}
                       onPress={() => void run(() => api.superlike(candidate.id))}
-                      style={[styles.superlike, outOfSwipes && styles.deckDisabled]}
+                      style={[styles.superlike, superlikeLocked && styles.deckDisabled]}
                     >
                       <Text style={styles.superMark}>★</Text>
                     </Pressable>
@@ -169,7 +197,9 @@ export default function SwipeScreen() {
                     </ActionBang>
                   </View>
                   <Text style={styles.reportHelp}>
-                    Block, report, or both. Blocked people disappear from Discovery. They are not told.
+                    Block, report, or both. Blocked people disappear from Discovery. They are not told. Appears under
+                    18 and Non-consensual intimate images are at the top. For those reasons also email
+                    peterjfrancoiii@icloud.com with URGENT in the subject.
                   </Text>
                   {reportOptions.map((option) => (
                     <ActionBang key={option.id} href={surfaceHref("swipe", "report", option.id)} label={option.label}>
@@ -241,13 +271,33 @@ export default function SwipeScreen() {
             <View style={styles.emptyIcon}>
               <Text style={styles.emptyHeart}>♡</Text>
             </View>
-            <Text style={styles.emptyTitle}>Nobody new right now.</Text>
-            <Text style={styles.emptyCopy}>Check back when someone else joins, or widen Settings.</Text>
-            <ActionBang href={surfaceHref("swipe", "empty", "settings")} label="Adjust settings">
-              <Pressable onPress={() => router.push("/filters")} style={styles.secondary}>
-                <Text style={styles.secondaryLabel}>Adjust settings</Text>
-              </Pressable>
-            </ActionBang>
+            <Text style={styles.emptyTitle}>{loadFailed ? "Discovery is temporarily unavailable." : "Nobody new right now."}</Text>
+            <Text style={styles.emptyCopy}>
+              {loadFailed
+                ? "This is a retryable connection issue, not an unfinished screen. Try again in a moment."
+                : "Check back when someone else joins, or widen Settings."}
+            </Text>
+            {loadFailed ? (
+              <ActionBang href={surfaceHref("swipe", "empty", "retry")} label="Try discovery again">
+                <Pressable
+                  onPress={() => {
+                    void load(0).catch((cause) => {
+                      setLoadFailed(true);
+                      setFlash({ error: cause instanceof ApiError ? cause.message : "Discover failed." });
+                    });
+                  }}
+                  style={styles.secondary}
+                >
+                  <Text style={styles.secondaryLabel}>Try again</Text>
+                </Pressable>
+              </ActionBang>
+            ) : (
+              <ActionBang href={surfaceHref("swipe", "empty", "settings")} label="Adjust settings">
+                <Pressable onPress={() => router.push("/filters")} style={styles.secondary}>
+                  <Text style={styles.secondaryLabel}>Adjust settings</Text>
+                </Pressable>
+              </ActionBang>
+            )}
           </View>
         )}
       </View>

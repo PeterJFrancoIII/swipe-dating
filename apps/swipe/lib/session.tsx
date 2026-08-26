@@ -5,6 +5,7 @@ import { ApiError, api, setToken } from "@/lib/api";
 import { GETFKD_DEFAULT_MILES } from "@/lib/getfkdProximity";
 import { SESSION_TOKEN_KEY } from "@/lib/config";
 import { loadInstallId } from "@/lib/installId";
+import { mergeSafetyReportOptions } from "@/lib/reportOptions";
 import { isSessionRequired, signupErrorMessage } from "@/lib/signupErrors";
 import type { AuthState, Bootstrap, Catalogs } from "@/lib/types";
 
@@ -101,7 +102,9 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const [birthMonths, setBirthMonths] = useState<string[]>([]);
   const [birthDays, setBirthDays] = useState<string[]>([]);
   const [birthYears, setBirthYears] = useState<string[]>([]);
-  const [reportOptions, setReportOptions] = useState<{ id: string; label: string }[]>([]);
+  const [reportOptions, setReportOptions] = useState<{ id: string; label: string }[]>(
+    mergeSafetyReportOptions([]),
+  );
   const [alignmentAnswered, setAlignmentAnswered] = useState(0);
   const [alignmentTotal, setAlignmentTotal] = useState(10);
   const [error, setError] = useState<string | null>(null);
@@ -136,7 +139,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     setBirthMonths(bootstrap.birth_months);
     setBirthDays(bootstrap.birth_days);
     setBirthYears(bootstrap.birth_years);
-    setReportOptions(bootstrap.report_options);
+    setReportOptions(mergeSafetyReportOptions(bootstrap.report_options));
     setAlignmentProgress(bootstrap.alignment_answered ?? 0, bootstrap.alignment_total ?? 200);
     if (bootstrap.onboarding_complete) {
       try {

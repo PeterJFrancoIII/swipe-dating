@@ -1,0 +1,26 @@
+Age Rating questionnaire — honest answers
+Expected floor: 17+. An App Store 18+ download block is not worldwide.
+
+Unrestricted Web Access: No
+Gambling and Contests: No
+Simulated Gambling: None
+Contests: None
+
+Mature/Suggestive Themes: Frequent/Intense (Yes, frequent)
+Sexual Content or Nudity: Frequent/Intense — users can upload photos; this is an adult dating app
+Profanity or Crude Humor: Frequent/Intense — Yes (the name Get fk'd)
+Horror/Fear Themes: None
+Graphic or Sadistic Content: None
+Realistic Violence: None
+Cartoon or Fantasy Violence: None
+Guns or Other Weapons: None
+Medical/Treatment Information: None
+Alcohol, Tobacco, or Drug Use or References: Infrequent/Mild — Yes, self-declared profile fields (smoking / drinking / drugs)
+Mature/Suggestive Themes in ads: N/A (no ads)
+
+In-App Controls / Parental Controls: No parental-consent path. Adults 18+ only. Fail closed.
+
+Age Assurance: Apple Declared Age Range, 18+.
+
+Made for Kids: No
+In-App Purchases: No

@@ -1,7 +1,13 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
-import { deckActionsLocked, isTestingCard, swipeReachLabel } from "./swipeQuota.ts";
+import {
+  deckActionsLocked,
+  grantedBoostCaption,
+  grantedInventoryAvailable,
+  isTestingCard,
+  swipeReachLabel,
+} from "./swipeQuota.ts";
 
 describe("swipe quota", () => {
   it("keeps labeled testing cards unlocked when remaining is 0", () => {
@@ -17,5 +23,14 @@ describe("swipe quota", () => {
     assert.equal(swipeReachLabel(0, true), "Out of free swipes today");
     assert.equal(swipeReachLabel(0, false), "0 swipes left");
     assert.equal(swipeReachLabel(1, false), "1 swipe left");
+  });
+
+  it("treats Boost and Superlike as granted inventory only", () => {
+    assert.equal(grantedInventoryAvailable(0), false);
+    assert.equal(grantedInventoryAvailable(undefined), false);
+    assert.equal(grantedInventoryAvailable(1), true);
+    assert.equal(grantedBoostCaption(0), "");
+    assert.equal(grantedBoostCaption(1), " · 1 granted Boost");
+    assert.equal(grantedBoostCaption(2), " · 2 granted Boosts");
   });
 });

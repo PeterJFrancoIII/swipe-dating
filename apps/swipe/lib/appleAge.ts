@@ -1,15 +1,12 @@
 import { NativeModules, Platform } from "react-native";
 
-export type AppleAgeResult =
-  | { ok: true; lowerBound: number }
-  | { ok: false; reason: "apple_age_unavailable" | "apple_age_declined" | "adult_only" };
+import { readAppleAgeNativeResult, type AppleAgeNativeResult, type AppleAgeResult } from "@/lib/appleAgeResult";
+
+export type { AppleAgeFailureReason, AppleAgeNativeResult, AppleAgeResult } from "@/lib/appleAgeResult";
+export { appleAgeFailureCopy, readAppleAgeNativeResult } from "@/lib/appleAgeResult";
 
 type NativeAge = {
-  requestAdultRange?: () => Promise<{
-    shared?: boolean;
-    lowerBound?: number;
-    reason?: string;
-  }>;
+  requestAdultRange?: () => Promise<AppleAgeNativeResult>;
 };
 
 function nativeModule(): NativeAge | null {
@@ -30,15 +27,7 @@ export async function requestAdultAgeRange(): Promise<AppleAgeResult> {
     return { ok: false, reason: "apple_age_unavailable" };
   }
   try {
-    const result = await native.requestAdultRange();
-    if (!result?.shared) {
-      return { ok: false, reason: "apple_age_declined" };
-    }
-    const lowerBound = Number(result.lowerBound ?? 0);
-    if (lowerBound < 18) {
-      return { ok: false, reason: "adult_only" };
-    }
-    return { ok: true, lowerBound };
+    return readAppleAgeNativeResult(await native.requestAdultRange());
   } catch {
     return { ok: false, reason: "apple_age_unavailable" };
   }

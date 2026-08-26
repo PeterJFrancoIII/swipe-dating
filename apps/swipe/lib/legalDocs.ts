@@ -27,14 +27,16 @@ What this version holds to run the service:
 • Likes, matches, limited chat, meetup plans, blocks, and reports you send
 • A reduced-accuracy GPS sample long enough to verify it and replace it with a 1-mile randomized cell; peers see only a rounded mile band
 • Coarse city/region labels you type
+• Optional Get Fk'd mode (off by default, confirm-to-enter): on-device Bluetooth advertisements that carry only a shared service identifier — not your name, photos, profile, or account id. Closeness cues from Bluetooth signal strength stay on this device and are not sent to the operator. Cues play only while the app is in the foreground.
 
 What we do not collect in this version:
 • Precise GPS shared with other users
 • Stored raw coordinates after the cell is saved
+• Bluetooth signal strength, encounter graphs, or proximity history on the server
 • Advertising identifiers for tracking
 • Payment card data (there are no in-app purchases in this version)
 
-How it is used: to show you other adults, create mutual matches, deliver messages, and handle block/report/delete. Retention is until you delete the account or the session expires. Export and delete are in Profile.
+How it is used: to show you other adults, create mutual matches, deliver messages, and handle block/report/delete. Get Fk'd Bluetooth is used only to sense another adult who also turned the mode on nearby, and only while this app is open. We filter underage, CSAM, and trafficking text before it is posted. Retention is until you delete the account or the session expires. Export and delete are in Profile. Leaving Get Fk'd mode dissolves those matches and chats.
 
 Children: no one under 18 may use Get fk'd. There is no parental-consent path. If we learn an account is under 18, it is removed.
 
@@ -62,9 +64,11 @@ Operator contact: Peter Franco, ${OPERATOR_CONTACT}.`,
 
 Consent: messaging starts after a mutual match. Stop after block, unmatch, or a clear do-not-contact. A match is not consent to sex, location, or intimate media.
 
-Prohibited: anyone under 18; CSAM; grooming; trafficking; NCII; stalking; doxxing; exact-location disclosure; coercion; bots and mass scraping.
+Prohibited: anyone under 18; CSAM; grooming; trafficking; NCII; stalking; doxxing; exact-location disclosure; coercion; bots and mass scraping. Those phrases are filtered before they are posted.
 
-Report and block stay free. One report never auto-bans. Child-safety and NCII cases escalate to the operator at ${OPERATOR_CONTACT}.`,
+Meet in public. Tell a friend. You can block or leave at any time.
+
+Report and block stay free. Report reasons include Appears under 18 and Non-consensual intimate images. One report never auto-bans. Child-safety and NCII cases escalate to the operator at ${OPERATOR_CONTACT}.`,
   },
   {
     slug: "support",

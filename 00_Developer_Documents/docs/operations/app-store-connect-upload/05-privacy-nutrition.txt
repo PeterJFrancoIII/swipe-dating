@@ -1,0 +1,54 @@
+App Privacy — Getfkd
+Do not claim tracking. Do not sell data. NSPrivacyTracking is false.
+
+Privacy Policy URL:
+https://getfkd.sentineldefensetechnologies.co.za/legal/privacy
+
+Data used to track you: No
+Data used for tracking: none
+Third-party advertising: No
+Data sold to data brokers: No
+
+COLLECT — linked to identity — used for App Functionality only:
+
+1) Name
+   - What: the display name the user types
+   - Linked: Yes
+   - Tracking: No
+   - Purpose: App Functionality
+
+2) User Content
+   - What: profile text and photos the user uploads; in-app chat (Other User Content, not Emails or Text Messages)
+   - Linked: Yes
+   - Tracking: No
+   - Purpose: App Functionality
+
+3) Identifiers — User ID
+   - What: session / account id bound to Sign in with Apple
+   - Linked: Yes
+   - Tracking: No
+   - Purpose: App Functionality
+
+4) Location — Coarse Location
+   - What: a reduced-accuracy GPS sample is turned into a 1-mile randomized cell; peers see a rounded mile band only
+   - Linked: Yes
+   - Tracking: No
+   - Purpose: App Functionality
+
+5) Sensitive Info
+   - What: optional gender, lifestyle, and looking-for fields used only to match adults
+   - Linked: Yes
+   - Tracking: No
+   - Purpose: App Functionality
+
+DO NOT DECLARE:
+- Emails or Text Messages (in-app chat is Other User Content)
+- Precise Location
+- Nearby Interactions as collected data (Get Fk'd Bluetooth RSSI stays on-device and is not uploaded)
+- Contact Info (Apple may share an email on first Sign in with Apple; it is not shown on the dating card. Only add Contact Info if you later store that email.)
+- Purchases (no IAP)
+- Advertising Data
+- Device ID / Advertising Identifier
+- Other Diagnostic Data (crash reporting is off)
+- Used for tracking
+- Sold to data brokers

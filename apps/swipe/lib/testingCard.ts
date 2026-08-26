@@ -5,7 +5,10 @@ export function testingBanner(
   options: { internal?: boolean } = {},
 ): string {
   const showMarks =
-    options.internal ?? (typeof __DEV__ !== "undefined" && __DEV__ === true);
+    options.internal ??
+    (process.env.EXPO_PUBLIC_STORE_SCREENSHOTS !== "1" &&
+      typeof __DEV__ !== "undefined" &&
+      __DEV__ === true);
   if (!showMarks) {
     return "";
   }

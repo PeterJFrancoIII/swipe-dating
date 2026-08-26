@@ -30,6 +30,8 @@ export {
 export function profilePhotoPickerOptions(remaining: number): ImagePicker.ImagePickerOptions {
   return {
     allowsMultipleSelection: true,
+    allowsEditing: false,
+    exif: false,
     mediaTypes: ["images"],
     selectionLimit: Math.max(1, remaining),
     preferredAssetRepresentationMode: ImagePicker.UIImagePickerPreferredAssetRepresentationMode.Current,
